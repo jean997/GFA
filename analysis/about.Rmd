@@ -7,4 +7,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+This is a project to develop a factor analysis approach for analyzing GWAS summary statistics. It is work by Jean Morrison, Xin He and Matthew Stephens. 
