@@ -8,5 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
+In this project I am studying the potential utility of factor analysis applied to GWAS summary statistics for understanding relationships between traits. 
 
-One of Jean's research websites.
+0. [Summaries of my first experiments](basic_flash_analysis.html)
+1. [A more careful look at ways to use EBMF](metabo_flash_experiments.html)
