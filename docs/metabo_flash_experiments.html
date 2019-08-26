@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2019-08-26" />
+
+<title>Different ways to fit the model using FLASH</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jean997/ss_factors">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Different ways to fit the model using FLASH</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2019-08-26</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-08-26
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 2
+</p>
+<p>
+<strong>Knit directory:</strong> <code>gwas_factors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Environment:</strong> objects present </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongobjectspresent" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+The global environment had objects present when the code in the R Markdown file was run. These objects can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment. Use <code>wflow_publish</code> or <code>wflow_build</code> to ensure that the code is always run in an empty environment.
+</p>
+<p>
+The following objects were defined in the global environment when these results were created:
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+environment
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+env
+</td>
+<td style="text-align:left;">
+environment
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+flash1
+</li>
+<li>
+flashier1
+</li>
+<li>
+flashier2
+</li>
+<li>
+plot_flash1
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>metabo_flash_experiments_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree44331ee32d96fda8973f1e9c1863db46997bcf2dtargetblank44331eea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/44331ee32d96fda8973f1e9c1863db46997bcf2d" target="_blank">44331ee</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree44331ee32d96fda8973f1e9c1863db46997bcf2dtargetblank44331eea" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+
+Untracked files:
+    Untracked:  data/.~lock.metabo2_gwas.csv#
+    Untracked:  data/bc_gwas_flash.RDS
+    Untracked:  data/bc_gwas_mats.RDS
+    Untracked:  data/metabo2_gwas.csv
+    Untracked:  data/metabo3_gwas_mats.RDS
+    Untracked:  data/metabo_gwas.csv
+    Untracked:  data/metabo_gwas_flash.RDS
+    Untracked:  data/metabo_gwas_mats.RDS
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/44331ee32d96fda8973f1e9c1863db46997bcf2d/analysis/metabo_flash_experiments.Rmd" target="_blank">44331ee</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+<td>
+wflow_publish(files = c(“analysis/metabo_flash_experiments.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The goal of this document is to explore different ways to estimate a low rank decomposition of summary statistics. The example I will use is a set of 31 metabolic and growth related traits.</p>
+<pre><code>Registered S3 method overwritten by &#39;flashier&#39;:
+  method      from  
+  print.flash flashr</code></pre>
+<pre><code>── Attaching packages ────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>✔ ggplot2 3.2.1     ✔ purrr   0.3.2
+✔ tibble  2.1.3     ✔ dplyr   0.8.3
+✔ tidyr   0.8.3     ✔ stringr 1.4.0
+✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
+<pre><code>── Conflicts ───────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>mats &lt;- readRDS(&quot;data/metabo3_gwas_mats.RDS&quot;)
+mats$beta_hat[is.na(mats$se_hat)] &lt;- NA
+mats$se_hat[is.na(mats$beta_hat)] &lt;- Inf</code></pre>
+<p>The data include 4410 SNPs that have a <span class="math inline">\(p\)</span>-value less than <span class="math inline">\(5 \cdot 10^{6}\)</span> for at least one trait. Variants are pruned for LD at an <span class="math inline">\(r^2\)</span> threshold of 0.1, prefering variants with the lowest minimum <span class="math inline">\(p\)</span>-value across all traits. The data have 18% missingness. We can compare different fits by 1) comparing the ELBO, 2) qualitatively comparing factors and 3) masking some of the non-missing data and estimating it.</p>
+</div>
+<div id="flash-with-var_typezero" class="section level2">
+<h2>Flash with var_type=“zero”</h2>
+<p>Using FLASH with <code>var_type=&quot;zero&quot;</code> fits the model <span class="math display">\[
+Y = LF^T + E
+\]</span> where <span class="math inline">\(Y_{ij}\)</span> is the effect estimate of variant <span class="math inline">\(i\)</span> on trait <span class="math inline">\(j\)</span> and <span class="math inline">\(E_{ij} \sim N(0, s_{ij}^2)\)</span> where <span class="math inline">\(s_{ij}\)</span> is the estimated standard error of <span class="math inline">\(Y_{ij}\)</span>. This model assumes that <span class="math inline">\(E[Y]\)</span> is exactly low rank.</p>
+<p>We will start with the default point-normal prior for both factors and loadings.</p>
+<pre class="r"><code>kmax &lt;- 30
+data &lt;- with(mats, flash_set_data(Y = beta_hat, S = se_hat))
+f  &lt;- flash_add_factors_from_data(data,K=kmax, var_type=&quot;zero&quot;) #, ebnm_fn = &quot;ebnm_ash&quot;)</code></pre>
+<pre><code>Backfitting 30 factor/loading(s) (stop when difference in obj. is &lt; 1.00e-02):</code></pre>
+<pre><code>  Iteration      Objective   Obj Diff</code></pre>
+<pre><code>          1      298431.60        Inf</code></pre>
+<pre><code>          2      305857.25   7.43e+03</code></pre>
+<pre><code>          3      309718.75   3.86e+03</code></pre>
+<pre><code>          4      311325.75   1.61e+03</code></pre>
+<pre><code>          5      312397.61   1.07e+03</code></pre>
+<pre><code>          6      313247.68   8.50e+02</code></pre>
+<pre><code>          7      313960.47   7.13e+02</code></pre>
+<pre><code>          8      314591.44   6.31e+02</code></pre>
+<pre><code>          9      315151.66   5.60e+02</code></pre>
+<pre><code>         10      315659.45   5.08e+02</code></pre>
+<pre><code>         11      316107.20   4.48e+02</code></pre>
+<pre><code>         12      316486.20   3.79e+02</code></pre>
+<pre><code>         13      316806.17   3.20e+02</code></pre>
+<pre><code>         14      317076.15   2.70e+02</code></pre>
+<pre><code>         15      317319.48   2.43e+02</code></pre>
+<pre><code>         16      317540.59   2.21e+02</code></pre>
+<pre><code>         17      317736.33   1.96e+02</code></pre>
+<pre><code>         18      317907.38   1.71e+02</code></pre>
+<pre><code>         19      318060.05   1.53e+02</code></pre>
+<pre><code>         20      318192.59   1.33e+02</code></pre>
+<pre><code>         21      318317.07   1.24e+02</code></pre>
+<pre><code>         22      318428.46   1.11e+02</code></pre>
+<pre><code>         23      318533.67   1.05e+02</code></pre>
+<pre><code>         24      318630.06   9.64e+01</code></pre>
+<pre><code>         25      318714.36   8.43e+01</code></pre>
+<pre><code>         26      318791.12   7.68e+01</code></pre>
+<pre><code>         27      318856.83   6.57e+01</code></pre>
+<pre><code>         28      318915.31   5.85e+01</code></pre>
+<pre><code>         29      318963.08   4.78e+01</code></pre>
+<pre><code>         30      318998.19   3.51e+01</code></pre>
+<pre><code>         31      319028.02   2.98e+01</code></pre>
+<pre><code>         32      319053.39   2.54e+01</code></pre>
+<pre><code>         33      319080.76   2.74e+01</code></pre>
+<pre><code>         34      319103.56   2.28e+01</code></pre>
+<pre><code>         35      319165.98   6.24e+01</code></pre>
+<pre><code>         36      319188.13   2.22e+01</code></pre>
+<pre><code>         37      319209.60   2.15e+01</code></pre>
+<pre><code>         38      319230.44   2.08e+01</code></pre>
+<pre><code>         39      319249.61   1.92e+01</code></pre>
+<pre><code>         40      319262.05   1.24e+01</code></pre>
+<pre><code>         41      319270.98   8.93e+00</code></pre>
+<pre><code>         42      319278.54   7.56e+00</code></pre>
+<pre><code>         43      319285.78   7.24e+00</code></pre>
+<pre><code>         44      319292.56   6.77e+00</code></pre>
+<pre><code>         45      319299.08   6.52e+00</code></pre>
+<pre><code>         46      319308.21   9.13e+00</code></pre>
+<pre><code>         47      319312.63   4.42e+00</code></pre>
+<pre><code>         48      319316.14   3.51e+00</code></pre>
+<pre><code>         49      319319.63   3.49e+00</code></pre>
+<pre><code>         50      319323.29   3.66e+00</code></pre>
+<pre><code>         51      319327.43   4.14e+00</code></pre>
+<pre><code>         52      319331.90   4.47e+00</code></pre>
+<pre><code>         53      319336.33   4.43e+00</code></pre>
+<pre><code>         54      319341.01   4.68e+00</code></pre>
+<pre><code>         55      319345.90   4.89e+00</code></pre>
+<pre><code>         56      319350.65   4.75e+00</code></pre>
+<pre><code>         57      319355.16   4.51e+00</code></pre>
+<pre><code>         58      319359.73   4.57e+00</code></pre>
+<pre><code>         59      319366.12   6.39e+00</code></pre>
+<pre><code>         60      319374.18   8.06e+00</code></pre>
+<pre><code>         61      319380.39   6.21e+00</code></pre>
+<pre><code>         62      319387.80   7.41e+00</code></pre>
+<pre><code>         63      319393.52   5.72e+00</code></pre>
+<pre><code>         64      319397.38   3.86e+00</code></pre>
+<pre><code>         65      319401.86   4.47e+00</code></pre>
+<pre><code>         66      319407.09   5.23e+00</code></pre>
+<pre><code>         67      319409.34   2.25e+00</code></pre>
+<pre><code>         68      319411.27   1.93e+00</code></pre>
+<pre><code>         69      319413.18   1.91e+00</code></pre>
+<pre><code>         70      319415.01   1.84e+00</code></pre>
+<pre><code>         71      319416.74   1.72e+00</code></pre>
+<pre><code>         72      319418.56   1.82e+00</code></pre>
+<pre><code>         73      319420.98   2.43e+00</code></pre>
+<pre><code>         74      319424.14   3.16e+00</code></pre>
+<pre><code>         75      319426.89   2.75e+00</code></pre>
+<pre><code>         76      319428.94   2.05e+00</code></pre>
+<pre><code>         77      319430.54   1.60e+00</code></pre>
+<pre><code>         78      319431.81   1.26e+00</code></pre>
+<pre><code>         79      319433.33   1.52e+00</code></pre>
+<pre><code>         80      319435.67   2.35e+00</code></pre>
+<pre><code>         81      319437.59   1.92e+00</code></pre>
+<pre><code>         82      319440.05   2.46e+00</code></pre>
+<pre><code>         83      319442.12   2.07e+00</code></pre>
+<pre><code>         84      319443.75   1.63e+00</code></pre>
+<pre><code>         85      319445.24   1.49e+00</code></pre>
+<pre><code>         86      319446.78   1.54e+00</code></pre>
+<pre><code>         87      319447.93   1.14e+00</code></pre>
+<pre><code>         88      319449.31   1.39e+00</code></pre>
+<pre><code>         89      319450.74   1.43e+00</code></pre>
+<pre><code>         90      319451.71   9.72e-01</code></pre>
+<pre><code>         91      319452.61   8.93e-01</code></pre>
+<pre><code>         92      319453.49   8.80e-01</code></pre>
+<pre><code>         93      319454.47   9.82e-01</code></pre>
+<pre><code>         94      319455.87   1.40e+00</code></pre>
+<pre><code>         95      319457.57   1.70e+00</code></pre>
+<pre><code>         96      319459.99   2.42e+00</code></pre>
+<pre><code>         97      319462.30   2.31e+00</code></pre>
+<pre><code>         98      319463.17   8.68e-01</code></pre>
+<pre><code>         99      319463.69   5.19e-01</code></pre>
+<pre><code>        100      319464.19   5.05e-01</code></pre>
+<pre><code>        101      319464.86   6.71e-01</code></pre>
+<pre><code>        102      319465.95   1.09e+00</code></pre>
+<pre><code>        103      319467.18   1.23e+00</code></pre>
+<pre><code>        104      319468.27   1.09e+00</code></pre>
+<pre><code>        105      319469.11   8.42e-01</code></pre>
+<pre><code>        106      319469.73   6.23e-01</code></pre>
+<pre><code>        107      319470.65   9.15e-01</code></pre>
+<pre><code>        108      319472.00   1.35e+00</code></pre>
+<pre><code>        109      319473.12   1.12e+00</code></pre>
+<pre><code>        110      319474.38   1.26e+00</code></pre>
+<pre><code>        111      319475.75   1.37e+00</code></pre>
+<pre><code>        112      319477.46   1.71e+00</code></pre>
+<pre><code>        113      319480.30   2.84e+00</code></pre>
+<pre><code>        114      319482.26   1.96e+00</code></pre>
+<pre><code>        115      319483.36   1.11e+00</code></pre>
+<pre><code>        116      319484.72   1.35e+00</code></pre>
+<pre><code>        117      319485.51   7.96e-01</code></pre>
+<pre><code>        118      319486.00   4.84e-01</code></pre>
+<pre><code>        119      319487.49   1.50e+00</code></pre>
+<pre><code>        120      319489.93   2.44e+00</code></pre>
+<pre><code>        121      319490.37   4.36e-01</code></pre>
+<pre><code>        122      319490.79   4.25e-01</code></pre>
+<pre><code>        123      319491.22   4.32e-01</code></pre>
+<pre><code>        124      319491.54   3.18e-01</code></pre>
+<pre><code>        125      319492.26   7.22e-01</code></pre>
+<pre><code>        126      319493.84   1.58e+00</code></pre>
+<pre><code>        127      319494.13   2.85e-01</code></pre>
+<pre><code>        128      319494.31   1.87e-01</code></pre>
+<pre><code>        129      319494.53   2.20e-01</code></pre>
+<pre><code>        130      319494.80   2.67e-01</code></pre>
+<pre><code>        131      319495.08   2.87e-01</code></pre>
+<pre><code>        132      319495.39   3.03e-01</code></pre>
+<pre><code>        133      319495.61   2.21e-01</code></pre>
+<pre><code>        134      319495.75   1.40e-01</code></pre>
+<pre><code>        135      319495.88   1.27e-01</code></pre>
+<pre><code>        136      319496.01   1.38e-01</code></pre>
+<pre><code>        137      319496.22   2.11e-01</code></pre>
+<pre><code>        138      319497.00   7.74e-01</code></pre>
+<pre><code>        139      319498.68   1.68e+00</code></pre>
+<pre><code>        140      319499.02   3.42e-01</code></pre>
+<pre><code>        141      319499.12   1.00e-01</code></pre>
+<pre><code>        142      319499.20   8.14e-02</code></pre>
+<pre><code>        143      319499.27   7.17e-02</code></pre>
+<pre><code>        144      319499.34   6.43e-02</code></pre>
+<pre><code>        145      319499.40   5.85e-02</code></pre>
+<pre><code>        146      319499.45   5.39e-02</code></pre>
+<pre><code>        147      319499.50   5.00e-02</code></pre>
+<pre><code>        148      319499.55   4.67e-02</code></pre>
+<pre><code>        149      319499.59   4.39e-02</code></pre>
+<pre><code>        150      319499.63   4.22e-02</code></pre>
+<pre><code>        151      319499.67   4.24e-02</code></pre>
+<pre><code>        152      319499.72   4.70e-02</code></pre>
+<pre><code>        153      319499.79   6.36e-02</code></pre>
+<pre><code>        154      319499.91   1.26e-01</code></pre>
+<pre><code>        155      319500.36   4.46e-01</code></pre>
+<pre><code>        156      319501.80   1.44e+00</code></pre>
+<pre><code>        157      319502.50   7.06e-01</code></pre>
+<pre><code>        158      319502.67   1.64e-01</code></pre>
+<pre><code>        159      319503.27   5.97e-01</code></pre>
+<pre><code>        160      319504.01   7.43e-01</code></pre>
+<pre><code>        161      319504.65   6.41e-01</code></pre>
+<pre><code>        162      319506.59   1.94e+00</code></pre>
+<pre><code>        163      319507.70   1.11e+00</code></pre>
+<pre><code>        164      319507.89   1.93e-01</code></pre>
+<pre><code>        165      319508.02   1.34e-01</code></pre>
+<pre><code>        166      319508.40   3.75e-01</code></pre>
+<pre><code>        167      319511.30   2.90e+00</code></pre>
+<pre><code>        168      319512.33   1.03e+00</code></pre>
+<pre><code>        169      319512.36   3.48e-02</code></pre>
+<pre><code>        170      319512.38   1.68e-02</code></pre>
+<pre><code>        171      319512.40   2.60e-02</code></pre>
+<pre><code>        172      319512.47   6.77e-02</code></pre>
+<pre><code>        173      319512.77   3.00e-01</code></pre>
+<pre><code>        174      319513.96   1.19e+00</code></pre>
+<pre><code>        175      319514.78   8.18e-01</code></pre>
+<pre><code>        176      319514.83   5.15e-02</code></pre>
+<pre><code>        177      319514.86   2.28e-02</code></pre>
+<pre><code>        178      319514.87   1.91e-02</code></pre>
+<pre><code>        179      319514.89   2.00e-02</code></pre>
+<pre><code>        180      319514.92   2.35e-02</code></pre>
+<pre><code>        181      319514.95   2.92e-02</code></pre>
+<pre><code>        182      319514.98   3.66e-02</code></pre>
+<pre><code>        183      319515.03   4.51e-02</code></pre>
+<pre><code>        184      319515.08   5.48e-02</code></pre>
+<pre><code>        185      319515.15   6.55e-02</code></pre>
+<pre><code>        186      319515.22   7.19e-02</code></pre>
+<pre><code>        187      319515.28   6.36e-02</code></pre>
+<pre><code>        188      319515.33   4.14e-02</code></pre>
+<pre><code>        189      319515.35   2.10e-02</code></pre>
+<pre><code>        190      319515.36   1.02e-02</code></pre>
+<pre><code>        191      319515.36   5.73e-03</code></pre>
+<pre><code>Performing nullcheck...</code></pre>
+<pre><code>  Deleting factor 1 decreases objective by 3.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 2 decreases objective by 4.06e+01. Factor retained.</code></pre>
+<pre><code>  Deleting factor 3 decreases objective by 3.28e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 4 decreases objective by 5.27e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 5 decreases objective by 6.93e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 6 decreases objective by 1.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 7 increases objective by 2.04e+01. Factor zeroed out.</code></pre>
+<pre><code>  Deleting factor 8 decreases objective by 3.56e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 9 decreases objective by 2.50e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 10 increases objective by 3.00e+00. Factor zeroed out.</code></pre>
+<pre><code>  Deleting factor 11 increases objective by 1.19e+00. Factor zeroed out.</code></pre>
+<pre><code>  Deleting factor 12 decreases objective by 6.82e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 13 decreases objective by 1.32e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 14 decreases objective by 4.38e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 15 decreases objective by 1.22e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 16 decreases objective by 2.60e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 17 decreases objective by 5.18e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 18 increases objective by 1.39e+01. Factor zeroed out.</code></pre>
+<pre><code>  Deleting factor 19 decreases objective by 1.21e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 20 decreases objective by 4.24e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 21 decreases objective by 9.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 22 decreases objective by 6.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 23 decreases objective by 5.75e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 24 decreases objective by 1.81e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 25 decreases objective by 1.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 26 decreases objective by 4.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 27 decreases objective by 2.83e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 28 increases objective by 6.48e+00. Factor zeroed out.</code></pre>
+<pre><code>  Deleting factor 29 decreases objective by 1.48e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 30 decreases objective by 1.89e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 1 decreases objective by 3.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 2 decreases objective by 4.06e+01. Factor retained.</code></pre>
+<pre><code>  Deleting factor 3 decreases objective by 3.28e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 4 decreases objective by 5.28e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 5 decreases objective by 6.93e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 6 decreases objective by 1.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 8 decreases objective by 3.56e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 9 decreases objective by 2.50e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 12 decreases objective by 6.82e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 13 decreases objective by 1.32e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 14 decreases objective by 4.38e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 15 decreases objective by 1.22e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 16 decreases objective by 2.60e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 17 decreases objective by 5.18e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 19 decreases objective by 1.21e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 20 decreases objective by 4.24e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 21 decreases objective by 9.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 22 decreases objective by 6.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 23 decreases objective by 5.75e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 24 decreases objective by 1.81e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 25 decreases objective by 1.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 26 decreases objective by 4.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 27 decreases objective by 2.83e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 29 decreases objective by 1.48e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 30 decreases objective by 1.89e+03. Factor retained.</code></pre>
+<pre><code>  Nullcheck complete. Objective: 319560.35</code></pre>
+<pre><code>  Iteration      Objective   Obj Diff</code></pre>
+<pre><code>          1      319560.80        Inf</code></pre>
+<pre><code>          2      319560.87   6.41e-02</code></pre>
+<pre><code>          3      319560.89   2.63e-02</code></pre>
+<pre><code>          4      319560.91   1.52e-02</code></pre>
+<pre><code>          5      319560.92   1.01e-02</code></pre>
+<pre><code>          6      319560.93   7.29e-03</code></pre>
+<pre><code>Performing nullcheck...</code></pre>
+<pre><code>  Deleting factor 1 decreases objective by 3.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 2 decreases objective by 4.06e+01. Factor retained.</code></pre>
+<pre><code>  Deleting factor 3 decreases objective by 3.28e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 4 decreases objective by 5.29e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 5 decreases objective by 6.93e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 6 decreases objective by 1.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 8 decreases objective by 3.56e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 9 decreases objective by 2.50e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 12 decreases objective by 6.82e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 13 decreases objective by 1.32e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 14 decreases objective by 4.38e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 15 decreases objective by 1.22e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 16 decreases objective by 2.60e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 17 decreases objective by 5.18e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 19 decreases objective by 1.21e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 20 decreases objective by 4.24e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 21 decreases objective by 9.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 22 decreases objective by 6.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 23 decreases objective by 5.75e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 24 decreases objective by 1.81e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 25 decreases objective by 1.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 26 decreases objective by 4.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 27 decreases objective by 2.83e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 29 decreases objective by 1.48e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 30 decreases objective by 1.89e+03. Factor retained.</code></pre>
+<pre><code>  Nullcheck complete. Objective: 319560.93</code></pre>
+<pre class="r"><code>f &lt;- flash_backfit(data,f, var_type=&quot;zero&quot;) </code></pre>
+<pre><code>Backfitting 30 factor/loading(s) (stop when difference in obj. is &lt; 1.00e-02):</code></pre>
+<pre><code>  Iteration      Objective   Obj Diff</code></pre>
+<pre><code>          1      319560.93        Inf</code></pre>
+<pre><code>          2      319560.94   4.43e-03</code></pre>
+<pre><code>Performing nullcheck...</code></pre>
+<pre><code>  Deleting factor 1 decreases objective by 3.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 2 decreases objective by 4.06e+01. Factor retained.</code></pre>
+<pre><code>  Deleting factor 3 decreases objective by 3.28e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 4 decreases objective by 5.29e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 5 decreases objective by 6.93e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 6 decreases objective by 1.60e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 8 decreases objective by 3.56e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 9 decreases objective by 2.50e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 12 decreases objective by 6.82e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 13 decreases objective by 1.32e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 14 decreases objective by 4.38e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 15 decreases objective by 1.22e+04. Factor retained.</code></pre>
+<pre><code>  Deleting factor 16 decreases objective by 2.60e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 17 decreases objective by 5.18e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 19 decreases objective by 1.20e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 20 decreases objective by 4.24e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 21 decreases objective by 9.71e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 22 decreases objective by 6.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 23 decreases objective by 5.75e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 24 decreases objective by 1.81e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 25 decreases objective by 1.35e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 26 decreases objective by 4.70e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 27 decreases objective by 2.83e+02. Factor retained.</code></pre>
+<pre><code>  Deleting factor 29 decreases objective by 1.48e+03. Factor retained.</code></pre>
+<pre><code>  Deleting factor 30 decreases objective by 1.89e+03. Factor retained.</code></pre>
+<pre><code>  Nullcheck complete. Objective: 319560.94</code></pre>
+<pre class="r"><code>traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 2) %&gt;% 
+          unlist(.) %&gt;%
+          str_replace(., &quot;.top_summary_statistics.tsv.gz&quot;, &quot;&quot;) %&gt;%
+          str_replace(., &quot;metabo3_&quot;, &quot;&quot;)
+x &lt;-f$ldf$f
+rownames(x) &lt;- traits
+
+heatmap(x, col=cm.colors(256))</code></pre>
+<p><img src="figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I am particularly interested in birthweight and type 2 diabetes so I will comment on it here. There are two factors, 20 and 7 that have substantial weights on birth weight. Factor 7 appears to mostly affect “height related” traits including height, birth length, and head circumference but also has a small affect on insulin sensitivity. Factor 20 is also related to birth lenght and head circumference but is not associated with height and has opposite sign associations with type 2 diabetes risk and blood pressure.</p>
+<p>It is weakly associated with childhood bmi and childhood obesity. It is also worth noting that there are several factors which are nearly single trait factors. These include 24 (fasting glucose), 5 (type 2 diabetes), 15 (tanner stage in females), 13 (stroke), 16 (proinsulin), 6 (tanner stage in males), 11 (bone density), and 3 (coronary artery disease). The objective for the fit is 3.195609410^{5}.</p>
+</div>
+<div id="flashier" class="section level2">
+<h2>flashier</h2>
+<p><code>flashier</code> is a faster implementation of FLASH that has some different variance type options. We will fit it with both <code>var.type=NULL</code> and <code>var.type=0</code>. <code>var.type=NULL</code> is equivalent to <code>var_type=&quot;zero&quot;</code> in <code>flashr</code>. This wil serve as a comparision of the two packages. Using <code>var.type=0</code> fits the model <span class="math display">\[
+Y = LF^T + A + E
+\]</span> where <span class="math inline">\(Y\)</span> and <span class="math inline">\(E\)</span> are as above and <span class="math inline">\(A\)</span> is a full rank matrix of additional errors with <span class="math inline">\(A_{ij}\)</span> iid <span class="math inline">\(\sim N(0, \tau)\)</span>. This run uses the same default point normal prior as used above.</p>
+<pre class="r"><code>fr1 &lt;- with(mats, flashier(data=beta_hat, S = se_hat, var.type=NULL, greedy.Kmax = 30, init.tol=1e-4, fit = &quot;full&quot;, verbose.lvl=3))</code></pre>
+<pre><code>Initializing flash object...
+Convergence tolerance set to 2.04e-03.
+Adding factor 1 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -9.96e-01 
+            2    4.10e+02   -5.08e-02 
+            3    1.84e+03    6.09e-02 
+            4    3.21e+00   -5.50e-03 
+            5    1.75e+00   -3.37e-03 
+            6    1.17e+00   -2.45e-03 
+            7    8.52e-01   -1.93e-03 
+            8    6.38e-01   -1.57e-03 
+            9    4.64e-01   -1.29e-03 
+           10    2.86e-01   -1.04e-03 
+           11    3.56e-02   -7.97e-04 
+           12    4.94e-01   -3.16e-04 
+           13    2.52e-03    1.55e-05 
+           14    2.07e-03   -5.49e-06 
+           15    1.75e-03   -4.64e-06 
+  Factor successfully added. Objective: 192918.445 
+Adding factor 2 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -8.34e-01 
+            2    2.38e+03    8.80e-01 
+An iteration decreased the objective by 3.93e+03.
+  Factor successfully added. Objective: 196924.666 
+Adding factor 3 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -7.52e-01 
+            2   -4.23e+03    2.53e-01 
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 2 factors (tolerance: 2.04e-03)...
+    Iteration  Factor    Obj Diff     Max Chg
+            1     all   -3.92e+03   -1.60e-01 
+Nullchecking 2 factors...
+  No factor can be removed without significantly decreasing the objective.
+Wrapping up...
+Done.</code></pre>
+<p>This results in only two factors while using flash resulted in 25 factors! Clearly they fits are very different!</p>
+<pre class="r"><code>fr2 &lt;- with(mats, flashier(data=beta_hat, S = se_hat, var.type=0, greedy.Kmax = 30, init.tol=1e-4, fit = &quot;full&quot;, verbose.lvl=3))</code></pre>
+<pre><code>Initializing flash object...
+Convergence tolerance set to 2.04e-03.
+Adding factor 1 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -7.03e-01 
+            2    2.10e+02    8.75e-02 
+            3    2.38e+02    1.21e-01 
+            4    6.29e+02   -6.81e-02 
+An iteration decreased the objective by 1.59e+02.
+  Factor successfully added. Objective: 287859.819 
+Adding factor 2 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -8.22e-01 
+            2    3.57e+02   -5.44e-02 
+            3    6.17e+01   -2.11e-02 
+An iteration decreased the objective by 1.45e+02.
+  Factor successfully added. Objective: 291189.767 
+Adding factor 3 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -9.89e-01 
+            2    1.24e+03    9.11e-01 
+            3    7.32e+02   -1.99e-01 
+            4    2.03e+01   -7.83e-02 
+            5    1.19e+00   -1.16e-02 
+            6    4.34e-01   -8.62e-03 
+            7    1.49e-01   -6.08e-03 
+            8    4.56e-02   -4.47e-03 
+            9    2.43e-03   -3.41e-03 
+           10    5.86e-04   -7.74e-05 
+  Factor successfully added. Objective: 293258.001 
+Adding factor 4 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -5.96e-01 
+            2    2.24e+03   -1.44e-01 
+            3    1.90e+03   -2.06e-01 
+            4    3.52e+02    1.20e-01 
+            5    4.85e+01    5.29e-02 
+            6    3.69e+00   -1.63e-02 
+            7    5.10e-02   -5.35e-03 
+            8    2.25e-01   -3.35e-03 
+            9    1.74e-01   -3.27e-03 
+           10    6.18e-02   -1.98e-03 
+           11    4.37e-03    1.30e-03 
+           12    1.43e-02    7.30e-04 
+           13    5.17e-03    6.08e-04 
+           14    2.02e-04    6.92e-05 
+  Factor successfully added. Objective: 298273.738 
+Adding factor 5 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf    4.57e-01 
+            2    8.42e+02    1.51e-01 
+            3    2.82e+02    1.33e-01 
+            4    2.22e+02    9.67e-02 
+            5    2.00e+02    1.06e-01 
+            6    1.54e+02    1.03e-01 
+            7    8.54e+01    8.51e-02 
+            8    3.25e+01    6.68e-02 
+            9    4.54e+00    5.00e-02 
+           10    3.81e-01   -4.12e-03 
+           11    2.22e-01   -4.10e-03 
+           12    7.25e-02   -3.17e-03 
+An iteration decreased the objective by 5.17e-03.
+  Factor successfully added. Objective: 300447.140 
+Adding factor 6 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -7.97e-01 
+            2    5.25e+01   -2.19e-01 
+            3    5.75e+01    6.94e-01 
+            4    8.91e+02    5.75e-01 
+            5    1.34e+02    5.76e-02 
+            6    8.14e+00    2.37e-02 
+            7    3.92e-01    9.36e-03 
+            8    1.07e-01   -2.00e-03 
+            9    5.91e-02   -5.41e-03 
+           10    2.15e-02   -4.46e-03 
+           11    1.18e-02   -1.79e-03 
+           12    2.61e-03    8.34e-04 
+           13    2.65e-03    1.43e-03 
+           14    6.57e-04    7.14e-04 
+  Factor successfully added. Objective: 301574.809 
+Adding factor 7 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf    6.50e-01 
+            2    1.72e+02   -2.39e-01 
+            3    3.75e+02   -1.58e-01 
+            4    4.69e+02   -6.47e-01 
+            5    6.66e+01   -1.84e-01 
+            6    1.69e+00   -3.91e-02 
+            7    2.23e-01   -2.21e-02 
+            8    5.04e-02   -1.12e-02 
+            9    2.03e-02   -5.92e-03 
+           10    2.84e-03    4.16e-03 
+           11    2.62e-03    3.38e-03 
+           12    5.64e-03    5.98e-03 
+           13    2.49e-03    7.47e-03 
+           14    2.99e-04   -5.61e-04 
+  Factor successfully added. Objective: 302662.767 
+Adding factor 8 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf    5.08e-01 
+            2    6.05e+01   -2.37e-01 
+            3    1.89e+01   -4.72e-02 
+            4    1.99e+01    8.76e-02 
+            5    3.17e+01    1.40e-01 
+            6    3.52e+01    1.18e-01 
+            7    2.95e+01    1.57e-01 
+            8    3.59e+01   -1.18e-01 
+            9    4.87e+01   -9.99e-02 
+           10    5.83e+01   -1.12e-01 
+           11    9.49e+01    1.33e-01 
+           12    2.27e+02    3.01e-01 
+           13    2.78e+02    3.15e-01 
+           14    7.74e+01    1.84e-01 
+           15    1.32e+01    2.46e-02 
+An iteration decreased the objective by 6.80e-01.
+  Factor successfully added. Objective: 303689.461 
+Adding factor 9 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -6.48e-01 
+            2    6.09e+01    2.28e-01 
+            3    1.95e+01    4.84e-02 
+            4    2.03e+01   -8.56e-02 
+            5    3.10e+01   -1.44e-01 
+            6    3.42e+01   -1.20e-01 
+            7    2.33e+01   -1.57e-01 
+            8    2.50e+01   -1.18e-01 
+            9    3.94e+01    9.30e-02 
+           10    5.14e+01    9.91e-02 
+           11    5.31e+01    1.21e-01 
+           12    6.18e+01    1.44e-01 
+           13    6.78e+01    1.51e-01 
+           14    4.32e+01    1.99e-01 
+An iteration decreased the objective by 5.20e+00.
+  Factor successfully added. Objective: 304217.604 
+Adding factor 10 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf   -5.10e-01 
+            2    5.41e+01    2.26e-01 
+            3    1.55e+01    4.85e-02 
+            4    1.65e+01   -6.97e-02 
+            5    1.52e+01   -1.60e-01 
+            6    1.53e+01   -1.37e-01 
+            7    5.30e+00   -7.56e-02 
+            8    1.64e+00   -1.29e-01 
+            9    9.05e-01   -9.12e-02 
+           10    1.79e-01    2.76e-03 
+An iteration decreased the objective by 3.88e-02.
+  Factor successfully added. Objective: 304340.007 
+Adding factor 11 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf    7.88e-01 
+            2    1.84e+01   -3.65e-01 
+            3    8.76e-01   -6.47e-02 
+            4    8.00e-02    2.10e-02 
+            5    4.49e-03    5.66e-03 
+            6    2.11e-03    1.79e-03 
+            7    9.60e-05   -3.74e-04 
+  Factor successfully added. Objective: 304365.391 
+Adding factor 12 to flash object...
+  Initializing factor...
+  Optimizing factor...
+    Iteration    Obj Diff     Max Chg
+            1         Inf    4.94e-01 
+            2           0           0 
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 11 factors (tolerance: 2.04e-03)...
+    Iteration  Factor    Obj Diff     Max Chg
+            1     all    6.66e+01    1.40e-01 
+            2     all    3.79e+02    4.29e-01 
+            3     all    4.12e+02   -1.13e-01 
+            4     all    1.78e+02   -1.60e-01 
+            5     all   -1.42e+02   -8.17e-02 
+  Backfit complete. Objective: 305259.497 
+Nullchecking 11 factors...
+  No factor can be removed without significantly decreasing the objective.
+Wrapping up...
+Done.</code></pre>
+<p>both of these have lower objective that the fit using <code>flashr</code>, 1.93009410^{5} and 3.05259510^{5} respectively.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.1 (2019-07-05)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] forcats_0.4.0   stringr_1.4.0   dplyr_0.8.3     purrr_0.3.2    
+ [5] readr_1.3.1     tidyr_0.8.3     tibble_2.1.3    ggplot2_3.2.1  
+ [9] tidyverse_1.2.1 flashier_0.1.12 flashr_0.6-6   
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.2           lubridate_1.7.4      lattice_0.20-38     
+ [4] assertthat_0.2.1     zeallot_0.1.0        rprojroot_1.3-2     
+ [7] digest_0.6.20        foreach_1.4.7        truncnorm_1.0-8     
+[10] R6_2.4.0             cellranger_1.1.0     plyr_1.8.4          
+[13] backports_1.1.4      evaluate_0.14        httr_1.4.0          
+[16] highr_0.8            pillar_1.4.2         rlang_0.4.0         
+[19] lazyeval_0.2.2       pscl_1.5.2           readxl_1.3.1        
+[22] rstudioapi_0.10      ebnm_0.1-24          whisker_0.3-2       
+[25] Matrix_1.2-17        rmarkdown_1.13       munsell_0.5.0       
+[28] mixsqp_0.1-97        broom_0.5.2          compiler_3.6.1      
+[31] modelr_0.1.4         xfun_0.8             pkgconfig_2.0.2     
+[34] SQUAREM_2017.10-1    htmltools_0.3.6      tidyselect_0.2.5    
+[37] workflowr_1.4.0.9000 codetools_0.2-16     withr_2.1.2         
+[40] crayon_1.3.4         MASS_7.3-51.4        grid_3.6.1          
+[43] nlme_3.1-140         jsonlite_1.6         gtable_0.3.0        
+[46] git2r_0.26.1         magrittr_1.5         scales_1.0.0        
+[49] cli_1.1.0            stringi_1.4.3        reshape2_1.4.3      
+[52] fs_1.3.1             doParallel_1.0.15    xml2_1.2.0          
+[55] generics_0.0.2       vctrs_0.2.0          iterators_1.0.12    
+[58] tools_3.6.1          glue_1.3.1           softImpute_1.4      
+[61] hms_0.5.0            parallel_3.6.1       yaml_2.2.0          
+[64] colorspace_1.4-1     ashr_2.2-32          rvest_0.3.4         
+[67] knitr_1.23           haven_2.1.1         </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
