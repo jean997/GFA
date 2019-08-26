@@ -12,7 +12,7 @@ editor_options:
 The goal of this document is to explore different ways to estimate a low rank decomposition of summary statistics. The example I will use is a set of 31 metabolic and growth related traits.
 
 
-```{r, warnings=FALSE, echo=FALSE, libraries}
+```{r, message=FALSE, warnings=FALSE, echo=FALSE, libraries}
 library(flashr)
 library(flashier)
 library(tidyverse)
