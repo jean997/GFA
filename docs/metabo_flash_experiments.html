@@ -595,10 +595,10 @@ plot_flash1
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstreed9834479bbf81577a2e083e74465d18a1b28ec00targetblankd983447a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/d9834479bbf81577a2e083e74465d18a1b28ec00" target="_blank">d983447</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree58de31ef589a213d4c595b3072e48d7465ca45cctargetblank58de31ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/58de31ef589a213d4c595b3072e48d7465ca45cc" target="_blank">58de31e</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstreed9834479bbf81577a2e083e74465d18a1b28ec00targetblankd983447a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree58de31ef589a213d4c595b3072e48d7465ca45cctargetblank58de31ea" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -656,6 +656,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/58de31ef589a213d4c595b3072e48d7465ca45cc/analysis/metabo_flash_experiments.Rmd" target="_blank">58de31e</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+<td>
+wflow_publish(“analysis/metabo_flash_experiments.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/ss_factors/814f06891c8bbdea694f9a0713cc09b2b032799d/docs/metabo_flash_experiments.html" target="_blank">814f068</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1124,6 +1158,54 @@ rownames(x) &lt;- traits
 
 heatmap(x, col=cm.colors(256))</code></pre>
 <p><img src="figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_flash1-1">
+Past versions of plot_flash1-1.png
+</button>
+</p>
+<div id="fig-plot_flash1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/32967ce0a2a4b3d1e6afb2aeeeff74fd8ec89559/docs/figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" target="_blank">32967ce</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/efb9df2fa316b069e025a7145c2ae50460df6df9/docs/figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" target="_blank">efb9df2</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>I am particularly interested in birthweight and type 2 diabetes so I will comment on it here. There are two factors, 20 and 7 that have substantial weights on birth weight. Factor 7 appears to mostly affect “height related” traits including height, birth length, and head circumference but also has a small affect on insulin sensitivity. Factor 20 is also related to birth lenght and head circumference but is not associated with height and has opposite sign associations with type 2 diabetes risk and blood pressure.</p>
 <p>It is weakly associated with childhood bmi and childhood obesity. It is also worth noting that there are several factors which are nearly single trait factors. These include 24 (fasting glucose), 5 (type 2 diabetes), 15 (tanner stage in females), 13 (stroke), 16 (proinsulin), 6 (tanner stage in males), 11 (bone density), and 3 (coronary artery disease). The objective for the fit is 3.195609410^{5}.</p>
 </div>
