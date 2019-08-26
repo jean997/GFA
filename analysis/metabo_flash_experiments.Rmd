@@ -46,7 +46,7 @@ f  <- flash_add_factors_from_data(data,K=kmax, var_type="zero") #, ebnm_fn = "eb
 f <- flash_backfit(data,f, var_type="zero") 
 ```
 
-```{r, cache=TRUE, plot_flash1}
+```{r, plot_flash1}
 traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
           unlist(.) %>%
           str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
