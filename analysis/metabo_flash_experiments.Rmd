@@ -1,0 +1,82 @@
+---
+title: "Different ways to fit the model using FLASH"
+author: "Jean Morrison"
+date: "2019-08-26"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+The goal of this document is to explore different ways to estimate a low rank decomposition of summary statistics. The example I will use is a set of 31 metabolic and growth related traits.
+
+
+```{r, warnings=FALSE, echo=FALSE, libraries}
+library(flashr)
+library(flashier)
+library(tidyverse)
+knitr::opts_chunk$set(autodep = TRUE)
+```
+
+
+```{r, read_data}
+mats <- readRDS("data/metabo3_gwas_mats.RDS")
+mats$beta_hat[is.na(mats$se_hat)] <- NA
+mats$se_hat[is.na(mats$beta_hat)] <- Inf
+```
+
+The data include `r nrow(mats$beta_hat)` SNPs that have a $p$-value less than $5 \cdot 10^{6}$ for at least one trait. Variants are pruned for LD at an $r^2$ threshold of 0.1, prefering variants with the lowest minimum $p$-value across all traits. The data have `r round(100*mean(is.na(mats$beta_hat)))`% missingness. We can compare different fits by 1) comparing the ELBO, 2) qualitatively comparing factors and 3) masking some of the non-missing data and estimating it. 
+
+
+## Flash with var_type="zero"
+
+Using FLASH with `var_type="zero"` fits the model
+$$
+Y = LF^T + E
+$$
+where $Y_{ij}$ is the effect estimate of variant $i$ on trait $j$ and $E_{ij} \sim N(0, s_{ij}^2)$ where $s_{ij}$ is the estimated standard error of $Y_{ij}$. This model assumes that $E[Y]$ is exactly low rank. 
+
+We will start with the default point-normal prior for both factors and loadings. 
+
+```{r, cache=TRUE, flash1}
+kmax <- 30
+data <- with(mats, flash_set_data(Y = beta_hat, S = se_hat))
+f  <- flash_add_factors_from_data(data,K=kmax, var_type="zero") #, ebnm_fn = "ebnm_ash")
+f <- flash_backfit(data,f, var_type="zero") 
+```
+
+```{r, cache=TRUE, plot_flash1}
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "metabo3_", "")
+x <-f$ldf$f
+rownames(x) <- traits
+
+heatmap(x, col=cm.colors(256))
+```
+
+I am particularly interested in birthweight and type 2 diabetes so I will comment on it here. There are two factors, 20 and 7 that have substantial weights on birth weight. Factor 7 appears to mostly affect "height related" traits including height, birth length, and head circumference but also has a small affect on insulin sensitivity. Factor 20 is also related to birth lenght and head circumference but is not associated with height and has opposite sign associations with type 2 diabetes risk and blood pressure. 
+
+It is weakly associated with childhood bmi and childhood obesity. It is also worth noting that there are several factors which are nearly single trait factors. These include 24 (fasting glucose), 5 (type 2 diabetes), 15 (tanner stage in females), 13 (stroke), 16 (proinsulin), 6 (tanner stage in males), 11 (bone density), and 3 (coronary artery disease). The objective for the fit is `r f$objective`. 
+
+## flashier
+
+`flashier` is a faster implementation of FLASH that has some different variance type options. We will fit it with both `var.type=NULL` and `var.type=0`. `var.type=NULL` is equivalent to `var_type="zero"` in `flashr`. This wil serve as a comparision of the two packages. Using `var.type=0` fits the model 
+$$
+Y = LF^T + A + E
+$$
+where $Y$ and $E$ are as above and $A$ is a full rank matrix of additional errors with $A_{ij}$ iid $\sim N(0, \tau)$. This run uses the same default point normal prior as used above. 
+
+```{r, cache=TRUE, flashier1}
+fr1 <- with(mats, flashier(data=beta_hat, S = se_hat, var.type=NULL, greedy.Kmax = 30, init.tol=1e-4, fit = "full", verbose.lvl=3))
+```
+
+This results in only two factors while using flash resulted in 25 factors! Clearly they fits are very different!
+
+```{r, cache=TRUE, flashier2}
+fr2 <- with(mats, flashier(data=beta_hat, S = se_hat, var.type=0, greedy.Kmax = 30, init.tol=1e-4, fit = "full", verbose.lvl=3))
+```
+
+both of these have lower objective that the fit using `flashr`, `r fr1$elbo` and `r fr2$elbo` respectively.
