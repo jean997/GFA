@@ -531,6 +531,12 @@ flashier1
 <li>
 flashier2
 </li>
+<li>
+mask1
+</li>
+<li>
+mask2
+</li>
 </ul>
 <p>To ensure reproducibility of the results, delete the cache directory <code>metabo_flash_experiments_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
 </div>
@@ -551,10 +557,10 @@ flashier2
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree883f2580ba10f91a918b4b2a87def70c4f966465targetblank883f258a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/883f2580ba10f91a918b4b2a87def70c4f966465" target="_blank">883f258</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree4895148cb3caa9d06fa827aa97ad4de1587092aetargetblank4895148a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/4895148cb3caa9d06fa827aa97ad4de1587092ae" target="_blank">4895148</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree883f2580ba10f91a918b4b2a87def70c4f966465targetblank883f258a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstree4895148cb3caa9d06fa827aa97ad4de1587092aetargetblank4895148a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -616,6 +622,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/4895148cb3caa9d06fa827aa97ad4de1587092ae/analysis/metabo_flash_experiments.Rmd" target="_blank">4895148</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-28
+</td>
+<td>
+wflow_publish(“analysis/metabo_flash_experiments.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/ss_factors/bcf2414ae15f262c4fa791d63b682b76ae9227b7/docs/metabo_flash_experiments.html" target="_blank">bcf2414</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -827,22 +867,22 @@ wflow_publish(files = c(“analysis/metabo_flash_experiments.Rmd”))
 </div>
 </div>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
 <p>The goal of this document is to explore different ways to estimate a low rank decomposition of summary statistics. The example I will use is a set of 31 metabolic and growth related traits.</p>
 <pre class="r"><code>mats &lt;- readRDS(&quot;data/metabo3_gwas_mats.RDS&quot;)
 mats$beta_hat[is.na(mats$se_hat)] &lt;- NA
 mats$se_hat[is.na(mats$beta_hat)] &lt;- Inf</code></pre>
 <p>The data include 4410 SNPs that have a <span class="math inline">\(p\)</span>-value less than <span class="math inline">\(5 \cdot 10^{6}\)</span> for at least one trait. Variants are pruned for LD at an <span class="math inline">\(r^2\)</span> threshold of 0.1, prefering variants with the lowest minimum <span class="math inline">\(p\)</span>-value across all traits. The data have 18% missingness. We can compare different fits by 1) comparing the ELBO, 2) qualitatively comparing factors and 3) masking some of the non-missing data and estimating it.</p>
 </div>
-<div id="flashr-with-var_typezero" class="section level2">
-<h2><code>flashr</code> with <code>var_type=&quot;zero&quot;</code></h2>
+<div id="flashr-with-var_typezero" class="section level1">
+<h1><code>flashr</code> with <code>var_type=&quot;zero&quot;</code></h1>
 <p>Using FLASH with <code>var_type=&quot;zero&quot;</code> fits the model <span class="math display">\[
 Y = LF^T + E
 \]</span> where <span class="math inline">\(Y_{ij}\)</span> is the effect estimate of variant <span class="math inline">\(i\)</span> on trait <span class="math inline">\(j\)</span> and <span class="math inline">\(E_{ij} \sim N(0, s_{ij}^2)\)</span> where <span class="math inline">\(s_{ij}\)</span> is the estimated standard error of <span class="math inline">\(Y_{ij}\)</span>. This model assumes that <span class="math inline">\(E[Y]\)</span> is exactly low rank.</p>
 <p>We will start with the default point-normal prior for both factors and loadings.</p>
-<div id="svd-initialization" class="section level3">
-<h3>SVD initialization</h3>
+<div id="svd-initialization" class="section level2">
+<h2>SVD initialization</h2>
 <pre class="r"><code>kmax &lt;- 100
 data &lt;- with(mats, flash_set_data(Y = beta_hat, S = se_hat))
 f  &lt;- flash_add_factors_from_data(data,K=kmax, var_type=&quot;zero&quot;) #, ebnm_fn = &quot;ebnm_ash&quot;)</code></pre>
@@ -1162,8 +1202,9 @@ f  &lt;- flash_add_factors_from_data(data,K=kmax, var_type=&quot;zero&quot;) #, 
 <pre><code>  Deleting factor 29 decreases objective by 1.48e+03. Factor retained.</code></pre>
 <pre><code>  Deleting factor 30 decreases objective by 1.89e+03. Factor retained.</code></pre>
 <pre><code>  Nullcheck complete. Objective: 319560.94</code></pre>
-<div id="plot" class="section level4">
-<h4>Plot</h4>
+</div>
+<div id="plot" class="section level2">
+<h2>Plot</h2>
 <pre class="r"><code>traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 2) %&gt;% 
           unlist(.) %&gt;%
           str_replace(., &quot;.top_summary_statistics.tsv.gz&quot;, &quot;&quot;) %&gt;%
@@ -1200,6 +1241,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/bcf2414ae15f262c4fa791d63b682b76ae9227b7/docs/figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" target="_blank">bcf2414</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/jean997/ss_factors/blob/88664742f84e1366c863484a11344bfb54b62aab/docs/figure/metabo_flash_experiments.Rmd/plot_flash1-1.png" target="_blank">8866474</a>
@@ -1240,9 +1292,8 @@ Jean Morrison
 <p>I am particularly interested in birthweight and type 2 diabetes so I will comment on it here. There are two factors, 20 and 7 that have substantial weights on birth weight. Factor 7 appears to mostly affect “height related” traits including height, birth length, and head circumference but also has a small affect on insulin sensitivity. Factor 20 is also related to birth lenght and head circumference but is not associated with height and has opposite sign associations with type 2 diabetes risk and blood pressure.</p>
 <p>It is weakly associated with childhood bmi and childhood obesity. It is also worth noting that there are several factors which are nearly single trait factors. These include 3 (coronary artery disease), 5 (type 2 diabetes), 11 (bone density), 16 (proinsulin), and 23 (waist to hip ratio) The objective for the fit is 3.195609410^{5}.</p>
 </div>
-</div>
-<div id="flash-with-var_typezero-and-greedy-initialization" class="section level3">
-<h3>Flash with var_type=“zero” and greedy initialization</h3>
+<div id="greedy-initialization" class="section level2">
+<h2>Greedy initialization</h2>
 <p>On a suggestion from Jason I am trying a different initiailization of <code>flashr</code> that may be more similar to <code>flashier</code> below. Above we initialize factors from and SVD and then backfit. Instea, here we use the greedy algorithm and then backfit.</p>
 <pre class="r"><code>f2  &lt;- flash_add_greedy(data, var_type=&quot;zero&quot;, Kmax = kmax)</code></pre>
 <pre><code>Fitting factor/loading 1 (stop when difference in obj. is &lt; 1.00e-02):</code></pre>
@@ -1874,8 +1925,9 @@ Jean Morrison
 <p>As a check, this gives the same results as running <code>flashr::flash</code> with <code>backfit=TRUE</code>.</p>
 <pre class="r"><code>f2_copy &lt;- flash(data, var_type=&quot;zero&quot;, backfit=TRUE)</code></pre>
 <p>This strategy gives 14 factors and a lower objective, 3.173355810^{5} than the SVD fit (objective: 3.195609410^{5}). Here are the factors plotted</p>
-<div id="plot-1" class="section level4">
-<h4>Plot</h4>
+</div>
+<div id="plot-1" class="section level2">
+<h2>Plot</h2>
 <pre class="r"><code>x &lt;-f2$ldf$f
 meltx &lt;- melt(x) %&gt;%
          rename(Trait = Var1, Factor = Var2) %&gt;%
@@ -1886,12 +1938,48 @@ ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
   scale_fill_gradient2()+ 
   ggtitle(&#39;flashr with var_type=&quot;zero&quot; and greedy factors&#39;)</code></pre>
 <p><img src="figure/metabo_flash_experiments.Rmd/plot_flash2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_flash2-1">
+Past versions of plot_flash2-1.png
+</button>
+</p>
+<div id="fig-plot_flash2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/ss_factors/blob/bcf2414ae15f262c4fa791d63b682b76ae9227b7/docs/figure/metabo_flash_experiments.Rmd/plot_flash2-1.png" target="_blank">bcf2414</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Similar patterns are seen with the two factors weighed on birth weight. There are fewer single trait factors and many factors are weighted on a large number of traits.</p>
 </div>
 </div>
-</div>
-<div id="flashier" class="section level2">
-<h2>flashier</h2>
+<div id="flashier" class="section level1">
+<h1>flashier</h1>
 <p><code>flashier</code> is a faster implementation of FLASH that has some different variance type options. We will fit it with both <code>var.type=NULL</code> and <code>var.type=0</code>. <code>var.type=NULL</code> is equivalent to <code>var_type=&quot;zero&quot;</code> in <code>flashr</code>. This wil serve as a comparision of the two packages. Using <code>var.type=0</code> fits the model <span class="math display">\[
 Y = LF^T + A + E
 \]</span> where <span class="math inline">\(Y\)</span> and <span class="math inline">\(E\)</span> are as above and <span class="math inline">\(A\)</span> is a full rank matrix of additional errors with <span class="math inline">\(A_{ij}\)</span> iid <span class="math inline">\(\sim N(0, \tau)\)</span>. This run uses the same default point normal prior as used above.</p>
@@ -2407,8 +2495,8 @@ Nullchecking 9 factors...
 Wrapping up...
 Done.</code></pre>
 </div>
-<div id="summary" class="section level2">
-<h2>Summary</h2>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
 <p>To summarize the number of factors and objective value from each method</p>
 <table>
 <thead>
@@ -2442,9 +2530,21 @@ Done.</code></pre>
 </tbody>
 </table>
 </div>
-<div id="comparing-methods-by-masking-data" class="section level2">
-<h2>Comparing methods by masking data</h2>
-<p>In addition to comparing the objectives, we can evaluate the fit by masking data and then computing the sum of squared differences between observed and imputed values. The code below does this 10 times for each method, masking a random set of 5% of non-missing summary statistics each time.</p>
+<div id="comparing-methods-by-masking-data" class="section level1">
+<h1>Comparing methods by masking data</h1>
+<p>In addition to comparing the objectives, we can evaluate the fit by masking data and then computing the sum of squared differences between observed and imputed values. The code below does this 5 times for each method, masking a random set of 5% of non-missing summary statistics each time.</p>
+<pre class="r"><code>mask_flash1 &lt;- mask_and_fit(mats, fit_function = fit_flash_zero_svd, 
+                            n_times=5, seed = 1)</code></pre>
+<pre class="r"><code>hist(mask_flash1, breaks=5)</code></pre>
+<p><img src="figure/metabo_flash_experiments.Rmd/hist1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cat(&quot;Sum of errors over 5 iterations: &quot;, sum(mask_flash1), &quot;\n&quot;)</code></pre>
+<pre><code>Sum of errors over 5 iterations:  26.66914 </code></pre>
+<pre class="r"><code>mask_flash2 &lt;- mask_and_fit(mats, fit_function = fit_flash_zero_greedy, 
+                            n_times=5, seed = 1)</code></pre>
+<pre class="r"><code>hist(mask_flash2, breaks=5)</code></pre>
+<p><img src="figure/metabo_flash_experiments.Rmd/hist2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cat(&quot;Sum of errors over 5 iterations: &quot;, sum(mask_flash2), &quot;\n&quot;)</code></pre>
+<pre><code>Sum of errors over 5 iterations:  27.88312 </code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
