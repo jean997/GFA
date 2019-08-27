@@ -153,8 +153,8 @@ mask_flash1 <- mask_and_fit(mats, fit_function = fit_flash_zero_svd,
 
 ```{r, hist1}
 hist(mask_flash1, breaks=5)
-cat("Sum of errors over 5 iterations: ", sum(mask_flash1), "\n")
 ```
+Sum of errors over 5 iterations: `r sum(mask_flash1)`
 
 
 ```{r, message = FALSE, cache=TRUE, mask2}
@@ -164,5 +164,5 @@ mask_flash2 <- mask_and_fit(mats, fit_function = fit_flash_zero_greedy,
 
 ```{r, hist2}
 hist(mask_flash2, breaks=5)
-cat("Sum of errors over 5 iterations: ", sum(mask_flash2), "\n")
 ```
+Sum of errors over 5 iterations: `r sum(mask_flash2)`
