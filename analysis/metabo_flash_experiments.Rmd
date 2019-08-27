@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Introduction
+# Introduction
 
 The goal of this document is to explore different ways to estimate a low rank decomposition of summary statistics. The example I will use is a set of 31 metabolic and growth related traits.
 
@@ -30,7 +30,7 @@ mats$se_hat[is.na(mats$beta_hat)] <- Inf
 
 The data include `r nrow(mats$beta_hat)` SNPs that have a $p$-value less than $5 \cdot 10^{6}$ for at least one trait. Variants are pruned for LD at an $r^2$ threshold of 0.1, prefering variants with the lowest minimum $p$-value across all traits. The data have `r round(100*mean(is.na(mats$beta_hat)))`% missingness. We can compare different fits by 1) comparing the ELBO, 2) qualitatively comparing factors and 3) masking some of the non-missing data and estimating it. 
 
-## `flashr` with `var_type="zero"`
+# `flashr` with `var_type="zero"`
 
 
 Using FLASH with `var_type="zero"` fits the model
@@ -41,7 +41,7 @@ where $Y_{ij}$ is the effect estimate of variant $i$ on trait $j$ and $E_{ij} \s
 
 We will start with the default point-normal prior for both factors and loadings. 
 
-### SVD initialization
+## SVD initialization
 
 ```{r, cache=TRUE, flash1}
 kmax <- 100
@@ -50,7 +50,7 @@ f  <- flash_add_factors_from_data(data,K=kmax, var_type="zero") #, ebnm_fn = "eb
 f <- flash_backfit(data,f, var_type="zero") 
 ```
 
-#### Plot
+## Plot
 
 ```{r, plot_flash1}
 traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
@@ -74,7 +74,7 @@ It is weakly associated with childhood bmi and childhood obesity. It is also wor
 3 (coronary artery disease), 5 (type 2 diabetes), 11 (bone density), 16 (proinsulin), and 23 (waist to hip ratio)
  The objective for the fit is `r f$objective`. 
 
-### Flash with var_type="zero" and greedy initialization
+## Greedy initialization
 
 On a suggestion from Jason I am trying a different initiailization of `flashr` that may be more similar to `flashier` below. Above we initialize factors from and SVD and then backfit. Instea, here we use the greedy algorithm and then backfit.
 
@@ -91,7 +91,7 @@ f2_copy <- flash(data, var_type="zero", backfit=TRUE)
 
 This strategy gives `r f2$nfactors` factors and a lower objective, `r f2$objective` than the SVD fit (objective: `r f$objective`). Here are the factors plotted
 
-#### Plot
+## Plot
 
 ```{r, plot_flash2}
 
@@ -108,7 +108,7 @@ ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
 
 Similar patterns are seen with the two factors weighed on birth weight. There are fewer single trait factors and many factors are weighted on a large number of traits. 
 
-## flashier
+# flashier
 
 `flashier` is a faster implementation of FLASH that has some different variance type options. We will fit it with both `var.type=NULL` and `var.type=0`. `var.type=NULL` is equivalent to `var_type="zero"` in `flashr`. This wil serve as a comparision of the two packages. Using `var.type=0` fits the model 
 $$
@@ -128,7 +128,7 @@ Using `var.type=0`
 fr2 <- with(mats, flashier(data=beta_hat, S = se_hat, var.type=0, greedy.Kmax = 100, init.tol=1e-4, fit = "full", verbose.lvl=3))
 ```
 
-## Summary
+# Summary
 
 To summarize the number of factors and objective value from each method
 
@@ -142,10 +142,27 @@ Method                                  |  Number of Factors | Objective
 `flashier`, greedy init, `var.type=0`   | `r fr2$n.factors`  | `r fr2$elbo`
 
 
-## Comparing methods by masking data
+# Comparing methods by masking data
 
-In addition to comparing the objectives, we can evaluate the fit by masking data and then computing the sum of squared differences between observed and imputed values. The code below does this 10 times for each method, masking a random set of 5\% of non-missing summary statistics each time.
+In addition to comparing the objectives, we can evaluate the fit by masking data and then computing the sum of squared differences between observed and imputed values. The code below does this 5 times for each method, masking a random set of 5\% of non-missing summary statistics each time.
 
-```{r, results="hide", mask}
+```{r, message = FALSE, cache=TRUE, mask1}
+mask_flash1 <- mask_and_fit(mats, fit_function = fit_flash_zero_svd, 
+                            n_times=5, seed = 1)
+```
 
+```{r, hist1}
+hist(mask_flash1, breaks=5)
+cat("Sum of errors over 5 iterations: ", sum(mask_flash1), "\n")
+```
+
+
+```{r, message = FALSE, cache=TRUE, mask2}
+mask_flash2 <- mask_and_fit(mats, fit_function = fit_flash_zero_greedy, 
+                            n_times=5, seed = 1)
+```
+
+```{r, hist2}
+hist(mask_flash2, breaks=5)
+cat("Sum of errors over 5 iterations: ", sum(mask_flash2), "\n")
 ```
