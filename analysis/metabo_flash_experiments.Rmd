@@ -41,12 +41,12 @@ where $Y_{ij}$ is the effect estimate of variant $i$ on trait $j$ and $E_{ij} \s
 
 We will start with the default point-normal prior for both factors and loadings. 
 
-## SVD initialization
+## SVD initialization with point-normal prior
 
 ```{r, cache=TRUE, flash1}
 kmax <- 100
 data <- with(mats, flash_set_data(Y = beta_hat, S = se_hat))
-f  <- flash_add_factors_from_data(data,K=kmax, var_type="zero") #, ebnm_fn = "ebnm_ash")
+f  <- flash_add_factors_from_data(data,K=kmax, var_type="zero") 
 f <- flash_backfit(data,f, var_type="zero") 
 ```
 
@@ -69,10 +69,26 @@ ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
 ```
 
 I am particularly interested in birthweight and type 2 diabetes so I will comment on it here. There are two factors, 20 and 7 that have substantial weights on birth weight. Factor 7 appears to mostly affect "height related" traits including height, birth length, and head circumference but also has a small affect on insulin sensitivity. Factor 20 is also related to birth lenght and head circumference but is not associated with height and has opposite sign associations with type 2 diabetes risk and blood pressure. 
+It is weakly associated with childhood bmi and childhood obesity. 
 
-It is weakly associated with childhood bmi and childhood obesity. It is also worth noting that there are several factors which are nearly single trait factors. These include 
+It is also worth noting that there are several factors which are nearly single trait factors. These include 
 3 (coronary artery disease), 5 (type 2 diabetes), 11 (bone density), 16 (proinsulin), and 23 (waist to hip ratio)
  The objective for the fit is `r f$objective`. 
+ 
+ Looking closer reveals that factor 3, which affects only CAD, is driven entirely by one variant, 1503. This variant is missing in al but 5 GWAS and has a $z$-score 26.5 for the CAD GWAS and non-significant $z$-scores for the other four. 
+ 
+## SVD initialization with ASH prior
+
+I am unable to run this, it seems to just hang without running. 
+
+```{r, cache=TRUE, eval=FALSE, flash1.5}
+kmax <- 100
+f_ash  <- flash_add_factors_from_data(data,K=kmax, 
+                                      var_type="zero", ebnm_fn = "ebnm_ash")
+f_ash <- flash_backfit(data,f, var_type="zero") 
+```
+
+
 
 ## Greedy initialization
 
@@ -107,6 +123,20 @@ ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
 ```
 
 Similar patterns are seen with the two factors weighed on birth weight. There are fewer single trait factors and many factors are weighted on a large number of traits. 
+
+
+## Greedy initialization with ASH prior
+
+This occaisionally has a step that takes a long time. I haven't yet finisehd running it because I got impatient. 
+
+```{r, cache=TRUE, eval=FALSE, flash_greedy_ash}
+kmax <- 100
+f_greedy_ash  <- flash_add_greedy(data,K=kmax, 
+                                      var_type="zero", ebnm_fn = "ebnm_ash")
+f_greedy_ash <- flash_backfit(data,f, var_type="zero") 
+```
+
+
 
 # flashier
 
