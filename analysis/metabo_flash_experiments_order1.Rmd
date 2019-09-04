@@ -1,0 +1,152 @@
+---
+title: "metabo_flash_experiments_order1"
+author: "Jean Morrison"
+date: "2019-09-03"
+output: workflowr::wflow_html
+css: "buttons.css"
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r, message=FALSE, warnings=FALSE, echo=FALSE, libraries}
+library(flashier)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>", warning = FALSE)
+```
+<script src="code/hide_output.js"></script>
+
+After initial experiments trying different settings with `flashr` and `flashier` I began looking at the loadings for our fits. I noticed that one of the factors was loaded on only a single SNP and that that SNP was missing in most traits. This seemed problematic so I went back to the data and re-prioritized SNPs before LD pruning. In the data set I will explore in this document, SNPs were ranked first by the number of traits with non-missing data and then by lowest $p$-value across all traits. 
+
+```{r, read_data}
+mats <- readRDS("data/metabo3_gwas_mats_order1.RDS")
+mats$beta_hat[is.na(mats$se_hat)] <- NA
+mats$se_hat[is.na(mats$beta_hat)] <- Inf
+```
+
+We selected the same number of SNPs as previously, `r nrow(mats)`, however now only `r round(100*mean(is.na(mats$beta_hat)))`% of the data are missing. Throughout this analysis I will use `flashier`.
+
+## Basic Analysis
+
+We start with the same basic analysis as [previously](metabo_flash_experiments.html), fitting
+
+$$
+Y = LF^T + S
+$$
+where $S_{ij} \sim N(0, \hat{se}^2_{ij})$. 
+
+```{r, chache=TRUE, fit1}
+fit_zero_siinit <- flashier(data = mats$beta_hat, S = mats$se_hat, var.type = NULL, 
+                            fit = "full", init.fn = init.fn.softImpute, 
+                            tol = 0.01)
+```
+
+Plotting the factors obtained:
+
+```{r, plot_factors1}
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "metabo3_", "")
+plot_factors_flashier(fit_zero_siinit, traits) + 
+  ggtitle('S and zero variance, soft impute initialization')
+```
+
+Plotting the loadings:
+
+```{r, plot_loadings1}
+plot_loadings_flashier(fit_zero_siinit)
+```
+
+
+All of the factors are loaded on many SNPs and there are no single-trait factors which is a good sign. 
+
+## Comparing Initializations and Variance Structures
+
+This is a similar comparison to one run by Jason. We are comparing the fits obtained by `flashier` using three different initiallization schemes:
+
++ "flashier": the default method adds factors one at a time. Each factor is initialized by finding the best rank-one approximation to the matrix of residuals.
++ "softImpute": uses package softImpute to initialize factors. This gives different results when there is missing data.
++ "initialize from data": adds a bunch of factors all at once using softImpute and then refines the fit via backfitting.
+
+and eight different variance structures. We are fitting 
+$$
+Y = LF^T + S
+$$
+where , if $S$ is included, $S_{ij} \sim N(0, \hat{se}^2_{ij})$. We consider the following 8 options:
+
+
++ "constant": $S = 0$ and $\tau_{ij} = \tau$
++ "by_row": $S = 0$ and $\tau_{ij} = \tau_i$
++ "by_col": $S = 0$ and $\tau_{ij} = \tau_p$
++ "kronecker": $S = 0$ and $\tau_{ij} = \tau_i \tau_j$
++ "zero": Only $S$ is used, $E = 0$
++ "noisy_constant": $S$ is used and $\tau_{ij} = \tau$
++ "noisy_byrow": $S$ is used and $\tau_{ij} = \tau_i$
++ "noisy_bycol": $S$ is used and $\tau_{ij} = \tau_j$
+
+Currently it is not possible to include $S$ and have a Kronecker variance structure for $E$.
+Below is a table summarizing the ELBO relative to the lowest ELBO and number of factors in parenthesis.
+
+```{r table}
+res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
+                   var = c("constant", "by_row", "by_col", "kronecker",
+                          "zero", "noisy_constant", "noisy_byrow",
+                          "noisy_bycol"))
+res <- res %>% mutate(file = paste0("data/metabo3_order1__", init, "__", var, ".RDS"))
+rr <- purrr:::map(res$file, function(f){
+          fit <- readRDS(f)
+          c(fit$elbo, fit$n.factors)
+})
+res$elbo <- map(rr, 1) %>% unlist()
+res$nfactors <- map(rr, 2) %>% unlist()
+max_elbo <- max(res$elbo)
+res <- res %>% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), "(", nfactors, ")"))
+tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
+knitr::kable(tab)
+```
+
+
+Initializing from the data tends to give a higher ELBO than the other initialization schemes and the Kronecker variance structure which doesn't include $S$ tends to out perform the other variance structures. However, the "from_data" initialization scheme always gives the maximum number of factors. 
+
+```{r, lookfit1}
+best_fit <- readRDS("data/metabo3_order1__from_data__kronecker.RDS")
+plot_factors_flashier(best_fit, traits) + 
+  ggtitle('Kroeneker variance without S, Initialize from data')
+
+#
+#si_res <- softImpute::softImpute(mats$beta_hat, rank.max = 30, lambda = 0, type = "als")
+#best_fit2 <- flashier(data = mats$beta_hat,  var.type = c(1,2), 
+#                            fit = "backfit.only", EF.init = si_res,
+#                            tol = 0.01)
+```
+
+So it appears that there are in fact fewer than 30 factors but many 0 factors have been retained for some reson (perhaps there has been a change in `flashier`, I am checking with Jason). In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes. 
+
+Remaking the table above accounting for this 
+
+```{r table2}
+res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
+                   var = c("constant", "by_row", "by_col", "kronecker",
+                          "zero", "noisy_constant", "noisy_byrow",
+                          "noisy_bycol"))
+res <- res %>% mutate(file = paste0("data/metabo3_order1__", init, "__", var, ".RDS"))
+rr <- purrr:::map(res$file, function(f){
+          fit <- readRDS(f)
+          c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+})
+res$elbo <- map(rr, 1) %>% unlist()
+res$nfactors <- map(rr, 2) %>% unlist()
+max_elbo <- max(res$elbo)
+res <- res %>% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), "(", nfactors, ")"))
+tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
+knitr::kable(tab)
+```
+
+we see that the initialize from data method does always retain more factors but not always 30. Despite the ELBO being higher using the Kronecker variance structure, I think that including $S$ reflects the model better. 
