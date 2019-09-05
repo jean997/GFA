@@ -19,6 +19,7 @@ mask_and_fit <- function(mats, fit_function,
                       est <- fit_function(my_mats)
                       sum((mats$beta_hat[ix]-est[ix])^2)
                     })
+  return(list(errs = errs, mask_ix = mask_ix))
 
 }
 
