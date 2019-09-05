@@ -4,3 +4,5 @@
 ^docs$
 ^code$
 ^output$
+^data$
+^analysis_data$

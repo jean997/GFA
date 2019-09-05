@@ -11,14 +11,13 @@ mask_and_fit <- function(mats, fit_function,
   set.seed(seed)
   non_missing_index <- which(!is.na(mats$beta_hat))
   n_mask <- round(mask_proportion*length(non_missing_index))
-  errs <- replicate(n=n_times,
-                    expr = {
+  mask_ix <- replicate(n=n_times, {sample(non_missing_index, size=n_mask)})
+  errs <- apply(mask_ix, 2, function(ix){
                       my_mats <- mats
-                      set_missing <- sample(non_missing_index, size=n_mask)
-                      my_mats$beta_hat[set_missing] <- NA
-                      my_mats$se_hat[set_missing] <- NA
+                      my_mats$beta_hat[ix] <- NA
+                      my_mats$se_hat[ix] <- NA
                       est <- fit_function(my_mats)
-                      sum((mats$beta_hat[set_missing]-est[set_missing])^2)
+                      sum((mats$beta_hat[ix]-est[ix])^2)
                     })
 
 }
