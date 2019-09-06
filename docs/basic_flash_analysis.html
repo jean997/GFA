@@ -7,6 +7,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Jean Morrison" />
@@ -90,7 +91,6 @@ code {
 }
 img {
   max-width:100%;
-  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -251,48 +251,9 @@ $(document).ready(function () {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 
 
-
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <style type="text/css">
 
@@ -427,7 +388,7 @@ div.section {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -436,7 +397,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -445,13 +406,13 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-08-26
+<strong>Last updated:</strong> 2019-09-06
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
-<strong>Knit directory:</strong> <code>gwas_factors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
@@ -476,56 +437,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Environment:</strong> objects present </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
-<div id="strongEnvironmentstrongobjectspresent" class="panel-collapse collapse">
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>
-The global environment had objects present when the code in the R Markdown file was run. These objects can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment. Use <code>wflow_publish</code> or <code>wflow_build</code> to ensure that the code is always run in an empty environment.
-</p>
-<p>
-The following objects were defined in the global environment when these results were created:
-</p>
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th style="text-align:left;">
-Name
-</th>
-<th style="text-align:left;">
-Class
-</th>
-<th style="text-align:left;">
-Size
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-data
-</td>
-<td style="text-align:left;">
-environment
-</td>
-<td style="text-align:left;">
-56 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-env
-</td>
-<td style="text-align:left;">
-environment
-</td>
-<td style="text-align:left;">
-56 bytes
-</td>
-</tr>
-</tbody>
-</table>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
 </div>
 </div>
 </div>
@@ -580,10 +497,10 @@ environment
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstreeba80a6a018d552eba8d3f754c0ad95a4ac7f7c61targetblankba80a6aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/ss_factors/tree/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61" target="_blank">ba80a6a</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreead27e4a2514ca5e52908f33e9bc8d1d3ee4b7526targetblankad27e4aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/ad27e4a2514ca5e52908f33e9bc8d1d3ee4b7526" target="_blank">ad27e4a</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997ssfactorstreeba80a6a018d552eba8d3f754c0ad95a4ac7f7c61targetblankba80a6aa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreead27e4a2514ca5e52908f33e9bc8d1d3ee4b7526targetblankad27e4aa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -592,19 +509,72 @@ Great! You are using Git for version control. Tracking code development and conn
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors_cache/
     Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
 
 Untracked files:
-    Untracked:  analysis/metabo_flash_experiments.Rmd
-    Untracked:  data/.~lock.metabo2_gwas.csv#
-    Untracked:  data/bc_gwas_flash.RDS
-    Untracked:  data/bc_gwas_mats.RDS
-    Untracked:  data/metabo2_gwas.csv
-    Untracked:  data/metabo3_gwas_mats.RDS
-    Untracked:  data/metabo_gwas.csv
-    Untracked:  data/metabo_gwas_flash.RDS
-    Untracked:  data/metabo_gwas_mats.RDS
-    Untracked:  docs/figure/
+    Untracked:  analysis_data/.~lock.metabo2_gwas.csv#
+    Untracked:  analysis_data/HACER-enhancers.txt
+    Untracked:  analysis_data/HACER_README.txt
+    Untracked:  analysis_data/bc_gwas_mats.RDS
+    Untracked:  analysis_data/eqtl_genes.RDS
+    Untracked:  analysis_data/flashier_res2019-09-03.RDS
+    Untracked:  analysis_data/metabo2_gwas.csv
+    Untracked:  analysis_data/metabo3_order1__flashier__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__zero.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__zero.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__zero.RDS
+    Untracked:  analysis_data/metabo_gwas.csv
+    Untracked:  analysis_data/pathway_loadings_data.RDS
+    Untracked:  buttons.css
+    Untracked:  code/flashier_compare.R
+    Untracked:  code/hide_output.js
+    Untracked:  snp_annot.RDS
 
 </code></pre>
 <p>
@@ -648,7 +618,41 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/ss_factors/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/basic_flash_analysis.Rmd" target="_blank">ba80a6a</a>
+<a href="https://github.com/jean997/sumstatFactors/blob/ad27e4a2514ca5e52908f33e9bc8d1d3ee4b7526/analysis/basic_flash_analysis.Rmd" target="_blank">ad27e4a</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-09-07
+</td>
+<td>
+wflow_publish(c(“analysis/basic_flash_analysis.Rmd”,
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/fce679d244e406c8c6c80b48c6062c779b612945/docs/basic_flash_analysis.html" target="_blank">fce679d</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/basic_flash_analysis.Rmd" target="_blank">ba80a6a</a>
 </td>
 <td>
 Jean Morrison
@@ -698,46 +702,121 @@ saveRDS(fits, file=out_file)</code></pre>
 <h2>Metabolic Traits</h2>
 <p>First I plot a heatmap of the factors matrix. This can be interpreted as the (standardized) effect of each factor on each trait.</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>── Attaching packages ────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>── Attaching packages ──────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>✔ ggplot2 3.2.1     ✔ purrr   0.3.2
 ✔ tibble  2.1.3     ✔ dplyr   0.8.3
 ✔ tidyr   0.8.3     ✔ stringr 1.4.0
 ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>── Conflicts ───────────────────────────────────────────────────────── tidyverse_conflicts() ──
+<pre><code>── Conflicts ─────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>res &lt;- readRDS(&quot;data/metabo_gwas_flash.RDS&quot;)
-mats &lt;- readRDS(&quot;data/metabo_gwas_mats.RDS&quot;)
+<pre class="r"><code>library(reshape2)</code></pre>
+<pre><code>
+Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    smiths</code></pre>
+<pre class="r"><code>library(sumstatFactors)</code></pre>
+<pre><code>Registered S3 method overwritten by &#39;flashr&#39;:
+  method      from    
+  print.flash flashier</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39;
+when loading &#39;sumstatFactors&#39;</code></pre>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/metabo_gwas_flash.RDS&quot;)
+mats &lt;- readRDS(&quot;analysis_data/metabo_gwas_mats.RDS&quot;)
 factors &lt;- as.data.frame(res$f$ldf$f)
 
 traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 8) %&gt;% unlist(.)
 traits &lt;- str_replace(traits, &quot;_summary_statistics.tsv.gz&quot;, &quot;&quot;)
-factors$trait &lt;- traits
-factors &lt;- gather(factors, &quot;factor&quot;, &quot;value&quot;, -trait)
 
-x &lt;- res$f$ldf$f
-rownames(x) &lt;- traits 
-
-heatmap(x, col=cm.colors(256))</code></pre>
+plot_factors(res$f$ldf$f, traits)</code></pre>
 <p><img src="figure/basic_flash_analysis.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/fce679d244e406c8c6c80b48c6062c779b612945/docs/figure/basic_flash_analysis.Rmd/unnamed-chunk-2-1.png" target="_blank">fce679d</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="blood-cell-traits" class="section level2">
 <h2>Blood Cell Traits</h2>
-<pre class="r"><code>library(tidyverse)
-res &lt;- readRDS(&quot;data/bc_gwas_flash.RDS&quot;)
-mats &lt;- readRDS(&quot;data/bc_gwas_mats.RDS&quot;)
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/bc_gwas_flash.RDS&quot;)
+mats &lt;- readRDS(&quot;analysis_data/bc_gwas_mats.RDS&quot;)
 factors &lt;- as.data.frame(res$f$ldf$f)
 
 traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 8) %&gt;% unlist(.)
 traits &lt;- str_replace(traits, &quot;_summary_statistics.tsv.gz&quot;, &quot;&quot;)
-factors$trait &lt;- traits
-factors &lt;- gather(factors, &quot;factor&quot;, &quot;value&quot;, -trait)
 
-x &lt;- res$f$ldf$f
-rownames(x) &lt;- traits 
-
-heatmap(x, col=cm.colors(256))</code></pre>
+plot_factors(res$f$ldf$f, traits)</code></pre>
 <p><img src="figure/basic_flash_analysis.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/fce679d244e406c8c6c80b48c6062c779b612945/docs/figure/basic_flash_analysis.Rmd/unnamed-chunk-3-1.png" target="_blank">fce679d</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-08-27
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -766,29 +845,38 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] forcats_0.4.0   stringr_1.4.0   dplyr_0.8.3     purrr_0.3.2    
-[5] readr_1.3.1     tidyr_0.8.3     tibble_2.1.3    ggplot2_3.2.1  
-[9] tidyverse_1.2.1
+ [1] sumstatFactors_0.0.0.9000 reshape2_1.4.3           
+ [3] forcats_0.4.0             stringr_1.4.0            
+ [5] dplyr_0.8.3               purrr_0.3.2              
+ [7] readr_1.3.1               tidyr_0.8.3              
+ [9] tibble_2.1.3              ggplot2_3.2.1            
+[11] tidyverse_1.2.1          
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.2           cellranger_1.1.0     compiler_3.6.1      
- [4] pillar_1.4.2         git2r_0.26.1         highr_0.8           
- [7] workflowr_1.4.0.9000 tools_3.6.1          zeallot_0.1.0       
-[10] digest_0.6.20        lubridate_1.7.4      jsonlite_1.6        
-[13] evaluate_0.14        nlme_3.1-140         gtable_0.3.0        
-[16] lattice_0.20-38      pkgconfig_2.0.2      rlang_0.4.0         
-[19] cli_1.1.0            rstudioapi_0.10      yaml_2.2.0          
-[22] haven_2.1.1          xfun_0.8             withr_2.1.2         
-[25] xml2_1.2.0           httr_1.4.0           knitr_1.23          
-[28] vctrs_0.2.0          hms_0.5.0            generics_0.0.2      
-[31] fs_1.3.1             rprojroot_1.3-2      grid_3.6.1          
-[34] tidyselect_0.2.5     glue_1.3.1           R6_2.4.0            
-[37] readxl_1.3.1         rmarkdown_1.13       modelr_0.1.4        
-[40] magrittr_1.5         whisker_0.3-2        backports_1.1.4     
-[43] scales_1.0.0         htmltools_0.3.6      rvest_0.3.4         
-[46] assertthat_0.2.1     colorspace_1.4-1     stringi_1.4.3       
-[49] lazyeval_0.2.2       munsell_0.5.0        broom_0.5.2         
-[52] crayon_1.3.4        </code></pre>
+ [1] Rcpp_1.0.2           lubridate_1.7.4      lattice_0.20-38     
+ [4] assertthat_0.2.1     zeallot_0.1.0        rprojroot_1.3-2     
+ [7] digest_0.6.20        foreach_1.4.7        truncnorm_1.0-8     
+[10] R6_2.4.0             cellranger_1.1.0     plyr_1.8.4          
+[13] backports_1.1.4      evaluate_0.14        httr_1.4.1          
+[16] pillar_1.4.2         rlang_0.4.0          lazyeval_0.2.2      
+[19] pscl_1.5.2           readxl_1.3.1         rstudioapi_0.10     
+[22] ebnm_0.1-24          whisker_0.4          Matrix_1.2-17       
+[25] rmarkdown_1.15       labeling_0.3         RMySQL_0.10.17      
+[28] mixsqp_0.1-97        munsell_0.5.0        broom_0.5.2         
+[31] compiler_3.6.1       modelr_0.1.5         xfun_0.9            
+[34] pkgconfig_2.0.2      SQUAREM_2017.10-1    htmltools_0.3.6     
+[37] tidyselect_0.2.5     flashr_0.6-6         workflowr_1.4.0.9000
+[40] intervals_0.15.1     codetools_0.2-16     crayon_1.3.4        
+[43] withr_2.1.2          MASS_7.3-51.4        grid_3.6.1          
+[46] DBI_1.0.0            nlme_3.1-141         jsonlite_1.6        
+[49] gtable_0.3.0         git2r_0.26.1         magrittr_1.5        
+[52] scales_1.0.0         cli_1.1.0            stringi_1.4.3       
+[55] fs_1.3.1             doParallel_1.0.15    xml2_1.2.2          
+[58] flashier_0.1.16      vctrs_0.2.0          generics_0.0.2      
+[61] iterators_1.0.12     tools_3.6.1          softImpute_1.4      
+[64] glue_1.3.1           hms_0.5.1            parallel_3.6.1      
+[67] yaml_2.2.0           colorspace_1.4-1     ashr_2.2-32         
+[70] rvest_0.3.4          knitr_1.24           haven_2.1.1         </code></pre>
 </div>
 </div>
 
@@ -822,6 +910,49 @@ $(document).ready(function () {
 });
 
 
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
 </script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
