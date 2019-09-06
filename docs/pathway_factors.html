@@ -12,9 +12,9 @@
 
 <meta name="author" content="Jean Morrison" />
 
-<meta name="date" content="2019-09-03" />
+<meta name="date" content="2019-09-06" />
 
-<title>More comparisons, less missingness in data</title>
+<title>Fixed factors from pathways</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -76,7 +76,6 @@ h6 {
 }
 </style>
 
-<link rel="stylesheet" href="buttons.css" type="text/css" />
 
 
 
@@ -380,16 +379,16 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">More comparisons, less missingness in data</h1>
+<h1 class="title toc-ignore">Fixed factors from pathways</h1>
 <h4 class="author">Jean Morrison</h4>
-<h4 class="date">2019-09-03</h4>
+<h4 class="date">2019-09-06</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -398,7 +397,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -410,7 +409,7 @@ div.section {
 <strong>Last updated:</strong> 2019-09-06
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -474,12 +473,18 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
 </p>
 </div>
-<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+The following chunks had caches available:
+<ul>
+<li>
+pathway1
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>pathway_factors_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
 </div>
 </div>
 </div>
@@ -630,7 +635,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/metabo_flash_experiments_order1.Rmd" target="_blank">f1d6d49</a>
+<a href="https://github.com/jean997/sumstatFactors/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/pathway_factors.Rmd" target="_blank">f1d6d49</a>
 </td>
 <td>
 Jean Morrison
@@ -642,40 +647,6 @@ Jean Morrison
 wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”,
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/metabo_flash_experiments_order1.html" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d51bfe15bc7d399268fd89158d03c57b72d05157/analysis/metabo_flash_experiments_order1.Rmd" target="_blank">d51bfe1</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”))
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -683,363 +654,190 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_o
 </div>
 </div>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<div id="compiling-pathway-information" class="section level2">
+<h2>Compiling Pathway information</h2>
 <pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39;
 when loading &#39;sumstatFactors&#39;</code></pre>
-<script src="code/hide_output.js"></script>
-<p>After initial experiments trying different settings with <code>flashr</code> and <code>flashier</code> I began looking at the loadings for our fits. I noticed that one of the factors was loaded on only a single SNP and that that SNP was missing in most traits. This seemed problematic so I went back to the data and re-prioritized SNPs before LD pruning. In the data set I will explore in this document, SNPs were ranked first by the number of traits with non-missing data and then by lowest <span class="math inline">\(p\)</span>-value across all traits.</p>
 <pre class="r"><code>mats &lt;- readRDS(&quot;analysis_data/metabo3_gwas_mats_order1.RDS&quot;)
 mats$beta_hat[is.na(mats$se_hat)] &lt;- NA
-mats$se_hat[is.na(mats$beta_hat)] &lt;- Inf</code></pre>
-<p>We selected the same number of SNPs as previously, , however now only 7% of the data are missing. Throughout this analysis I will use <code>flashier</code>.</p>
-</div>
-<div id="basic-analysis" class="section level2">
-<h2>Basic Analysis</h2>
-<p>We start with the same basic analysis as <a href="metabo_flash_experiments.html">previously</a>, fitting</p>
-<p><span class="math display">\[
-Y = LF^T + S
-\]</span> where <span class="math inline">\(S_{ij} \sim N(0, \hat{se}^2_{ij})\)</span>.</p>
-<pre class="r"><code>fit_zero_siinit &lt;- flashier(data = mats$beta_hat, S = mats$se_hat, var.type = NULL, 
-                            fit = &quot;full&quot;, init.fn = init.fn.softImpute, 
-                            tol = 0.01)
-#&gt; Initializing flash object...
-#&gt; Adding factor 1 to flash object...
-#&gt; Adding factor 2 to flash object...
-#&gt; Adding factor 3 to flash object...
-#&gt; Adding factor 4 to flash object...
-#&gt; Adding factor 5 to flash object...
-#&gt; Adding factor 6 to flash object...
-#&gt; Adding factor 7 to flash object...
-#&gt; Adding factor 8 to flash object...
-#&gt; Adding factor 9 to flash object...
-#&gt; Adding factor 10 to flash object...
-#&gt; Adding factor 11 to flash object...
-#&gt; Adding factor 12 to flash object...
-#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-#&gt; Backfitting 11 factors (tolerance: 1.00e-02)...
-#&gt;   Difference between iterations is within 1.0e+03...
-#&gt;   Difference between iterations is within 1.0e+02...
-#&gt;   Difference between iterations is within 1.0e+01...
-#&gt;   Difference between iterations is within 1.0e+00...
-#&gt;   Difference between iterations is within 1.0e-01...
-#&gt;   Difference between iterations is within 1.0e-02...
-#&gt; Nullchecking 11 factors...
-#&gt; Wrapping up...
-#&gt; Done.</code></pre>
-<p>Plotting the factors obtained:</p>
-<pre class="r"><code>traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 2) %&gt;% 
+mats$se_hat[is.na(mats$beta_hat)] &lt;- Inf
+
+traits &lt;- str_split(mats$traits, &quot;/&quot;) %&gt;% map(., 2) %&gt;% 
           unlist(.) %&gt;%
           str_replace(., &quot;.top_summary_statistics.tsv.gz&quot;, &quot;&quot;) %&gt;%
           str_replace(., &quot;metabo3_&quot;, &quot;&quot;)
-plot_factors_flashier(fit_zero_siinit, traits) + 
-  ggtitle(&#39;S and zero variance, soft impute initialization&#39;)</code></pre>
-<p><img src="figure/metabo_flash_experiments_order1.Rmd/plot_factors1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_factors1-1">
-Past versions of plot_factors1-1.png
-</button>
-</p>
-<div id="fig-plot_factors1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/figure/metabo_flash_experiments_order1.Rmd/plot_factors1-1.png" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-</tr>
-</tbody>
-</table>
+
+ntrait &lt;- length(mats$traits)
+nsnp &lt;- length(mats$snps)</code></pre>
+<p>Here the goal is to define some loadings that can only have non-zero values for SNPs within a single pathway. In order to do this we need to first map SNPs to genes and genes to pathways which is a bit tricky. My first attempt will take a broad approach. I will use the following rules to associate SNPs with genes:</p>
+<ol style="list-style-type: decimal">
+<li>The SNP is a cis eQTL for the gene in GTEx v8 in any tissue</li>
+<li>The SNP is within X Kb of the start or end of the gene.</li>
+<li>The SNP is in an enhancer that is associated with the gene in either FANTOM5 or 4DGenome</li>
+</ol>
+<p>The last bit of information is obtained from HACER (Human ACtive Enhancer to interpret Regulatory variants, <a href="http://bioinfo.vanderbilt.edu/AE/HACER/index.html" class="uri">http://bioinfo.vanderbilt.edu/AE/HACER/index.html</a> )</p>
+<p>The first step is to get all of these annotations.</p>
+<pre class="r"><code># Get SNP annotation information
+snp_annot &lt;- annotate_snp_loc(mats$snps)
+head(snp_annot)
+# A tibble: 6 x 7
+  name       chrom       pos ref   alt   func    has_func
+  &lt;chr&gt;      &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;lgl&gt;   
+1 rs1000940  17      5283252 C     T     intron  FALSE   
+2 rs10011174 4     153495515 A     G     unknown FALSE   
+3 rs10016041 4     140117746 A     G     unknown FALSE   
+4 rs10019888 4      26062990 A     G     unknown FALSE   
+5 rs10023335 4      77358987 C     T     intron  FALSE   
+6 rs1002607  9     113858933 C     T     unknown FALSE   </code></pre>
+<p>Note that we only have annotation information for 4389 of the 4393 SNPs.</p>
+<p>The eQTL information I extracted on rcc using the following code from the <code>/project2/compbio/external_public_supp/GTEx/V8/GTEx_Analysis_v8_eQTL</code> directory.</p>
+<pre class="r"><code>gtex_files &lt;- list.files(&quot;.&quot;, &quot;.v8.signif_variant_gene_pairs.chrpos.tsv.gz&quot;)
+tissues &lt;- str_replace(gtex_files, &quot;.v8.signif_variant_gene_pairs.chrpos.tsv.gz&quot;, &quot;&quot;)
+eqtl_genes &lt;- get_eqtl_genes(snp_annot,gtex_files, tissues)</code></pre>
+<p>This produced a data frame listing SNP-Gene pairs and in which tissue the SNP is an eQTL for the gene.</p>
+<pre class="r"><code>eqtl_genes &lt;- readRDS(&quot;analysis_data/eqtl_genes.RDS&quot;)
+dim(eqtl_genes)
+[1] 767   6
+head(eqtl_genes)
+# A tibble: 6 x 6
+  chrom    pos name      chr   gene_id            tissue              
+  &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;              &lt;chr&gt;               
+1 11    204228 rs1045454 chr11 ENSG00000177963.14 Adipose_Subcutaneous
+2 11    204228 rs1045454 chr11 ENSG00000142082.14 Adipose_Subcutaneous
+3 11    204228 rs1045454 chr11 ENSG00000185627.17 Adipose_Subcutaneous
+4 11    204228 rs1045454 chr11 ENSG00000277290.1  Adipose_Subcutaneous
+5 11    494662 rs10540   chr11 ENSG00000174915.11 Adipose_Subcutaneous
+6 11    494662 rs10540   chr11 ENSG00000023191.16 Adipose_Subcutaneous</code></pre>
+<p>This have us a table 767 SNP-Gene pairs. However, many of them are duplicated becaseu they are detected in multiple tissues.</p>
+<pre class="r"><code>eqtl_genes &lt;- distinct(eqtl_genes, chrom, pos, name, gene_id)</code></pre>
+<p>Reducing to only unique pairs leaves 109 SNP-Gene pairs.</p>
+<p>From the table of enhancers we extract all SNP-Gene pairs where the SNP is in an enhancer that targets the gene in either FANTOM5 or 4DGenome</p>
+<pre class="r"><code>hacer_df &lt;- read_tsv(&quot;analysis_data/HACER-enhancers.txt&quot;)
+Parsed with column specification:
+cols(
+  .default = col_character(),
+  start = col_double(),
+  end = col_double(),
+  center = col_number(),
+  PMID = col_number(),
+  distance = col_double(),
+  `Normalized-count` = col_double(),
+  density = col_double(),
+  VISTA = col_double(),
+  Ensembl = col_double(),
+  ENCODE = col_double(),
+  ChromHMM = col_double()
+)
+See spec(...) for full column specifications.
+enhancer_genes &lt;- get_enhancer_genes(snp_annot, hacer_df)
+head(enhancer_genes)
+# A tibble: 6 x 7
+  snp         Enhancer_ID         chr       start       end source  gene   
+  &lt;chr&gt;       &lt;chr&gt;               &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  
+1 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 USF1   
+2 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 ARHGAP…
+3 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 FCER1G 
+4 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 FCGR2A 
+5 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 ATF6   
+6 rs114693598 AE_hg19_A172_170262 chr1  161500608 161500899 FANTOM5 HSPA6  </code></pre>
+<p>This yields 6359 SNP-Gene pairs but again there are overlaps because often the same SNP falls in many annotated enhancers in different cell types that are all linked with the same gene. There are only 187 distinct pairings. So eQTL and enhancer information have together not provided very much information for linking SNPs the genes and then to pathways.</p>
+<p>We can also link SNPs to gene by distance. We will use the following rules</p>
+<ol style="list-style-type: decimal">
+<li>A SNP is linked to its closest gene if it is within 500kb. In the case that a SNP is inside of multiple genes it is linked to all.</li>
+<li>Additionally, a SNP is linked to any gene with a TSS within 2kb</li>
+<li>If the SNP is more than 500kb from any gene it is not linked to a gene</li>
+</ol>
+<pre class="r"><code>gene_info &lt;- retrieve_genes()
+Joining, by = &quot;ucsc_name&quot;
+Joining, by = &quot;ucsc_name&quot;
+near_genes &lt;- nearest_gene(snp_annot, gene_info) %&gt;%
+              filter(gene_dist &lt;=500000)
+Joining, by = &quot;chrom&quot;
+tss2kb_genes &lt;- genes_within(snp_annot, gene_info, dist=2000)</code></pre>
+<p>Now we have all the info, time to combine into a single data frame</p>
+<pre class="r"><code>eqtl_genes &lt;- eqtl_genes %&gt;% 
+              distinct(name, gene_id) %&gt;% 
+              mutate(gene_id = gsub(&quot;\\..*&quot; ,&quot;&quot;, gene_id),
+                     method = &quot;eQTL&quot;) %&gt;%
+              rename(snp = name)
+enhancer_genes &lt;- enhancer_genes %&gt;%
+                  distinct(snp, gene, source) %&gt;%
+                  rename(geneSymbol = gene, method=source) %&gt;%
+                  left_join(., gene_info) %&gt;%
+                  select(snp, ensembl_gene_stable_id, method) %&gt;%
+                  rename(gene_id = ensembl_gene_stable_id)
+Joining, by = &quot;geneSymbol&quot;
+near_genes &lt;- near_genes %&gt;%
+              distinct(name, ensembl_gene_stable_id) %&gt;%
+              rename(gene_id = ensembl_gene_stable_id, snp=name) %&gt;%
+              mutate(method=&quot;closest&quot;)
+
+ tss2kb_genes &lt;- tss2kb_genes  %&gt;% 
+                 rename(gene_id = gene) %&gt;%
+                 mutate(method=&quot;Within_2kb&quot;)
+ 
+ all_genes &lt;- bind_rows(eqtl_genes, enhancer_genes, near_genes, tss2kb_genes)
+ with(all_genes, table(method))
+method
+   closest       eQTL    FANTOM5 Within_2kb 
+      4364        109        187        264 </code></pre>
 </div>
-</div>
-<p>Plotting the loadings:</p>
-<pre class="r"><code>plot_loadings_flashier(fit_zero_siinit)</code></pre>
-<p><img src="figure/metabo_flash_experiments_order1.Rmd/plot_loadings1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_loadings1-1">
-Past versions of plot_loadings1-1.png
-</button>
-</p>
-<div id="fig-plot_loadings1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/figure/metabo_flash_experiments_order1.Rmd/plot_loadings1-1.png" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>All of the factors are loaded on many SNPs and there are no single-trait factors which is a good sign.</p>
-</div>
-<div id="comparing-initializations-and-variance-structures" class="section level2">
-<h2>Comparing Initializations and Variance Structures</h2>
-<p>This is a similar comparison to one run by Jason. We are comparing the fits obtained by <code>flashier</code> using three different initiallization schemes:</p>
-<ul>
-<li>“flashier”: the default method adds factors one at a time. Each factor is initialized by finding the best rank-one approximation to the matrix of residuals.</li>
-<li>“softImpute”: uses package softImpute to initialize factors. This gives different results when there is missing data.</li>
-<li>“initialize from data”: adds a bunch of factors all at once using softImpute and then refines the fit via backfitting.</li>
-</ul>
-<p>and eight different variance structures. We are fitting <span class="math display">\[
-Y = LF^T + S
-\]</span> where , if <span class="math inline">\(S\)</span> is included, <span class="math inline">\(S_{ij} \sim N(0, \hat{se}^2_{ij})\)</span>. We consider the following 8 options:</p>
-<ul>
-<li>“constant”: <span class="math inline">\(S = 0\)</span> and <span class="math inline">\(\tau_{ij} = \tau\)</span></li>
-<li>“by_row”: <span class="math inline">\(S = 0\)</span> and <span class="math inline">\(\tau_{ij} = \tau_i\)</span></li>
-<li>“by_col”: <span class="math inline">\(S = 0\)</span> and <span class="math inline">\(\tau_{ij} = \tau_p\)</span></li>
-<li>“kronecker”: <span class="math inline">\(S = 0\)</span> and <span class="math inline">\(\tau_{ij} = \tau_i \tau_j\)</span></li>
-<li>“zero”: Only <span class="math inline">\(S\)</span> is used, <span class="math inline">\(E = 0\)</span></li>
-<li>“noisy_constant”: <span class="math inline">\(S\)</span> is used and <span class="math inline">\(\tau_{ij} = \tau\)</span></li>
-<li>“noisy_byrow”: <span class="math inline">\(S\)</span> is used and <span class="math inline">\(\tau_{ij} = \tau_i\)</span></li>
-<li>“noisy_bycol”: <span class="math inline">\(S\)</span> is used and <span class="math inline">\(\tau_{ij} = \tau_j\)</span></li>
-</ul>
-<p>Currently it is not possible to include <span class="math inline">\(S\)</span> and have a Kronecker variance structure for <span class="math inline">\(E\)</span>. Below is a table summarizing the ELBO relative to the lowest ELBO and number of factors in parenthesis.</p>
-<pre class="r"><code>res &lt;- expand.grid(init =  c(&quot;flashier&quot;, &quot;soft_impute&quot;, &quot;from_data&quot;), 
-                   var = c(&quot;constant&quot;, &quot;by_row&quot;, &quot;by_col&quot;, &quot;kronecker&quot;,
-                          &quot;zero&quot;, &quot;noisy_constant&quot;, &quot;noisy_byrow&quot;,
-                          &quot;noisy_bycol&quot;))
-res &lt;- res %&gt;% mutate(file = paste0(&quot;analysis_data/metabo3_order1__&quot;, init, &quot;__&quot;, var, &quot;.RDS&quot;))
-rr &lt;- purrr:::map(res$file, function(f){
-          fit &lt;- readRDS(f)
-          c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+<div id="which-go-ids-to-use" class="section level2">
+<h2>Which GO IDs to use</h2>
+<p>Most of our SNP-Gene pairs come from the closest gene method. There are 4651 distinct pairings. Now we can associate genes with GO Ids.</p>
+<pre class="r"><code>go_ids &lt;- retrieve_go_ids(unique(all_genes$gene_id)) %&gt;% 
+          filter(go_id != &quot;&quot;)</code></pre>
+<p>There are 9888 unique GO IDs associated with genes in our list. We can summarize them by number of gene.</p>
+<pre class="r"><code>x &lt;- go_ids %&gt;% group_by(go_id, name_1006) %&gt;% summarize(n = length(unique(ensembl_gene_id)))
+summary(x$n)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+   1.000    1.000    2.000    6.284    4.000 1758.000 </code></pre>
+<p>Almost half, 45%, of pathways have only one gene associated with SNPs in our list. However, some GO IDs are very general and are associated with a large number of genes.</p>
+<pre class="r"><code>x[order(-x$n),][1:10,]
+# A tibble: 10 x 3
+# Groups:   go_id [10]
+   go_id      name_1006                          n
+   &lt;chr&gt;      &lt;chr&gt;                          &lt;int&gt;
+ 1 GO:0005515 protein binding                 1758
+ 2 GO:0016020 membrane                        1179
+ 3 GO:0005737 cytoplasm                       1091
+ 4 GO:0005634 nucleus                         1077
+ 5 GO:0005829 cytosol                          816
+ 6 GO:0005886 plasma membrane                  744
+ 7 GO:0016021 integral component of membrane   728
+ 8 GO:0046872 metal ion binding                608
+ 9 GO:0005654 nucleoplasm                      555
+10 GO:0003677 DNA binding                      411</code></pre>
+<p>Very general pathways won’t be informative and pathways with almost no genes probably won’t be useful.</p>
+<p>Summarizing GO IDs by number of SNPs associated with genes in them:</p>
+<pre class="r"><code>all_genes &lt;- distinct(all_genes, snp, gene_id)
+gids &lt;- unique(go_ids$go_id)
+snps &lt;- map(gids, function(id){
+  genes &lt;- filter(go_ids, go_id == id) %&gt;% with(., unique(ensembl_gene_id))
+  snps &lt;-  filter(all_genes, gene_id %in% genes) %&gt;% with(., unique(snp))
 })
-res$elbo &lt;- map(rr, 1) %&gt;% unlist()
-res$nfactors &lt;- map(rr, 2) %&gt;% unlist()
-max_elbo &lt;- max(res$elbo)
-res &lt;- res %&gt;% mutate(elbo =elbo - max_elbo,
-                      text = paste0(round(elbo), &quot;(&quot;, nfactors, &quot;)&quot;))
-tab &lt;- res %&gt;% select(init, var, text) %&gt;% spread(key = init, value = text)
-knitr::kable(tab)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">var</th>
-<th align="left">flashier</th>
-<th align="left">soft_impute</th>
-<th align="left">from_data</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">constant</td>
-<td align="left">-24503(19)</td>
-<td align="left">-23261(20)</td>
-<td align="left">-14477(30)</td>
-</tr>
-<tr class="even">
-<td align="left">by_row</td>
-<td align="left">-26871(9)</td>
-<td align="left">-23177(13)</td>
-<td align="left">-8463(30)</td>
-</tr>
-<tr class="odd">
-<td align="left">by_col</td>
-<td align="left">-13803(9)</td>
-<td align="left">-13740(9)</td>
-<td align="left">-7570(29)</td>
-</tr>
-<tr class="even">
-<td align="left">kronecker</td>
-<td align="left">-6363(4)</td>
-<td align="left">-6363(4)</td>
-<td align="left">0(21)</td>
-</tr>
-<tr class="odd">
-<td align="left">zero</td>
-<td align="left">-17207(11)</td>
-<td align="left">-17207(11)</td>
-<td align="left">-10319(26)</td>
-</tr>
-<tr class="even">
-<td align="left">noisy_constant</td>
-<td align="left">-19581(9)</td>
-<td align="left">-22380(8)</td>
-<td align="left">-10205(26)</td>
-</tr>
-<tr class="odd">
-<td align="left">noisy_byrow</td>
-<td align="left">-14312(7)</td>
-<td align="left">-16629(6)</td>
-<td align="left">-7361(22)</td>
-</tr>
-<tr class="even">
-<td align="left">noisy_bycol</td>
-<td align="left">-16438(7)</td>
-<td align="left">-17275(5)</td>
-<td align="left">-10393(26)</td>
-</tr>
-</tbody>
-</table>
-<p>Initializing from the data tends to give a higher ELBO than the other initialization schemes and the Kronecker variance structure which doesn’t include <span class="math inline">\(S\)</span> tends to out perform the other variance structures. This initialization scheme also gives the most factors. Taking a lok at the fit with the highest ELBO:</p>
-<pre class="r"><code>best_fit &lt;- readRDS(&quot;analysis_data/metabo3_order1__from_data__kronecker.RDS&quot;)
-plot_factors_flashier(best_fit, traits) + 
-  ggtitle(&#39;Kroeneker variance without S, Initialize from data&#39;)</code></pre>
-<p><img src="figure/metabo_flash_experiments_order1.Rmd/lookfit1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-lookfit1-1">
-Past versions of lookfit1-1.png
-</button>
-</p>
-<div id="fig-lookfit1-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/figure/metabo_flash_experiments_order1.Rmd/lookfit1-1.png" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes.</p>
-<p>Despite these results, I think that including <span class="math inline">\(S\)</span> reflects the model better.</p>
-</div>
-<div id="comparisons-by-masking-data" class="section level2">
-<h2>Comparisons by masking data</h2>
-<p>I also compared the methods by masking some of the effect estimates and using the matrix decomposition to estimate them. The following table summarizes the average squared error over 5 iterations and in parentheses the standard error.</p>
-<pre class="r"><code>res &lt;- expand.grid(init =  c(&quot;flashier&quot;, &quot;soft_impute&quot;, &quot;from_data&quot;), 
-                   var = c(&quot;constant&quot;, &quot;by_row&quot;, &quot;by_col&quot;, &quot;kronecker&quot;,
-                          &quot;zero&quot;, &quot;noisy_constant&quot;, &quot;noisy_byrow&quot;,
-                          &quot;noisy_bycol&quot;))
-res &lt;- res %&gt;% mutate(file = paste0(&quot;analysis_data/metabo3_order1_mask__&quot;, init, &quot;__&quot;, var, &quot;.RDS&quot;))
-rr &lt;- purrr:::map(res$file, function(f){
-          x &lt;- readRDS(f)
-          c(mean(x$errs), sd(x$errs))
-})
-res$mean &lt;- map(rr, 1) %&gt;% unlist()
-res$sd &lt;- map(rr, 2) %&gt;% unlist()
-res &lt;- res %&gt;% mutate(text = paste0(round(mean, digits=2), &quot;(&quot;, round(sd, digits=2), &quot;)&quot;))
-tab &lt;- res %&gt;% select(init, var, text) %&gt;% spread(key = init, value = text)
-knitr::kable(tab)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="left">var</th>
-<th align="left">flashier</th>
-<th align="left">soft_impute</th>
-<th align="left">from_data</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">constant</td>
-<td align="left">0.22(0.01)</td>
-<td align="left">0.19(0.01)</td>
-<td align="left">0.01(0)</td>
-</tr>
-<tr class="even">
-<td align="left">by_row</td>
-<td align="left">0.97(0.31)</td>
-<td align="left">0.78(0.31)</td>
-<td align="left">0.36(0.32)</td>
-</tr>
-<tr class="odd">
-<td align="left">by_col</td>
-<td align="left">1.92(0.07)</td>
-<td align="left">1.83(0.12)</td>
-<td align="left">1.02(0.03)</td>
-</tr>
-<tr class="even">
-<td align="left">kronecker</td>
-<td align="left">2.34(0.34)</td>
-<td align="left">2.34(0.34)</td>
-<td align="left">0.64(0.41)</td>
-</tr>
-<tr class="odd">
-<td align="left">zero</td>
-<td align="left">4.4(0.9)</td>
-<td align="left">4.4(0.9)</td>
-<td align="left">3.89(0.89)</td>
-</tr>
-<tr class="even">
-<td align="left">noisy_constant</td>
-<td align="left">4.5(0.91)</td>
-<td align="left">4.87(0.91)</td>
-<td align="left">3.89(0.9)</td>
-</tr>
-<tr class="odd">
-<td align="left">noisy_byrow</td>
-<td align="left">4.62(0.89)</td>
-<td align="left">4.51(0.87)</td>
-<td align="left">3.98(0.91)</td>
-</tr>
-<tr class="even">
-<td align="left">noisy_bycol</td>
-<td align="left">4.61(0.93)</td>
-<td align="left">4.83(0.92)</td>
-<td align="left">4.1(0.91)</td>
-</tr>
-</tbody>
-</table>
-<p>The constant variance structure has the lowest error while the variance structures involving <span class="math inline">\(S\)</span> have higher. I am not currently sure what explains this.</p>
-</div>
-<div id="quick-comparison-with-flashr" class="section level2">
-<h2>Quick comparison with <code>flashr</code></h2>
-<p>As a quick comparison, using the <code>add_factors_from_data</code> method in <code>flashr</code> with “zero” variance structure</p>
-<p>Next goals: 1. Can we have factors that are loaded on only specific factors. 2. Can we use lfsr and SNPs to interpet factors 3. Is it interesting to compute the estimated covariance of the contributions to each phenotype? <span class="math inline">\(Cov( \sum_{j=1}^p \hat{Y}_{ij}S_j, \sum_{j=1}^p \hat{Y}_{i^\prime j}S_j) = \hat{Y}_{ij}\hat{Y}_{i^\prime j}2f_j(1-f_j)\)</span></p>
+nsnps &lt;- sapply(snps, length)
+summary(nsnps)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1.00    1.00    3.00   10.24    7.00 2627.00 </code></pre>
+<p>gives a similar pattern. We can limit the pathways we use by the number of SNPs, the number of genes, or both. For the first try I will use pathways with at least 10 SNPs, at least 10 genes, and fewer than 200 genes. The rational being that pathways with very few SNPs are unlikely to be useful and pathways with a large number of genes are likely to be very gneral pathways like “nucleus”.</p>
+<pre class="r"><code>go_id_summ &lt;- tibble(go_id = gids, nsnps = nsnps) %&gt;% full_join(x, by=&quot;go_id&quot;)
+my_go_ids &lt;- filter(go_id_summ, n &lt;= 200 &amp; nsnps &gt;= 10 &amp; n &gt;=10) %&gt;% with(., go_id)</code></pre>
+<p>This leaves 991 pathways.</p>
+<pre class="r"><code>npathway &lt;- length(my_go_ids)
+
+ix &lt;- with(go_id_summ, which(n &lt;= 200 &amp; nsnps &gt;= 10 &amp; n &gt;=10))
+my_snps &lt;- snps[ix]
+LL &lt;- matrix(0, nrow=nsnp, ncol=npathway)
+fixl &lt;- matrix(TRUE, nrow=nsnp, ncol=npathway)
+for(i in seq(npathway)){
+  s &lt;- my_snps[[i]]
+  ix &lt;- which(mats$snps %in% s)
+  LL[ix, i] &lt;- 1
+  fixl[ix, i] &lt;- FALSE
+}</code></pre>
+<pre class="r"><code>ldf &lt;- flash_get_ldf(f6, drop_zero_factors = FALSE)
+plot_factors(ldf$f, traits, factor_names = )</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1048,58 +846,59 @@ knitr::kable(tab)</code></pre>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()
-#&gt; R version 3.6.1 (2019-07-05)
-#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
-#&gt; Running under: Ubuntu 18.04.2 LTS
-#&gt; 
-#&gt; Matrix products: default
-#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
-#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
-#&gt; 
-#&gt; locale:
-#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
-#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
-#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
-#&gt; 
-#&gt; attached base packages:
-#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
-#&gt; 
-#&gt; other attached packages:
-#&gt;  [1] reshape2_1.4.3            forcats_0.4.0            
-#&gt;  [3] stringr_1.4.0             dplyr_0.8.3              
-#&gt;  [5] purrr_0.3.2               readr_1.3.1              
-#&gt;  [7] tidyr_0.8.3               tibble_2.1.3             
-#&gt;  [9] ggplot2_3.2.1             tidyverse_1.2.1          
-#&gt; [11] sumstatFactors_0.0.0.9000 flashier_0.1.16          
-#&gt; 
-#&gt; loaded via a namespace (and not attached):
-#&gt;  [1] httr_1.4.1           RMySQL_0.10.17       jsonlite_1.6        
-#&gt;  [4] foreach_1.4.7        modelr_0.1.5         assertthat_0.2.1    
-#&gt;  [7] highr_0.8            mixsqp_0.1-97        cellranger_1.1.0    
-#&gt; [10] yaml_2.2.0           ebnm_0.1-24          pillar_1.4.2        
-#&gt; [13] backports_1.1.4      lattice_0.20-38      glue_1.3.1          
-#&gt; [16] digest_0.6.20        rvest_0.3.4          colorspace_1.4-1    
-#&gt; [19] htmltools_0.3.6      Matrix_1.2-17        plyr_1.8.4          
-#&gt; [22] pkgconfig_2.0.2      broom_0.5.2          haven_2.1.1         
-#&gt; [25] scales_1.0.0         intervals_0.15.1     whisker_0.4         
-#&gt; [28] git2r_0.26.1         generics_0.0.2       withr_2.1.2         
-#&gt; [31] ashr_2.2-32          lazyeval_0.2.2       cli_1.1.0           
-#&gt; [34] magrittr_1.5         crayon_1.3.4         readxl_1.3.1        
-#&gt; [37] evaluate_0.14        fs_1.3.1             doParallel_1.0.15   
-#&gt; [40] nlme_3.1-141         MASS_7.3-51.4        xml2_1.2.2          
-#&gt; [43] truncnorm_1.0-8      tools_3.6.1          hms_0.5.1           
-#&gt; [46] softImpute_1.4       munsell_0.5.0        compiler_3.6.1      
-#&gt; [49] rlang_0.4.0          grid_3.6.1           iterators_1.0.12    
-#&gt; [52] rstudioapi_0.10      labeling_0.3         rmarkdown_1.15      
-#&gt; [55] gtable_0.3.0         codetools_0.2-16     DBI_1.0.0           
-#&gt; [58] flashr_0.6-6         R6_2.4.0             lubridate_1.7.4     
-#&gt; [61] knitr_1.24           zeallot_0.1.0        workflowr_1.4.0.9000
-#&gt; [64] rprojroot_1.3-2      stringi_1.4.3        pscl_1.5.2          
-#&gt; [67] parallel_3.6.1       SQUAREM_2017.10-1    Rcpp_1.0.2          
-#&gt; [70] vctrs_0.2.0          tidyselect_0.2.5     xfun_0.9</code></pre>
+R version 3.6.1 (2019-07-05)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] reshape2_1.4.3            forcats_0.4.0            
+ [3] stringr_1.4.0             dplyr_0.8.3              
+ [5] purrr_0.3.2               readr_1.3.1              
+ [7] tidyr_0.8.3               tibble_2.1.3             
+ [9] ggplot2_3.2.1             tidyverse_1.2.1          
+[11] sumstatFactors_0.0.0.9000 flashr_0.6-6             
+
+loaded via a namespace (and not attached):
+ [1] httr_1.4.1           RMySQL_0.10.17       jsonlite_1.6        
+ [4] foreach_1.4.7        modelr_0.1.5         assertthat_0.2.1    
+ [7] mixsqp_0.1-97        cellranger_1.1.0     yaml_2.2.0          
+[10] ebnm_0.1-24          pillar_1.4.2         backports_1.1.4     
+[13] lattice_0.20-38      glue_1.3.1           digest_0.6.20       
+[16] rvest_0.3.4          colorspace_1.4-1     htmltools_0.3.6     
+[19] Matrix_1.2-17        plyr_1.8.4           pkgconfig_2.0.2     
+[22] broom_0.5.2          haven_2.1.1          scales_1.0.0        
+[25] intervals_0.15.1     whisker_0.4          git2r_0.26.1        
+[28] generics_0.0.2       withr_2.1.2          ashr_2.2-32         
+[31] lazyeval_0.2.2       cli_1.1.0            magrittr_1.5        
+[34] crayon_1.3.4         readxl_1.3.1         evaluate_0.14       
+[37] fansi_0.4.0          fs_1.3.1             doParallel_1.0.15   
+[40] nlme_3.1-141         MASS_7.3-51.4        xml2_1.2.2          
+[43] truncnorm_1.0-8      tools_3.6.1          hms_0.5.1           
+[46] softImpute_1.4       munsell_0.5.0        flashier_0.1.16     
+[49] compiler_3.6.1       rlang_0.4.0          grid_3.6.1          
+[52] iterators_1.0.12     rstudioapi_0.10      rmarkdown_1.15      
+[55] gtable_0.3.0         codetools_0.2-16     DBI_1.0.0           
+[58] R6_2.4.0             lubridate_1.7.4      knitr_1.24          
+[61] utf8_1.1.4           zeallot_0.1.0        workflowr_1.4.0.9000
+[64] rprojroot_1.3-2      stringi_1.4.3        pscl_1.5.2          
+[67] parallel_3.6.1       SQUAREM_2017.10-1    Rcpp_1.0.2          
+[70] vctrs_0.2.0          dbplyr_1.4.2         tidyselect_0.2.5    
+[73] xfun_0.9            </code></pre>
 </div>
 </div>
 
