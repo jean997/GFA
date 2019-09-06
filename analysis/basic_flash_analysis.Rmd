@@ -51,19 +51,16 @@ First I plot a heatmap of the factors matrix. This can be interpreted as the (st
 
 ```{r}
 library(tidyverse)
-res <- readRDS("data/metabo_gwas_flash.RDS")
-mats <- readRDS("data/metabo_gwas_mats.RDS")
+library(reshape2)
+library(sumstatFactors)
+res <- readRDS("analysis_data/metabo_gwas_flash.RDS")
+mats <- readRDS("analysis_data/metabo_gwas_mats.RDS")
 factors <- as.data.frame(res$f$ldf$f)
 
 traits <- str_split(mats$traits, "/") %>% map(., 8) %>% unlist(.)
 traits <- str_replace(traits, "_summary_statistics.tsv.gz", "")
-factors$trait <- traits
-factors <- gather(factors, "factor", "value", -trait)
 
-x <- res$f$ldf$f
-rownames(x) <- traits 
-
-heatmap(x, col=cm.colors(256))
+plot_factors(res$f$ldf$f, traits)
 
 ```
 
@@ -71,19 +68,14 @@ heatmap(x, col=cm.colors(256))
 ## Blood Cell Traits
 
 ```{r}
-library(tidyverse)
-res <- readRDS("data/bc_gwas_flash.RDS")
-mats <- readRDS("data/bc_gwas_mats.RDS")
+
+res <- readRDS("analysis_data/bc_gwas_flash.RDS")
+mats <- readRDS("analysis_data/bc_gwas_mats.RDS")
 factors <- as.data.frame(res$f$ldf$f)
 
 traits <- str_split(mats$traits, "/") %>% map(., 8) %>% unlist(.)
 traits <- str_replace(traits, "_summary_statistics.tsv.gz", "")
-factors$trait <- traits
-factors <- gather(factors, "factor", "value", -trait)
 
-x <- res$f$ldf$f
-rownames(x) <- traits 
-
-heatmap(x, col=cm.colors(256))
+plot_factors(res$f$ldf$f, traits)
 
 ```

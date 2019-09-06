@@ -23,7 +23,7 @@ knitr::opts_chunk$set(autodep = TRUE)
 
 
 ```{r, read_data}
-mats <- readRDS("data/metabo3_gwas_mats.RDS")
+mats <- readRDS("analysis_data/metabo3_gwas_mats.RDS")
 mats$beta_hat[is.na(mats$se_hat)] <- NA
 mats$se_hat[is.na(mats$beta_hat)] <- Inf
 ```
