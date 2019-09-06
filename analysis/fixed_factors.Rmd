@@ -1,0 +1,140 @@
+---
+title: "Fixed Factors"
+author: "Jean Morrison"
+date: "2019-09-04"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, message=FALSE, warnings=FALSE, echo=FALSE, libraries}
+library(flashr)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, warning = FALSE)
+```
+
+## Fit with no fixed factors
+
+
+Experiments in this analysis are done using `flashr` and the same data used [previously](metabo_flash_experiments_order1.html). As a baseline and for later comparisons, we first fit the data with no fixed factors (we've done this before). In this case we are using the from data initialization and the "zero" variance type.
+
+
+```{r, read_data}
+mats <- readRDS("analysis_data/metabo3_gwas_mats_order1.RDS")
+mats$beta_hat[is.na(mats$se_hat)] <- NA
+mats$se_hat[is.na(mats$beta_hat)] <- Inf
+
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "metabo3_", "")
+
+ntrait <- length(mats$traits)
+nsnp <- length(mats$snps)
+```
+
+```{r, include=FALSE, flash1}
+data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+f1 <- flash_add_factors_from_data(data, K=100, var_type="zero")
+f1 <- flash_backfit(data, f1, var_type="zero")
+```
+
+```{r, plot1}
+plot_factors(f1$ldf$f, traits)
+```
+
+## Fixed factor representing LDL
+
+Associations of this factor with other traits could indicate causal effects of LDL. However, this requires that LDL has no shared factors with any other traits. This illustrates how it might be hard to use this approach to infer causal effects. Also this takes a long time to fit. 
+
+```{r, cache=TRUE, include=FALSE, fixed_factors1}
+data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+FF <- matrix(1, nrow=ntrait, ncol=100)
+fixf <- matrix(FALSE, nrow=ntrait, ncol=100)
+FF[2,] <- rep(c( 1, 0), c(1,  99))
+fixf[2,] <- rep(c(FALSE, TRUE), c(1,  99))
+f2 <- flash_add_fixed_factors(data=data, FF=FF, fixf=fixf, var_type="zero")
+f2 <- flash_backfit(data, f2, var_type="zero")
+```
+
+```{r, plot2}
+ldf <- flash_get_ldf(f2)
+plot_factors(ldf$f, traits)
+```
+
+The "LDL" factor is the first one. We say that it represents LDL because we have restricted all other factors so that they cannot affect LDL. This means that all of the affects on LDL have to be absorbed by factor 1. These results suggest that LDL might affect total cholesterol, triglycerides, blood pressure, CAD, stroke and T2D with the effect on T2D being in the opposite direction (higher LDL associated with lower T2D risk). This is close to the set of traits that IVW regression suggests LDL may have a causal effect on (using results from CAUSE paper, not new analysis). Those were triglycerides, HDL, total cholesterol, bmi, body fat %, pulse pressure, CAD, stroke and T2D with effects all being in consistent directions where they are overlapping. CAUSE finds a causal effect only on total cholesterol and CAD.
+
+
+## Fixed loadings
+
+We can also have loadings that are only loaded on fixed variants sets. Here I try having a loading that can only include variants with an LDL $p$-value less than $10^{-6}$. My hypothesis is that this might give a similar result to the experiment above. It also forces a factor to strongly represent LDL but is less rigid than the fixed factor approach.
+
+```{r, cache=TRUE, include=FALSE, fix_load_ldl}
+
+z_thresh <- abs(qnorm(1e-6/2))
+mats$z <- with(mats, beta_hat/se_hat)
+ldl_vars <- which(abs(mats$z[,2]) > z_thresh)
+length(ldl_vars)
+
+LL <- matrix(0, nrow=nsnp, ncol=1)
+LL[ldl_vars, 1] <- 1
+
+fixl <- matrix(TRUE, nrow=nsnp, ncol=1)
+fixl[ldl_vars, 1] <- FALSE
+
+
+data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+
+f3 <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
+f3 <- flash_add_factors_from_data(data, K=100, f_init=f3, var_type="zero")
+f3 <- flash_backfit(data, f3, var_type="zero")
+ldf <- flash_get_ldf(f3)
+```
+
+```{r, plot3}
+plot_factors(ldf$f, traits)
+```
+
+
+The "LDL factor" (factor 1) is similar to the LDL factor in the previous fit where we used fixed factors istead. However, factor 15 also contributes to LDL and a few other traits. This could be absorbing additional pleiotropic effects.
+
+What if we do this for all of the traits? We can fit first with only these fixed factors and then allow some additional ones.
+```{r, cache=TRUE, fix_load_all1}
+var_ix <- apply(mats$z, 2, function(x){which(abs(x) > z_thresh)})
+LL <- matrix(0, nrow=nsnp, ncol=ntrait)
+fixl <- matrix(TRUE, nrow=nsnp, ncol=ntrait)
+for(i in seq(ntrait)){
+  LL[var_ix[[i]], i] <- 1
+  fixl[var_ix[[i]], i] <- FALSE
+}
+```
+
+With only the fixed factors
+
+```{r, cache=TRUE, include=FALSE, fix_load_all2}
+f4 <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
+f4 <- flash_backfit(data, f4, var_type="zero")
+ldf <- flash_get_ldf(f4, drop_zero_factors = FALSE)
+```
+
+```{r, plot4}
+plot_factors(ldf$f, traits, factor_names = traits)
+```
+
+
+With some additional factors
+
+
+```{r, cache=TRUE, include=FALSE, fix_load_all3}
+f5 <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
+f5 <- flash_add_factors_from_data(data, K=30, f_init=f5, var_type="zero")
+f5 <- flash_backfit(data, f5, var_type="zero")
+ldf <- flash_get_ldf(f5, drop_zero_factors = FALSE)
+```
+```{r, plot5}
+plot_factors(ldf$f, traits, factor_names =c(traits, 1:30))
+```
+

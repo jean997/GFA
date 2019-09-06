@@ -1,5 +1,5 @@
 ---
-title: "metabo_flash_experiments_order1"
+title: "More comparisons, less missingness in data"
 author: "Jean Morrison"
 date: "2019-09-03"
 output: workflowr::wflow_html
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>", warning = FA
 After initial experiments trying different settings with `flashr` and `flashier` I began looking at the loadings for our fits. I noticed that one of the factors was loaded on only a single SNP and that that SNP was missing in most traits. This seemed problematic so I went back to the data and re-prioritized SNPs before LD pruning. In the data set I will explore in this document, SNPs were ranked first by the number of traits with non-missing data and then by lowest $p$-value across all traits. 
 
 ```{r, read_data}
-mats <- readRDS("data/metabo3_gwas_mats_order1.RDS")
+mats <- readRDS("analysis_data/metabo3_gwas_mats_order1.RDS")
 mats$beta_hat[is.na(mats$se_hat)] <- NA
 mats$se_hat[is.na(mats$beta_hat)] <- Inf
 ```
@@ -39,7 +39,7 @@ Y = LF^T + S
 $$
 where $S_{ij} \sim N(0, \hat{se}^2_{ij})$. 
 
-```{r, chache=TRUE, fit1}
+```{r, fit1}
 fit_zero_siinit <- flashier(data = mats$beta_hat, S = mats$se_hat, var.type = NULL, 
                             fit = "full", init.fn = init.fn.softImpute, 
                             tol = 0.01)
@@ -97,45 +97,7 @@ res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"),
                    var = c("constant", "by_row", "by_col", "kronecker",
                           "zero", "noisy_constant", "noisy_byrow",
                           "noisy_bycol"))
-res <- res %>% mutate(file = paste0("data/metabo3_order1__", init, "__", var, ".RDS"))
-rr <- purrr:::map(res$file, function(f){
-          fit <- readRDS(f)
-          c(fit$elbo, fit$n.factors)
-})
-res$elbo <- map(rr, 1) %>% unlist()
-res$nfactors <- map(rr, 2) %>% unlist()
-max_elbo <- max(res$elbo)
-res <- res %>% mutate(elbo =elbo - max_elbo,
-                      text = paste0(round(elbo), "(", nfactors, ")"))
-tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
-knitr::kable(tab)
-```
-
-
-Initializing from the data tends to give a higher ELBO than the other initialization schemes and the Kronecker variance structure which doesn't include $S$ tends to out perform the other variance structures. However, the "from_data" initialization scheme always gives the maximum number of factors. 
-
-```{r, lookfit1}
-best_fit <- readRDS("data/metabo3_order1__from_data__kronecker.RDS")
-plot_factors_flashier(best_fit, traits) + 
-  ggtitle('Kroeneker variance without S, Initialize from data')
-
-#
-#si_res <- softImpute::softImpute(mats$beta_hat, rank.max = 30, lambda = 0, type = "als")
-#best_fit2 <- flashier(data = mats$beta_hat,  var.type = c(1,2), 
-#                            fit = "backfit.only", EF.init = si_res,
-#                            tol = 0.01)
-```
-
-So it appears that there are in fact fewer than 30 factors but many 0 factors have been retained for some reson (perhaps there has been a change in `flashier`, I am checking with Jason). In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes. 
-
-Remaking the table above accounting for this 
-
-```{r table2}
-res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
-                   var = c("constant", "by_row", "by_col", "kronecker",
-                          "zero", "noisy_constant", "noisy_byrow",
-                          "noisy_bycol"))
-res <- res %>% mutate(file = paste0("data/metabo3_order1__", init, "__", var, ".RDS"))
+res <- res %>% mutate(file = paste0("analysis_data/metabo3_order1__", init, "__", var, ".RDS"))
 rr <- purrr:::map(res$file, function(f){
           fit <- readRDS(f)
           c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
@@ -149,4 +111,50 @@ tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
 knitr::kable(tab)
 ```
 
-we see that the initialize from data method does always retain more factors but not always 30. Despite the ELBO being higher using the Kronecker variance structure, I think that including $S$ reflects the model better. 
+
+Initializing from the data tends to give a higher ELBO than the other initialization schemes and the Kronecker variance structure which doesn't include $S$ tends to out perform the other variance structures. This initialization scheme also gives the most factors. Taking a lok at the fit with the highest ELBO:
+
+```{r, lookfit1}
+best_fit <- readRDS("analysis_data/metabo3_order1__from_data__kronecker.RDS")
+plot_factors_flashier(best_fit, traits) + 
+  ggtitle('Kroeneker variance without S, Initialize from data')
+```
+
+ In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes. 
+
+Despite these results, I think that including $S$ reflects the model better. 
+
+## Comparisons by masking data
+
+I also compared the methods by masking some of the effect estimates and using the matrix decomposition to estimate them. The following table summarizes the average squared error over 5 iterations and in parentheses the standard error. 
+
+```{r, table2}
+res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
+                   var = c("constant", "by_row", "by_col", "kronecker",
+                          "zero", "noisy_constant", "noisy_byrow",
+                          "noisy_bycol"))
+res <- res %>% mutate(file = paste0("analysis_data/metabo3_order1_mask__", init, "__", var, ".RDS"))
+rr <- purrr:::map(res$file, function(f){
+          x <- readRDS(f)
+          c(mean(x$errs), sd(x$errs))
+})
+res$mean <- map(rr, 1) %>% unlist()
+res$sd <- map(rr, 2) %>% unlist()
+res <- res %>% mutate(text = paste0(round(mean, digits=2), "(", round(sd, digits=2), ")"))
+tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
+knitr::kable(tab)
+```
+
+The constant variance structure has the lowest error while the variance structures involving $S$ have higher. I am not currently sure what explains this. 
+
+
+## Quick comparison with `flashr`
+
+As a quick comparison, using the `add_factors_from_data` method in `flashr` with "zero" variance structure
+
+
+Next goals: 
+1. Can we have factors that are loaded on only specific factors. 
+2. Can we use lfsr and SNPs to interpet factors
+3. Is it interesting to compute the estimated covariance of the contributions to each phenotype? $Cov( \sum_{j=1}^p \hat{Y}_{ij}S_j,  \sum_{j=1}^p \hat{Y}_{i^\prime j}S_j) = \hat{Y}_{ij}\hat{Y}_{i^\prime j}2f_j(1-f_j)$
+

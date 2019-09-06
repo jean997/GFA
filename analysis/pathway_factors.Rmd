@@ -1,0 +1,201 @@
+---
+title: "Fixed factors from pathways"
+author: "Jean Morrison"
+date: "2019-09-06"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Compiling Pathway information
+
+```{r, message=FALSE, warnings=FALSE, echo=FALSE, libraries}
+library(flashr)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, warning = FALSE)
+```
+
+```{r, read_data}
+mats <- readRDS("analysis_data/metabo3_gwas_mats_order1.RDS")
+mats$beta_hat[is.na(mats$se_hat)] <- NA
+mats$se_hat[is.na(mats$beta_hat)] <- Inf
+
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "metabo3_", "")
+
+ntrait <- length(mats$traits)
+nsnp <- length(mats$snps)
+```
+
+Here the goal is to define some loadings that can only have non-zero values for SNPs within a single pathway. In order to do this we need to first map SNPs to genes and genes to pathways which is a bit tricky. My first attempt will take a broad approach. I will use the following rules to associate SNPs with genes:
+
+1. The SNP is a cis eQTL for the gene in GTEx v8 in any tissue
+1. The SNP is within X Kb of the start or end of the gene.
+1. The SNP is in an enhancer that is associated with the gene in either FANTOM5 or 4DGenome
+
+The last bit of information is obtained from HACER (Human ACtive Enhancer to interpret Regulatory variants, http://bioinfo.vanderbilt.edu/AE/HACER/index.html )
+
+
+The first step is to get all of these annotations. 
+```{r, get_annots}
+# Get SNP annotation information
+snp_annot <- annotate_snp_loc(mats$snps)
+head(snp_annot)
+```
+Note that we only have annotation information for `r nrow(snp_annot)` of the `r length(mats$snps)` SNPs. 
+
+The eQTL information I extracted on rcc using the following code from the `/project2/compbio/external_public_supp/GTEx/V8/GTEx_Analysis_v8_eQTL` directory.
+```{r, eval=FALSE}
+gtex_files <- list.files(".", ".v8.signif_variant_gene_pairs.chrpos.tsv.gz")
+tissues <- str_replace(gtex_files, ".v8.signif_variant_gene_pairs.chrpos.tsv.gz", "")
+eqtl_genes <- get_eqtl_genes(snp_annot,gtex_files, tissues)
+```
+This produced a data frame listing SNP-Gene pairs and in which tissue the SNP is an eQTL for the gene.
+
+```{r, lookateqtl}
+eqtl_genes <- readRDS("analysis_data/eqtl_genes.RDS")
+dim(eqtl_genes)
+head(eqtl_genes)
+```
+
+This have us a table `r nrow(eqtl_genes)` SNP-Gene pairs. However, many of them are duplicated becaseu they are detected in multiple tissues. 
+
+```{r, reduce_eqtl}
+eqtl_genes <- distinct(eqtl_genes, chrom, pos, name, gene_id)
+```
+
+Reducing to only unique pairs leaves `r nrow(eqtl_genes)` SNP-Gene pairs. 
+
+From the table of enhancers we extract all SNP-Gene pairs where the SNP is in an enhancer that targets the gene in either FANTOM5 or 4DGenome
+
+```{r, hacer}
+hacer_df <- read_tsv("analysis_data/HACER-enhancers.txt")
+enhancer_genes <- get_enhancer_genes(snp_annot, hacer_df)
+head(enhancer_genes)
+```
+
+This yields `r nrow(enhancer_genes)` SNP-Gene pairs but again there are overlaps because often the same SNP falls in many annotated enhancers in different cell types that are all linked with the same gene. There are only `r nrow(distinct(enhancer_genes, snp, gene))` distinct pairings. So eQTL and enhancer information have together not provided very much information for linking SNPs the genes and then to pathways. 
+
+We can also link SNPs to gene by distance. We will use the following rules
+
+1. A SNP is linked to its closest gene if it is within 500kb. In the case that a SNP is inside of multiple genes it is linked to all. 
+1. Additionally, a SNP is linked to any gene with a TSS within 2kb
+1. If the SNP is more than 500kb from any gene it is not linked to a gene
+
+```{r, genes_by_distance}
+gene_info <- retrieve_genes()
+near_genes <- nearest_gene(snp_annot, gene_info) %>%
+              filter(gene_dist <=500000)
+tss2kb_genes <- genes_within(snp_annot, gene_info, dist=2000)
+```
+
+Now we have all the info, time to combine into a single data frame
+
+```{r, combine}
+eqtl_genes <- eqtl_genes %>% 
+              distinct(name, gene_id) %>% 
+              mutate(gene_id = gsub("\\..*" ,"", gene_id),
+                     method = "eQTL") %>%
+              rename(snp = name)
+enhancer_genes <- enhancer_genes %>%
+                  distinct(snp, gene, source) %>%
+                  rename(geneSymbol = gene, method=source) %>%
+                  left_join(., gene_info) %>%
+                  select(snp, ensembl_gene_stable_id, method) %>%
+                  rename(gene_id = ensembl_gene_stable_id)
+near_genes <- near_genes %>%
+              distinct(name, ensembl_gene_stable_id) %>%
+              rename(gene_id = ensembl_gene_stable_id, snp=name) %>%
+              mutate(method="closest")
+
+ tss2kb_genes <- tss2kb_genes  %>% 
+                 rename(gene_id = gene) %>%
+                 mutate(method="Within_2kb")
+ 
+ all_genes <- bind_rows(eqtl_genes, enhancer_genes, near_genes, tss2kb_genes)
+ with(all_genes, table(method))
+```
+
+## Which GO IDs to use 
+
+Most of our SNP-Gene pairs come from the closest gene method. There are `r nrow(distinct(all_genes, snp, gene_id))` distinct pairings. Now we can associate genes with GO Ids.
+
+```{r, cache=TRUE, pathway1}
+go_ids <- retrieve_go_ids(unique(all_genes$gene_id)) %>% 
+          filter(go_id != "")
+```
+
+There are `r length(unique(go_ids$go_id))` unique GO IDs associated with genes in our list. We can summarize them by number of gene.
+
+```{r, go1}
+x <- go_ids %>% group_by(go_id, name_1006) %>% summarize(n = length(unique(ensembl_gene_id)))
+summary(x$n)
+```
+
+Almost half, `r round(100*with(x, mean(n==1)))`%, of pathways have only one gene associated with SNPs in our list. However, some GO IDs are very general and are associated with a large number of genes. 
+
+```{r,go2}
+x[order(-x$n),][1:10,]
+```
+
+Very general pathways won't be informative and pathways with almost no genes probably won't be useful. 
+
+Summarizing GO IDs by number of SNPs associated with genes in them:
+
+```{r, nsnps}
+all_genes <- distinct(all_genes, snp, gene_id)
+gids <- unique(go_ids$go_id)
+snps <- map(gids, function(id){
+  genes <- filter(go_ids, go_id == id) %>% with(., unique(ensembl_gene_id))
+  snps <-  filter(all_genes, gene_id %in% genes) %>% with(., unique(snp))
+})
+nsnps <- sapply(snps, length)
+summary(nsnps)
+```
+
+gives a similar pattern. We can limit the pathways we use by the number of SNPs, the number of genes, or both. For the first try I will use pathways with at least 10 SNPs, at least 10 genes, and fewer than 200 genes. The rational being that pathways with very few SNPs are unlikely to be useful and pathways with a large number of genes are likely to be very gneral pathways like "nucleus".
+
+```{r, build_loadings1}
+go_id_summ <- tibble(go_id = gids, nsnps = nsnps) %>% full_join(x, by="go_id")
+my_go_ids <- filter(go_id_summ, n <= 200 & nsnps >= 10 & n >=10) %>% with(., go_id)
+```
+
+This leaves `r length(my_go_ids)` pathways. 
+
+```{r, build_loadings2}
+npathway <- length(my_go_ids)
+
+ix <- with(go_id_summ, which(n <= 200 & nsnps >= 10 & n >=10))
+my_snps <- snps[ix]
+LL <- matrix(0, nrow=nsnp, ncol=npathway)
+fixl <- matrix(TRUE, nrow=nsnp, ncol=npathway)
+for(i in seq(npathway)){
+  s <- my_snps[[i]]
+  ix <- which(mats$snps %in% s)
+  LL[ix, i] <- 1
+  fixl[ix, i] <- FALSE
+}
+```
+
+
+
+```{r, eval=FALSE, cache=TRUE, include=FALSE, fit1}
+#dat <- list(data=data, LL = LL , fixl=fixl)
+#saveRDS(dat, file="analysis_data/pathway_loadings_data.RDS")
+
+data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+f6 <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
+f6 <- flash_add_factors_from_data(data, K=30, f_init=f6, var_type="zero")
+f6 <- flash_backfit(data, f6, var_type="zero")
+```
+
+```{r, eval=FALSE, plot1}
+ldf <- flash_get_ldf(f6, drop_zero_factors = FALSE)
+plot_factors(ldf$f, traits, factor_names = )
+```
+

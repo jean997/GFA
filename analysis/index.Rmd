@@ -14,3 +14,5 @@ In this project I am studying the potential utility of factor analysis applied t
 1. [A more careful look at ways to use EBMF](metabo_flash_experiments.html)
 1. [Jason ran `flash` and `flashr` on our data using many parameters](https://willwerscheid.github.io/FLASHvestigations/jean.html)
 1. [More flashier comparisons with slightly different data](metabo_flash_experiments_order1.html)
+1. [Experimenting with fixed factors and loadings](fixed_factors.html)
+1. [Fixing loadings to represent GO IDs](pathway_factors.html)
