@@ -6,5 +6,10 @@
 #' @author Jean Morrison <jeanm@uchicago.edu>
 #' @import flashr
 #' @import flashier
+#' @import dplyr
+#' @import readr
+#' @import intervals
+#' @import purrr
+#' @importFrom RMySQL dbConnect
 #' @name sumstatFactors
 NULL
