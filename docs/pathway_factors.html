@@ -406,7 +406,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-09-06
+<strong>Last updated:</strong> 2019-09-09
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -481,6 +481,15 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 The following chunks had caches available:
 <ul>
 <li>
+fit1
+</li>
+<li>
+flash1
+</li>
+<li>
+get_annots
+</li>
+<li>
 pathway1
 </li>
 </ul>
@@ -503,10 +512,10 @@ pathway1
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreef1d6d49dfabeccf432838cac57993cd2041f8467targetblankf1d6d49a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/f1d6d49dfabeccf432838cac57993cd2041f8467" target="_blank">f1d6d49</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreea7e07aca671744b4d12c382ac3e5ef979a4ea51btargetblanka7e07aca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/a7e07aca671744b4d12c382ac3e5ef979a4ea51b" target="_blank">a7e07ac</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreef1d6d49dfabeccf432838cac57993cd2041f8467targetblankf1d6d49a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreea7e07aca671744b4d12c382ac3e5ef979a4ea51btargetblanka7e07aca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -520,7 +529,6 @@ Ignored files:
     Ignored:    analysis/pathway_factors_cache/
 
 Untracked files:
-    Untracked:  R/snp_to_pathway.R
     Untracked:  analysis_data/.~lock.metabo2_gwas.csv#
     Untracked:  analysis_data/HACER-enhancers.txt
     Untracked:  analysis_data/HACER_README.txt
@@ -578,20 +586,11 @@ Untracked files:
     Untracked:  analysis_data/metabo3_order1_mask__soft_impute__zero.RDS
     Untracked:  analysis_data/metabo_gwas.csv
     Untracked:  analysis_data/pathway_loadings_data.RDS
+    Untracked:  analysis_data/pathway_loadings_fit.RDS
     Untracked:  buttons.css
     Untracked:  code/flashier_compare.R
     Untracked:  code/hide_output.js
-    Untracked:  docs/figure/fixed_factors.Rmd/
-    Untracked:  man/annotate_snp_loc.Rd
-    Untracked:  man/genes_within.Rd
-    Untracked:  man/get_eqtl_genes.Rd
     Untracked:  snp_annot.RDS
-
-Unstaged changes:
-    Modified:   NAMESPACE
-    Modified:   R/package.R
-    Modified:   analysis/basic_flash_analysis.Rmd
-    Modified:   analysis/metabo_flash_experiments.Rmd
 
 </code></pre>
 <p>
@@ -630,6 +629,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a7e07aca671744b4d12c382ac3e5ef979a4ea51b/analysis/pathway_factors.Rmd" target="_blank">a7e07ac</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-09-09
+</td>
+<td>
+wflow_publish(“analysis/pathway_factors.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/12603790393f72446e82730a6b0cae6b216c886b/docs/pathway_factors.html" target="_blank">1260379</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-09-07
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -836,8 +869,362 @@ for(i in seq(npathway)){
   LL[ix, i] &lt;- 1
   fixl[ix, i] &lt;- FALSE
 }</code></pre>
-<pre class="r"><code>ldf &lt;- flash_get_ldf(f6, drop_zero_factors = FALSE)
-plot_factors(ldf$f, traits, factor_names = )</code></pre>
+</div>
+<div id="flash-with-pathway-loadingsfactors" class="section level2">
+<h2>FLASH with “pathway loadings/factors”</h2>
+<p>Running the following code to fit the model took about 24 hours on midway. It uses the set 991 restricted “pathway” factors and allows for an additional 30 unrestricted factors. The objective for thre resulting fits is substantially lower than what we get using unrestricted factors only, however the hope is that the pathway factors can aid in biological interpration.</p>
+<pre class="r"><code>data &lt;- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+f &lt;- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type=&quot;zero&quot;)
+f &lt;- flash_add_factors_from_data(data, K=30, f_init=f, var_type=&quot;zero&quot;)
+f &lt;- flash_backfit(data, f, var_type=&quot;zero&quot;)</code></pre>
+<pre class="r"><code>f &lt;- readRDS(&quot;analysis_data/pathway_loadings_fit.RDS&quot;)</code></pre>
+<p>Fit with unrestricted factors for comparison</p>
+<pre class="r"><code>data &lt;- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+f_unrestricted &lt;- flash_add_factors_from_data(data, K=30, var_type=&quot;zero&quot;)
+Backfitting 30 factor/loading(s) (stop when difference in obj. is &lt; 1.00e-02):
+  Iteration      Objective   Obj Diff
+          1      343878.77        Inf
+          2      350662.65   6.78e+03
+          3      353611.50   2.95e+03
+          4      355068.49   1.46e+03
+          5      356029.86   9.61e+02
+          6      356784.34   7.54e+02
+          7      357426.94   6.43e+02
+          8      357985.69   5.59e+02
+          9      358483.51   4.98e+02
+         10      358946.26   4.63e+02
+         11      359333.45   3.87e+02
+         12      359655.14   3.22e+02
+         13      359927.98   2.73e+02
+         14      360193.71   2.66e+02
+         15      360464.73   2.71e+02
+         16      360738.85   2.74e+02
+         17      361006.14   2.67e+02
+         18      361263.04   2.57e+02
+         19      361498.89   2.36e+02
+         20      361705.68   2.07e+02
+         21      361895.28   1.90e+02
+         22      362065.99   1.71e+02
+         23      362209.73   1.44e+02
+         24      362333.33   1.24e+02
+         25      362445.98   1.13e+02
+         26      362550.16   1.04e+02
+         27      362646.69   9.65e+01
+         28      362736.33   8.96e+01
+         29      362824.81   8.85e+01
+         30      362916.13   9.13e+01
+         31      363013.44   9.73e+01
+         32      363138.46   1.25e+02
+         33      363227.69   8.92e+01
+         34      363305.08   7.74e+01
+         35      363373.21   6.81e+01
+         36      363437.02   6.38e+01
+         37      363503.39   6.64e+01
+         38      363560.52   5.71e+01
+         39      363612.79   5.23e+01
+         40      363657.77   4.50e+01
+         41      363696.03   3.83e+01
+         42      363724.88   2.89e+01
+         43      363749.49   2.46e+01
+         44      363773.29   2.38e+01
+         45      363795.94   2.26e+01
+         46      363814.38   1.84e+01
+         47      363830.71   1.63e+01
+         48      363844.08   1.34e+01
+         49      363855.08   1.10e+01
+         50      363865.62   1.05e+01
+         51      363878.70   1.31e+01
+         52      363891.21   1.25e+01
+         53      363900.31   9.10e+00
+         54      363908.06   7.75e+00
+         55      363920.27   1.22e+01
+         56      363929.01   8.73e+00
+         57      363933.20   4.20e+00
+         58      363936.76   3.56e+00
+         59      363940.20   3.45e+00
+         60      363944.06   3.85e+00
+         61      363948.73   4.67e+00
+         62      363953.88   5.15e+00
+         63      363958.44   4.56e+00
+         64      363962.96   4.52e+00
+         65      363967.98   5.02e+00
+         66      363973.34   5.36e+00
+         67      363981.87   8.53e+00
+         68      363988.90   7.03e+00
+         69      363993.58   4.68e+00
+         70      363998.87   5.29e+00
+         71      364004.83   5.96e+00
+         72      364009.68   4.85e+00
+         73      364014.28   4.60e+00
+         74      364018.72   4.44e+00
+         75      364022.61   3.89e+00
+         76      364026.32   3.71e+00
+         77      364028.56   2.24e+00
+         78      364030.36   1.80e+00
+         79      364032.21   1.85e+00
+         80      364035.15   2.95e+00
+         81      364038.09   2.94e+00
+         82      364039.46   1.37e+00
+         83      364040.70   1.24e+00
+         84      364042.05   1.36e+00
+         85      364043.80   1.75e+00
+         86      364046.13   2.33e+00
+         87      364049.87   3.74e+00
+         88      364052.61   2.74e+00
+         89      364053.84   1.23e+00
+         90      364054.94   1.10e+00
+         91      364056.14   1.20e+00
+         92      364057.67   1.53e+00
+         93      364058.80   1.13e+00
+         94      364059.80   1.01e+00
+         95      364060.74   9.32e-01
+         96      364061.38   6.48e-01
+         97      364061.99   6.05e-01
+         98      364063.33   1.34e+00
+         99      364066.70   3.37e+00
+        100      364069.20   2.49e+00
+        101      364069.57   3.70e-01
+        102      364069.79   2.19e-01
+        103      364069.99   2.00e-01
+        104      364070.21   2.27e-01
+        105      364070.66   4.47e-01
+        106      364072.49   1.83e+00
+        107      364074.14   1.65e+00
+        108      364074.35   2.13e-01
+        109      364074.48   1.30e-01
+        110      364074.58   1.02e-01
+        111      364074.68   9.21e-02
+        112      364074.77   9.04e-02
+        113      364074.86   9.58e-02
+        114      364074.98   1.15e-01
+        115      364075.14   1.68e-01
+        116      364075.44   2.96e-01
+        117      364075.90   4.58e-01
+        118      364076.35   4.55e-01
+        119      364076.67   3.21e-01
+        120      364076.90   2.21e-01
+        121      364077.07   1.72e-01
+        122      364077.22   1.52e-01
+        123      364077.37   1.54e-01
+        124      364077.56   1.88e-01
+        125      364077.85   2.84e-01
+        126      364078.27   4.28e-01
+        127      364078.71   4.36e-01
+        128      364079.11   3.96e-01
+        129      364079.52   4.15e-01
+        130      364079.87   3.50e-01
+        131      364080.14   2.70e-01
+        132      364080.44   2.99e-01
+        133      364081.24   8.00e-01
+        134      364082.63   1.39e+00
+        135      364082.88   2.47e-01
+        136      364082.94   6.30e-02
+        137      364082.99   4.36e-02
+        138      364083.02   3.64e-02
+        139      364083.06   3.14e-02
+        140      364083.08   2.77e-02
+        141      364083.11   2.48e-02
+        142      364083.13   2.24e-02
+        143      364083.15   2.04e-02
+        144      364083.17   1.88e-02
+        145      364083.19   1.74e-02
+        146      364083.20   1.62e-02
+        147      364083.22   1.52e-02
+        148      364083.23   1.43e-02
+        149      364083.25   1.35e-02
+        150      364083.26   1.29e-02
+        151      364083.27   1.23e-02
+        152      364083.28   1.19e-02
+        153      364083.30   1.17e-02
+        154      364083.31   1.17e-02
+        155      364083.32   1.20e-02
+        156      364083.33   1.29e-02
+        157      364083.35   1.49e-02
+        158      364083.37   1.92e-02
+        159      364083.40   2.91e-02
+        160      364083.45   5.43e-02
+        161      364083.58   1.26e-01
+        162      364083.89   3.13e-01
+        163      364084.35   4.60e-01
+        164      364084.53   1.79e-01
+        165      364084.55   2.42e-02
+        166      364084.56   1.15e-02
+        167      364084.58   1.30e-02
+        168      364084.60   2.22e-02
+        169      364084.68   8.49e-02
+        170      364085.51   8.26e-01
+        171      364087.94   2.43e+00
+        172      364088.20   2.69e-01
+        173      364088.23   2.06e-02
+        174      364088.23   8.48e-03
+Performing nullcheck...
+  Deleting factor 1 decreases objective by 4.38e+03. Factor retained.
+  Deleting factor 2 decreases objective by 4.25e+01. Factor retained.
+  Deleting factor 3 does not change objective. Factor zeroed out.
+  Deleting factor 4 decreases objective by 5.73e+02. Factor retained.
+  Deleting factor 5 decreases objective by 8.40e+02. Factor retained.
+  Deleting factor 6 decreases objective by 1.98e+03. Factor retained.
+  Deleting factor 7 does not change objective. Factor zeroed out.
+  Deleting factor 8 decreases objective by 3.60e+04. Factor retained.
+  Deleting factor 9 decreases objective by 2.44e+04. Factor retained.
+  Deleting factor 10 increases objective by 6.56e+00. Factor zeroed out.
+  Deleting factor 11 increases objective by 2.10e+01. Factor zeroed out.
+  Deleting factor 12 decreases objective by 7.28e+03. Factor retained.
+  Deleting factor 13 decreases objective by 1.29e+04. Factor retained.
+  Deleting factor 14 increases objective by 1.57e+00. Factor zeroed out.
+  Deleting factor 15 decreases objective by 4.08e+03. Factor retained.
+  Deleting factor 16 decreases objective by 4.61e+03. Factor retained.
+  Deleting factor 17 decreases objective by 2.38e+02. Factor retained.
+  Deleting factor 18 decreases objective by 1.05e+04. Factor retained.
+  Deleting factor 19 decreases objective by 1.41e+02. Factor retained.
+  Deleting factor 20 decreases objective by 1.08e+03. Factor retained.
+  Deleting factor 21 decreases objective by 3.97e+02. Factor retained.
+  Deleting factor 22 decreases objective by 5.40e+03. Factor retained.
+  Deleting factor 23 decreases objective by 6.53e+03. Factor retained.
+  Deleting factor 24 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 25 decreases objective by 5.92e+02. Factor retained.
+  Deleting factor 26 decreases objective by 1.27e+02. Factor retained.
+  Deleting factor 27 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 28 decreases objective by 4.82e+02. Factor retained.
+  Deleting factor 29 decreases objective by 1.39e+03. Factor retained.
+  Deleting factor 30 does not change objective. Factor zeroed out.
+  Deleting factor 1 decreases objective by 4.38e+03. Factor retained.
+  Deleting factor 2 decreases objective by 4.25e+01. Factor retained.
+  Deleting factor 4 decreases objective by 5.75e+02. Factor retained.
+  Deleting factor 5 decreases objective by 8.40e+02. Factor retained.
+  Deleting factor 6 decreases objective by 1.98e+03. Factor retained.
+  Deleting factor 8 decreases objective by 3.60e+04. Factor retained.
+  Deleting factor 9 decreases objective by 2.44e+04. Factor retained.
+  Deleting factor 12 decreases objective by 7.28e+03. Factor retained.
+  Deleting factor 13 decreases objective by 1.29e+04. Factor retained.
+  Deleting factor 15 decreases objective by 4.08e+03. Factor retained.
+  Deleting factor 16 decreases objective by 4.61e+03. Factor retained.
+  Deleting factor 17 decreases objective by 2.38e+02. Factor retained.
+  Deleting factor 18 decreases objective by 1.05e+04. Factor retained.
+  Deleting factor 19 decreases objective by 1.41e+02. Factor retained.
+  Deleting factor 20 decreases objective by 1.08e+03. Factor retained.
+  Deleting factor 21 decreases objective by 3.97e+02. Factor retained.
+  Deleting factor 22 decreases objective by 5.40e+03. Factor retained.
+  Deleting factor 23 decreases objective by 6.53e+03. Factor retained.
+  Deleting factor 24 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 25 decreases objective by 5.92e+02. Factor retained.
+  Deleting factor 26 decreases objective by 1.27e+02. Factor retained.
+  Deleting factor 27 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 28 decreases objective by 4.82e+02. Factor retained.
+  Deleting factor 29 decreases objective by 1.39e+03. Factor retained.
+  Nullcheck complete. Objective: 364117.37
+  Iteration      Objective   Obj Diff
+          1      364119.40        Inf
+          2      364119.73   3.28e-01
+          3      364119.80   7.19e-02
+          4      364119.83   2.72e-02
+          5      364119.84   1.49e-02
+          6      364119.85   1.00e-02
+          7      364119.86   7.56e-03
+Performing nullcheck...
+  Deleting factor 1 decreases objective by 4.38e+03. Factor retained.
+  Deleting factor 2 decreases objective by 4.24e+01. Factor retained.
+  Deleting factor 4 decreases objective by 5.75e+02. Factor retained.
+  Deleting factor 5 decreases objective by 8.41e+02. Factor retained.
+  Deleting factor 6 decreases objective by 1.98e+03. Factor retained.
+  Deleting factor 8 decreases objective by 3.60e+04. Factor retained.
+  Deleting factor 9 decreases objective by 2.44e+04. Factor retained.
+  Deleting factor 12 decreases objective by 7.28e+03. Factor retained.
+  Deleting factor 13 decreases objective by 1.29e+04. Factor retained.
+  Deleting factor 15 decreases objective by 4.08e+03. Factor retained.
+  Deleting factor 16 decreases objective by 4.61e+03. Factor retained.
+  Deleting factor 17 decreases objective by 2.38e+02. Factor retained.
+  Deleting factor 18 decreases objective by 1.05e+04. Factor retained.
+  Deleting factor 19 decreases objective by 1.41e+02. Factor retained.
+  Deleting factor 20 decreases objective by 1.08e+03. Factor retained.
+  Deleting factor 21 decreases objective by 3.97e+02. Factor retained.
+  Deleting factor 22 decreases objective by 5.39e+03. Factor retained.
+  Deleting factor 23 decreases objective by 6.53e+03. Factor retained.
+  Deleting factor 24 decreases objective by 1.94e+03. Factor retained.
+  Deleting factor 25 decreases objective by 5.93e+02. Factor retained.
+  Deleting factor 26 decreases objective by 1.28e+02. Factor retained.
+  Deleting factor 27 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 28 decreases objective by 4.82e+02. Factor retained.
+  Deleting factor 29 decreases objective by 1.39e+03. Factor retained.
+  Nullcheck complete. Objective: 364119.86
+f_unrestricted &lt;- flash_backfit(data, f_unrestricted, var_type=&quot;zero&quot;)
+Backfitting 30 factor/loading(s) (stop when difference in obj. is &lt; 1.00e-02):
+  Iteration      Objective   Obj Diff
+          1      364119.86        Inf
+          2      364119.87   5.47e-03
+Performing nullcheck...
+  Deleting factor 1 decreases objective by 4.38e+03. Factor retained.
+  Deleting factor 2 decreases objective by 4.24e+01. Factor retained.
+  Deleting factor 4 decreases objective by 5.75e+02. Factor retained.
+  Deleting factor 5 decreases objective by 8.41e+02. Factor retained.
+  Deleting factor 6 decreases objective by 1.98e+03. Factor retained.
+  Deleting factor 8 decreases objective by 3.60e+04. Factor retained.
+  Deleting factor 9 decreases objective by 2.44e+04. Factor retained.
+  Deleting factor 12 decreases objective by 7.28e+03. Factor retained.
+  Deleting factor 13 decreases objective by 1.29e+04. Factor retained.
+  Deleting factor 15 decreases objective by 4.08e+03. Factor retained.
+  Deleting factor 16 decreases objective by 4.61e+03. Factor retained.
+  Deleting factor 17 decreases objective by 2.38e+02. Factor retained.
+  Deleting factor 18 decreases objective by 1.05e+04. Factor retained.
+  Deleting factor 19 decreases objective by 1.41e+02. Factor retained.
+  Deleting factor 20 decreases objective by 1.08e+03. Factor retained.
+  Deleting factor 21 decreases objective by 3.97e+02. Factor retained.
+  Deleting factor 22 decreases objective by 5.39e+03. Factor retained.
+  Deleting factor 23 decreases objective by 6.53e+03. Factor retained.
+  Deleting factor 24 decreases objective by 1.94e+03. Factor retained.
+  Deleting factor 25 decreases objective by 5.94e+02. Factor retained.
+  Deleting factor 26 decreases objective by 1.28e+02. Factor retained.
+  Deleting factor 27 decreases objective by 1.95e+03. Factor retained.
+  Deleting factor 28 decreases objective by 4.82e+02. Factor retained.
+  Deleting factor 29 decreases objective by 1.39e+03. Factor retained.
+  Nullcheck complete. Objective: 364119.87</code></pre>
+<p>The fit with unrestricted factors has an objective of 3.641198710^{5} while the objective for the fit with the pathway factors is 3.568017810^{5}.</p>
+<p>Plotting factors for the pathway fit. We will plot the unrestricted and restricted factors separately. First the unrestricted factors.</p>
+<pre class="r"><code>ldf &lt;- flash_get_ldf(f, drop_zero_factors = FALSE)
+f_unr &lt;- ldf$f[, 992:1021]
+ix &lt;- which(!is.na(colSums(f_unr)))
+plot_factors(f_unr[,ix], traits, as.character(1:30)[ix])</code></pre>
+<p><img src="figure/pathway_factors.Rmd/plot_unr-1.png" width="672" style="display: block; margin: auto;" /> The total pve explained by all factors is 0.386449. There are 24 unrestricted factors. The PVE accounted for by these is 0.3430838, so the restricted factors account for very little of the variance in effect sizes. Note that the first unrestricted factor which associates with the blood pressure traits accounts for most of this, 0.3193406.</p>
+<p>Plotting the restricted factors is not very informative because there are so many.</p>
+<pre class="r"><code>f_res &lt;- ldf$f[, 1:991]
+ix2 &lt;- which(!is.na(colSums(f_res)))
+plot_factors(f_res[,ix2], traits, as.character(1:991)[ix2])</code></pre>
+<p><img src="figure/pathway_factors.Rmd/plot_pathway-1.png" width="672" style="display: block; margin: auto;" /> However, we can see that some traits, height, CAD, lipids and aam are associated with large numbers of factors while others are not. The blood pressure phenotypes are associated with only a few restricted pathway factors and are mostly explained by unrestricted factors 1 and 2.</p>
+<p>To see if this analysis is at all useful, I will start by looking at which pathways are affecting particular phenotypes. I will start with the relationship between birth weight, typ 2 diabetes, and height. First just plotting factor loadings between pairs of traits:</p>
+<pre class="r"><code>res_facts &lt;-data.frame(t(ldf$f[, 1:991]))
+names(res_facts) &lt;- traits
+res_facts &lt;- bind_cols( tibble(go_id = my_go_ids),res_facts) %&gt;%
+             left_join(., go_id_summ, by=&quot;go_id&quot;) %&gt;%
+             rename(ngenes = n)
+ggplot(res_facts) + geom_point(aes(x=egg_bw, y= giant_height, size = nsnps, col=ngenes))</code></pre>
+<p><img src="figure/pathway_factors.Rmd/bw_pathways-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(res_facts) + geom_point(aes(x=egg_bw, y= diagram_t2d, size = nsnps, col=ngenes))</code></pre>
+<p><img src="figure/pathway_factors.Rmd/bw_pathways-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>There are only a few factors that affect both birthweight and T2D and their affects are generally in the opposite direction. Lets see what they are. Right now I am only selecting these heuristically by looking at the plot.</p>
+<pre class="r"><code>bw_t2d_factors &lt;- filter(res_facts, abs(egg_bw) &gt; 0.05 &amp; abs(diagram_t2d) &gt; 0.2) %&gt;%
+                  select(go_id, name_1006, nsnps, ngenes, egg_bw, diagram_t2d, giant_height)
+
+bw_t2d_factors
+# A tibble: 9 x 7
+  go_id   name_1006           nsnps ngenes  egg_bw diagram_t2d giant_height
+  &lt;chr&gt;   &lt;chr&gt;               &lt;int&gt;  &lt;int&gt;   &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+1 GO:004… protein homodimeri…   258    164 -0.0759       0.370   -0.705    
+2 GO:003… cell leading edge      20     13 -0.153        0.203    0.366    
+3 GO:000… chromatin organiza…   139     88  0.204       -0.253    0.665    
+4 GO:000… negative regulatio…   210    117  0.134       -0.227   -0.109    
+5 GO:003… lung development       47     30  0.204       -0.968   -0.0000337
+6 GO:000… transcription core…    91     50  0.118        0.392    0.700    
+7 GO:000… rough endoplasmic …    29     17 -0.210        0.964   -0.0000950
+8 GO:005… protein homotetram…    14     12  0.194        0.265    0.700    
+9 GO:000… fatty acid metabol…    32     20 -0.0858       0.403    0.0982   </code></pre>
+<p>Some of these also have affects on height while others don’t. For example, lung development and rough endoplasmic reticulum are both strongly related to t2d with opposite affects on birthweigh but have no affect on height. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3684428/">This</a> article discusses a connection between ER and type 2 diabetes while <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2475769/">this</a> article discusses a connection between ER stress and intrauterine growth. The ER factor is loaded primarily on T2D and birth weight with a small effect on birth lenght, diastolic blood pressure and age at menarch. The lung function pathway also affects fasting insulin.</p>
+<pre class="r"><code>x &lt;- res_facts %&gt;% filter(go_id == &quot;GO:0005791&quot;) %&gt;% select(-go_id, -nsnps, -name_1006, -ngenes)  %&gt;% gather(&quot;fact&quot;, &quot;trait&quot;)
+ggplot(x) + geom_point(aes(x=fact, y=trait)) + theme(axis.text.x = element_text(angle=90))</code></pre>
+<p><img src="figure/pathway_factors.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>
+x &lt;- res_facts %&gt;% filter(go_id == &quot;GO:0030324&quot;) %&gt;% select(-go_id, -nsnps, -name_1006, -ngenes)  %&gt;% gather(&quot;fact&quot;, &quot;trait&quot;)
+ggplot(x) + geom_point(aes(x=fact, y=trait)) + theme(axis.text.x = element_text(angle=90))</code></pre>
+<p><img src="figure/pathway_factors.Rmd/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -886,19 +1273,19 @@ loaded via a namespace (and not attached):
 [28] generics_0.0.2       withr_2.1.2          ashr_2.2-32         
 [31] lazyeval_0.2.2       cli_1.1.0            magrittr_1.5        
 [34] crayon_1.3.4         readxl_1.3.1         evaluate_0.14       
-[37] fansi_0.4.0          fs_1.3.1             doParallel_1.0.15   
+[37] fs_1.3.1             fansi_0.4.0          doParallel_1.0.15   
 [40] nlme_3.1-141         MASS_7.3-51.4        xml2_1.2.2          
 [43] truncnorm_1.0-8      tools_3.6.1          hms_0.5.1           
 [46] softImpute_1.4       munsell_0.5.0        flashier_0.1.16     
 [49] compiler_3.6.1       rlang_0.4.0          grid_3.6.1          
-[52] iterators_1.0.12     rstudioapi_0.10      rmarkdown_1.15      
-[55] gtable_0.3.0         codetools_0.2-16     DBI_1.0.0           
-[58] R6_2.4.0             lubridate_1.7.4      knitr_1.24          
-[61] utf8_1.1.4           zeallot_0.1.0        workflowr_1.4.0.9000
-[64] rprojroot_1.3-2      stringi_1.4.3        pscl_1.5.2          
-[67] parallel_3.6.1       SQUAREM_2017.10-1    Rcpp_1.0.2          
-[70] vctrs_0.2.0          dbplyr_1.4.2         tidyselect_0.2.5    
-[73] xfun_0.9            </code></pre>
+[52] iterators_1.0.12     rstudioapi_0.10      labeling_0.3        
+[55] rmarkdown_1.15       gtable_0.3.0         codetools_0.2-16    
+[58] DBI_1.0.0            R6_2.4.0             lubridate_1.7.4     
+[61] knitr_1.24           utf8_1.1.4           zeallot_0.1.0       
+[64] workflowr_1.4.0.9000 rprojroot_1.3-2      stringi_1.4.3       
+[67] pscl_1.5.2           parallel_3.6.1       SQUAREM_2017.10-1   
+[70] Rcpp_1.0.2           vctrs_0.2.0          dbplyr_1.4.2        
+[73] tidyselect_0.2.5     xfun_0.9            </code></pre>
 </div>
 </div>
 
