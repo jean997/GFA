@@ -42,7 +42,7 @@ The last bit of information is obtained from HACER (Human ACtive Enhancer to int
 
 
 The first step is to get all of these annotations. 
-```{r, get_annots}
+```{r, cache=TRUE, get_annots}
 # Get SNP annotation information
 snp_annot <- annotate_snp_loc(mats$snps)
 head(snp_annot)
@@ -73,7 +73,7 @@ Reducing to only unique pairs leaves `r nrow(eqtl_genes)` SNP-Gene pairs.
 
 From the table of enhancers we extract all SNP-Gene pairs where the SNP is in an enhancer that targets the gene in either FANTOM5 or 4DGenome
 
-```{r, hacer}
+```{r, cahce=TRUE, hacer}
 hacer_df <- read_tsv("analysis_data/HACER-enhancers.txt")
 enhancer_genes <- get_enhancer_genes(snp_annot, hacer_df)
 head(enhancer_genes)
@@ -182,20 +182,75 @@ for(i in seq(npathway)){
 }
 ```
 
+## FLASH with "pathway loadings/factors"
 
-
-```{r, eval=FALSE, cache=TRUE, include=FALSE, fit1}
-#dat <- list(data=data, LL = LL , fixl=fixl)
-#saveRDS(dat, file="analysis_data/pathway_loadings_data.RDS")
-
+Running the following code to fit the model took about 24 hours on midway. It uses the set 991 restricted "pathway" factors and allows for an additional 30 unrestricted factors. The objective for thre resulting fits is substantially lower than what we get using unrestricted factors only, however the hope is that the pathway factors can aid in biological interpration. 
+```{r, eval=FALSE,fit1}
 data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
-f6 <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
-f6 <- flash_add_factors_from_data(data, K=30, f_init=f6, var_type="zero")
-f6 <- flash_backfit(data, f6, var_type="zero")
+f <- flash_add_fixed_loadings(data=data, LL=LL, fixl=fixl, var_type="zero")
+f <- flash_add_factors_from_data(data, K=30, f_init=f, var_type="zero")
+f <- flash_backfit(data, f, var_type="zero")
+```
+```{r, getresults}
+f <- readRDS("analysis_data/pathway_loadings_fit.RDS")
 ```
 
-```{r, eval=FALSE, plot1}
-ldf <- flash_get_ldf(f6, drop_zero_factors = FALSE)
-plot_factors(ldf$f, traits, factor_names = )
+Fit with unrestricted factors for comparison
+
+```{r,  cache=TRUE, flash1}
+data <- flash_set_data(Y=mats$beta_hat, S = mats$se_hat)
+f_unrestricted <- flash_add_factors_from_data(data, K=30, var_type="zero")
+f_unrestricted <- flash_backfit(data, f_unrestricted, var_type="zero")
 ```
 
+
+The fit with unrestricted factors has an objective of `r f_unrestricted$objective` while the objective for the fit with the pathway factors is `r f$objective`. 
+
+Plotting factors for the pathway fit. We will plot the unrestricted and restricted factors separately. First the unrestricted factors.  
+```{r, plot_unr}
+ldf <- flash_get_ldf(f, drop_zero_factors = FALSE)
+f_unr <- ldf$f[, 992:1021]
+ix <- which(!is.na(colSums(f_unr)))
+plot_factors(f_unr[,ix], traits, as.character(1:30)[ix])
+```
+The total pve explained by all factors is `r sum(f$pve)`. There are `r length(ix)` unrestricted factors. The PVE accounted for by these is `r sum(f$pve[(length(f$pve)-length(ix)+1):length(f$pve)])`, so the restricted factors account for very little of the variance in effect sizes. Note that the first unrestricted factor which associates with the blood pressure traits accounts for most of this, `r f$pve[length(f$pve)-length(ix)+1]`.
+
+
+Plotting the restricted factors is not very informative because there are so many. 
+```{r, plot_pathway}
+f_res <- ldf$f[, 1:991]
+ix2 <- which(!is.na(colSums(f_res)))
+plot_factors(f_res[,ix2], traits, as.character(1:991)[ix2])
+```
+However, we can see that some traits, height, CAD, lipids and aam are associated with large numbers of factors while others are not. The blood pressure phenotypes are associated with only a few restricted pathway factors and are mostly explained by unrestricted factors 1 and 2.
+
+To see if this analysis is at all useful, I will start by looking at which pathways are affecting particular phenotypes. I will start with the relationship between birth weight, typ 2 diabetes, and height. First just plotting factor loadings between pairs of traits: 
+```{r, bw_pathways}
+res_facts <-data.frame(t(ldf$f[, 1:991]))
+names(res_facts) <- traits
+res_facts <- bind_cols( tibble(go_id = my_go_ids),res_facts) %>%
+             left_join(., go_id_summ, by="go_id") %>%
+             rename(ngenes = n)
+ggplot(res_facts) + geom_point(aes(x=egg_bw, y= giant_height, size = nsnps, col=ngenes))
+ggplot(res_facts) + geom_point(aes(x=egg_bw, y= diagram_t2d, size = nsnps, col=ngenes))
+```
+
+
+There are only a few factors that affect both birthweight and T2D and their affects are generally in the opposite direction. Lets see what they are. Right now I am only selecting these heuristically by looking at the plot. 
+
+```{r, lookat_bw_t2d}
+bw_t2d_factors <- filter(res_facts, abs(egg_bw) > 0.05 & abs(diagram_t2d) > 0.2) %>%
+                  select(go_id, name_1006, nsnps, ngenes, egg_bw, diagram_t2d, giant_height)
+
+bw_t2d_factors
+```
+Some of these also have affects on height while others don't. For example, lung development and rough endoplasmic reticulum are both strongly related to t2d with opposite affects on birthweigh but have no affect on height. [This](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3684428/) article discusses a connection between ER and type 2 diabetes while [this](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2475769/) article discusses a connection between ER stress and intrauterine growth. The ER factor is loaded primarily on T2D and birth weight with a small effect on birth lenght, diastolic blood pressure and age at menarch. The lung function pathway also affects fasting insulin. 
+
+```{r}
+x <- res_facts %>% filter(go_id == "GO:0005791") %>% select(-go_id, -nsnps, -name_1006, -ngenes)  %>% gather("fact", "trait")
+ggplot(x) + geom_point(aes(x=fact, y=trait)) + theme(axis.text.x = element_text(angle=90))
+
+x <- res_facts %>% filter(go_id == "GO:0030324") %>% select(-go_id, -nsnps, -name_1006, -ngenes)  %>% gather("fact", "trait")
+ggplot(x) + geom_point(aes(x=fact, y=trait)) + theme(axis.text.x = element_text(angle=90))
+
+```
