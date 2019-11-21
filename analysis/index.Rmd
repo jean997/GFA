@@ -16,3 +16,6 @@ In this project I am studying the potential utility of factor analysis applied t
 1. [More flashier comparisons with slightly different data](metabo_flash_experiments_order1.html)
 1. [Experimenting with fixed factors and loadings](fixed_factors.html)
 1. [Fixing loadings to represent GO IDs](pathway_factors.html)
+1. [Computing SNP-based genetic correlation](genetic_correlation.html)
+1. [First Simulations](simulations.html)
+1. [Blood cell traits](blood_cell.html)

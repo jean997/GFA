@@ -1,0 +1,125 @@
+---
+title: "Astle et al. Blood Cell Traits"
+author: "Jean Morrison"
+date: "2019-11-21"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+In this analysis I apply FLASH to the set of 36 blood cell composition traits from Astle et al. (2016). I iwll look at the analysis a few ways. First looking only at the 36 blood cell traits and then adding in several auto imune traits to see if we can detect shared genetics. I will also use this example to compare fitting with effect estimates and $z$-scores which will hopefully yield similar structure.
+
+![Structure of Blood Cell Phenotypes](../astle_blood_cell.png)
+
+
+```{r}
+library(flashier)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+library(causeSims)
+library(ashr)
+library(gridExtra)
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>", warning = FALSE)
+```
+
+## Blood cell traits only
+
+
+### Fitting effect estimates
+
+As before, I fit flash using a variety of variance and initialization parameters. We will start by looking at the factors estimated using the "noisy_bycol" variance and "soft_impute" initialization.
+
+```{r}
+mats <- readRDS("analysis_data/bc_gwas_mats_order1.RDS")
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "bc_astle_", "")
+fit <- readRDS("analysis_data/bc_order1__soft_impute__noisy_bycol.RDS")
+p1 <- plot_factors(fit$loadings.pm[[2]], traits)
+p1
+```
+
+The first factor affects many traits. After that, the factors generally group related traits. For example, factor 2 affects all of the reticulocyte (immature red blood cell) phenotypes. Factor 3 affects eosinophils but also neutrophils. Neutrophils, eosinophils, and basophils are all granulocytes which are types of white blood cell. Eosinophils and basophils are both implicated in allergic response. 
+
+Taking a look at the ELBO across variance and initialization types. 
+
+```{r, echo=FALSE, table}
+res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
+                   var = c("constant", "by_row", "by_col", "kronecker",
+                          "zero", "noisy_constant", "noisy_byrow",
+                          "noisy_bycol"))
+res <- res %>% mutate(file = paste0("analysis_data/bc_order1__", init, "__", var, ".RDS"))
+rr <- purrr:::map(res$file, function(f){
+          fit <- readRDS(f)
+          c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+})
+res$elbo <- map(rr, 1) %>% unlist()
+res$nfactors <- map(rr, 2) %>% unlist()
+max_elbo <- max(res$elbo)
+res <- res %>% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), "(", nfactors, ")"))
+tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
+knitr::kable(tab)
+```
+
+Comparing factors between "noisy_bycol" and "by_row" which has given the best ELBO
+
+```{r,plot2}
+fit2 <- readRDS("analysis_data/bc_order1__from_data__by_row.RDS")
+p2 <- plot_factors(fit2$loadings.pm[[2]], traits)
+grid.arrange(p1, p2, ncol=2)
+```
+
+Hmmm. The fit with the betst ELBO is much less sparse and interpretable. The "noisy" fits all have much worse ELBO and I am not sure why this is. Could it be a calculation error? 
+
+### Fitting $z$-scores
+
+In this data, fitting with $z$-scores gives the same results as fitting with effect estimates. 
+
+
+```{r, echo=FALSE, table2}
+res <- expand.grid(init =  c("flashier", "soft_impute", "from_data"), 
+                   var = c("constant", "by_row", "by_col", "kronecker",
+                          "zero", "noisy_constant", "noisy_byrow",
+                          "noisy_bycol"))
+res <- res %>% mutate(file = paste0("analysis_data/bc_zscore_order1__", init, "__", var, ".RDS"))
+rr <- purrr:::map(res$file, function(f){
+          fit <- readRDS(f)
+          c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+})
+res$elbo <- map(rr, 1) %>% unlist()
+res$nfactors <- map(rr, 2) %>% unlist()
+max_elbo <- max(res$elbo)
+res <- res %>% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), "(", nfactors, ")"))
+tab <- res %>% select(init, var, text) %>% spread(key = init, value = text)
+knitr::kable(tab)
+```
+
+
+
+```{r,plot3}
+fit2_z <- readRDS("analysis_data/bc_zscore_order1__from_data__by_row.RDS")
+p2z <- plot_factors(fit2_z$loadings.pm[[2]], traits)
+grid.arrange(p2, p2z, ncol=2)
+```
+
+
+## Blood cell traits and autoimune disorders
+
+```{r}
+mats <- readRDS("analysis_data/bcai_gwas_mats_order1.RDS")
+traits <- str_split(mats$traits, "/") %>% map(., 2) %>% 
+          unlist(.) %>%
+          str_replace(., ".top_summary_statistics.tsv.gz", "") %>%
+          str_replace(., "bcai_astle_", "") %>%
+          str_replace(., "bcai_", "")
+fit <- readRDS("analysis_data/bcai_order1__soft_impute__noisy_bycol.RDS")
+p1 <- plot_factors(fit$loadings.pm[[2]], traits)
+p1
+```

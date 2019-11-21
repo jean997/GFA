@@ -1,0 +1,419 @@
+---
+title: "simulations"
+author: "Jean Morrison"
+date: "2019-11-19"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+This exploration is some first simulations. In this set of explorations I am particularly focused on recovering the $F$ matrix.
+
+1. Verify that we can recover the correct factor structure from a simple simulation scheme. 
+
+2. $\hat{\beta}$ vs $z$-score.
+
+3. Find the effect of different $E$ matrices? What if $E$ is sparse (not modeled by EBNM)?
+
+4. What is the affect of selecting top variants?
+
+5. What is the affect of LD (probably not in this document)?
+
+6. How do we choose the best variance and initiation type?
+
+7. Compare with truncated SVD and other methods.
+
+```{r}
+library(flashier)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+library(causeSims)
+library(ashr)
+library(gridExtra)
+knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>", warning = FALSE)
+```
+
+
+## A simple simulated data set
+
+The function `simple()` generates matrices of effect estimates and standard errors give the following inputs: `rloadings`, `rfactors`, and `rerror` are random sampling functions that generate elements of $L$, $F$ and $E$ respectively. They are all functions that take a number and retunr a vector of random samples. `S` is a matrix of standard errors, and `k` is the number of factors. These simulations are simple because elements of $L$, $F$, and $E$ are iid. 
+
+We start with 1000 variants, 10 traits, 3 factors, and $E = 0$. Elements of $L$ and $F$ will both be drawn from mixtures of normal distributions. The matrix $S$ will have every entry equal to 1 (i.e. effect sizes are standardized or we are working with $z$-scores or every variant has the same allele frequency and every trait has the same sample size).
+
+```{r, sim1}
+set.seed(1)
+nvar <- 1000
+ntrait <- 10
+nfactor <- 3
+
+S <- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors <- function(n){return(rep(0, n))}
+rloadings <- function(n){
+  sigma_1 <- 2
+  p <- 0.5
+  load_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  fact_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+
+```
+
+Now we fit the data with `flashier`.
+
+```{r, fit_sim1}
+fit1 <- run_flashier(mats, var_type="constant", init_type="soft_impute")
+ptrue <- plot_factors(mats$true_F, 1:10)
+p1 <- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)
+gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+```
+
+We have done a good job recovering the latent structure. The generating model for these data is contained in the flash model and the true variance type is "zero". We can see if this does slighlty better. 
+
+```{r, fit_sim2}
+fit2 <- run_flashier(mats, var_type="zero", init_type="soft_impute")
+p2 <- plot_factors(fit2$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)
+gao_stability_sparse(mats$true_F, fit2$loadings.pm[[2]])
+gao_stability_sparse(fit1$loadings.pm[[2]], fit2$loadings.pm[[2]])
+```
+
+The stability metric is nearly identical and very close to the maximum value of 0.5. 
+
+## Adding sparse $E$
+
+Now we add additional effects of variants on traits not mediated by any factors (i.e. uncorrelated with each other). 
+
+```{r, sim2}
+set.seed(1)
+nvar <- 1000
+ntrait <- 10
+nfactor <- 3
+
+S <- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors <- function(n){
+  sigma_1 <- 2
+  p <- 0.3
+  err_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings <- function(n){
+  sigma_1 <- 2
+  p <- 0.5
+  load_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  fact_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+
+```
+
+We will fit with the `noisy_constant` variance type but can compare later. 
+
+```{r, fit_sim3}
+fit1 <- run_flashier(mats, var_type="noisy_constant", init_type="soft_impute")
+ptrue <- plot_factors(mats$true_F, 1:10)
+p1 <- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)
+gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+```
+
+We still do a good job of recovering the factors. There is an additional single trait factor but this isn't surprising since sparse $E$ and an additional factor create similar patterns. 
+
+For a comparison of variance types we will make the problem harder by making effect sizes weaker. 
+
+```{r, sim3}
+set.seed(1)
+nvar <- 1000
+ntrait <- 10
+nfactor <- 3
+
+S <- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors <- function(n){
+  sigma_1 <- 1
+  p <- 0.3
+  err_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  load_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  fact_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+
+```
+
+We will fit with the `noisy_constant` variance type but can compare later. 
+
+```{r, fit_sim5}
+fit1 <- run_flashier(mats, var_type="noisy_constant", init_type="soft_impute")
+ptrue <- plot_factors(mats$true_F, 1:10)
+p1 <- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)
+gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+```
+
+Now it is harder to recover the factors.
+
+```{r, cache=TRUE, compare1}
+analysis <- expand.grid( var_type  =  c("constant", "by_row", "by_col", "kronecker",
+               "zero", "noisy_constant", "noisy_byrow",
+               "noisy_bycol"), init_type = c("flashier", "soft_impute", "from_data"))
+
+res <- apply(analysis, 1, function(x){run_flashier(mats, var_type=x[1], init_type = x[2])})
+
+rr <- purrr:::map(res, function(fit){
+  c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+})
+
+analysis$elbo <- map(rr, 1) %>% unlist()
+analysis$nfactors <- map(rr, 2) %>% unlist()
+max_elbo <- max(analysis$elbo)
+analysis <- analysis %>% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), "(", nfactors, ")"))
+tab <- analysis %>% select(init_type, var_type, text) %>% spread(key = init_type, value = text)
+knitr::kable(tab)
+```
+
+In this case it seems like all of the options are similar based on ELBO comparison. We can compare based on the stability metric as well. 
+
+
+```{r, stab1}
+s <- purrr::map(seq(nrow(analysis)), function(j){
+  gao_stability_sparse(mats$true_F, res[[j]]$loadings.pm[[2]])
+  })
+
+analysis$stability <- unlist(s)
+tab <- analysis %>% select(init_type, var_type, stability) %>% spread(key = init_type, value = stability)
+knitr::kable(tab)
+ggplot(analysis) + geom_point(aes(x=elbo, y=stability, col=var_type, shape=init_type), size=1.5) + theme_bw()
+```
+
+Somewhat discouragingly, methods with lower ELBO's seem to have results closer to the true factors. Lets take a look at some results. We will look at the method with the highest ELBO, the method with the highest stability relative to the truth and one of the methods with lower stability relatvie to the truth. 
+
+```{r, plots}
+ptrue <- plot_factors(mats$true_F, 1:10) + ggtitle("Truth")
+ix <- which.max(analysis$elbo)
+p_best_elbo <- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0("Best ELBO: ", analysis$var_type[ix], " ", analysis$init_type[ix]))
+ix <- which.max(analysis$stability)
+p_best_stab <- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0("Best stability: ", analysis$var_type[ix], " ", analysis$init_type[ix]))
+ix <- which.min(analysis$stability)
+p_worst_stab <- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0("Worst stability: ", analysis$var_type[ix], " ", analysis$init_type[ix]))
+grid.arrange(ptrue, p_best_elbo, p_best_stab, p_worst_stab, ncol=2)
+```
+
+Here are some things to notice. This seems to be a hard problem, which is not so surprising since we made the effects weak. True factor 3 is well recovered by all methods. the method with the worse stability appear to have this almost entirely as a result of missing one of the factors. The first three factors of Best ELBO and Best stability are pretty similar, capturing true factors 3, 1, and 2 but each have several additional factors with lower pve.
+
+Also discouraging is that initialization seems to have a large affect on results. The "noisy_constant" variance type seems relatively stable across initializations and generally gives pretty good results. Will this hold for other examples?
+
+## Truncated SVD
+
+How does truncated SVD do on this problem? This is the method used by Tanigawa et al 2019.
+
+```{r, tsvd}
+library(irlba)
+fit_tsvd_3 <- irlba(mats$beta_hat, 3) 
+p_tsvd <- plot_factors(fit_tsvd_3$v, 1:10)
+grid.arrange(ptrue + ggtitle("True Latent Factors"), p_tsvd + ggtitle("Truncated SVD"))
+```
+
+Not surprisingly, TSVD doesn't recover the latent structure because singular values are required to be orthonormal and no sparsity is imposed.
+
+## Stability Metrics
+
+The analysis in the previous sections reveals some issues with the Gao et al stability metric. Significantly, the metric depends heavily on the dimension of the two matrices. For two matrices that are 3 columns each, the maximum stability value is 0.5 if the two matrices are identical. However, you can actually get a higher value if one matrix has an extra column. The maximum stability value for matrices with 3 and 2 columns is only 0.25. 
+
+## Selection Effects
+
+In my analyses of disease data I set a threshold minimum $p$-value and only take variants that have an association with at least one trait. Does doing this induces spurious factors?
+We will keep the same set-up but use more variants and then select. Since we are using more variants, we will reduce the probability that each one affects a trait. We will start with a threshold of $1e-4$. 
+
+
+```{r, sim_select}
+set.seed(10)
+nvar <- 10000
+ntrait <- 10
+nfactor <- 3
+
+S <- matrix(1, nrow=nvar, ncol=ntrait)
+
+rerrors <- function(n){
+  sigma_1 <- 1
+  p <- 0.2
+  err_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings <- function(n){
+  sigma_1 <- 1
+  p <- 0.3
+  load_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  fact_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+minp <- with(mats, apply(beta_hat/se_hat, 1,  function(z){
+  p <- 2*pnorm(-abs(z))
+  min(p)
+}))
+
+```
+
+
+```{r, fit_sim_select}
+
+ix <- which(minp < 1e-4)
+mats_4 <- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+fit1 <- run_flashier(mats_4, var_type="noisy_constant", init_type="soft_impute")
+ptrue <- plot_factors(mats$true_F, 1:10)
+p1 <- plot_factors(fit1$loadings.pm[[2]], 1:10)
+gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+```
+
+
+We can compare this result to running with the full data.
+
+```{r, fit_full_sim_select}
+
+fit2 <- run_flashier(mats, var_type="noisy_constant", init_type="soft_impute")
+ptrue <- plot_factors(mats$true_F, 1:10)
+p2 <- plot_factors(fit2$loadings.pm[[2]], 1:10)
+gao_stability_sparse(mats$true_F, fit2$loadings.pm[[2]])
+```
+
+
+```{r}
+grid.arrange(ptrue, p1, p2, ncol=3)
+```
+
+
+We do a better job with all the data but it takes much longer to run. Lets look over a range of thresholds. 
+
+```{r, cache=TRUE, thresholds}
+t <- c(0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6)
+fits <- purrr::map(t, function(thresh){
+  ix <- which(minp < thresh)
+  my_mats <- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+  fit <- run_flashier(my_mats, var_type="noisy_constant", init_type="soft_impute")
+  return(fit)
+})
+nfactors <- sapply(fits, function(f){f$n.factors})
+stab <- sapply(fits, function(f){
+  gao_stability_sparse(mats$true_F, f$loadings.pm[[2]])
+})
+stab
+nfactors
+```
+
+
+Conveniently, all fits have three factors so the stability is comparable. The best stability occurs with most of the variants, goes down and then goes back up. My hypothesis is that with moderate selection, false signals can be introduced. With strict selection, most of the selected variants are true positives. Perhaps we can see this more clearly using variants with larger effect sizes. 
+
+```{r, sim_select2}
+set.seed(10)
+nvar <- 10000
+ntrait <- 10
+nfactor <- 3
+
+S <- matrix(1, nrow=nvar, ncol=ntrait)
+
+rerrors <- function(n){
+  sigma_1 <- 2
+  p <- 0.2
+  err_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings <- function(n){
+  sigma_1 <- 2
+  p <- 0.3
+  load_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors <- function(n){
+  sigma_1 <- 1
+  p <- 0.5
+  fact_dist <- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+minp <- with(mats, apply(beta_hat/se_hat, 1,  function(z){
+  p <- 2*pnorm(-abs(z))
+  min(p)
+}))
+
+```
+
+```{r, cache=TRUE, thresholds2}
+t <- c(0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6)
+fits <- purrr::map(t, function(thresh){
+  ix <- which(minp < thresh)
+  my_mats <- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+  fit <- run_flashier(my_mats, var_type="noisy_constant", init_type="soft_impute")
+  return(fit)
+})
+nfactors <- sapply(fits, function(f){f$n.factors})
+stab <- sapply(fits, function(f){
+  gao_stability_sparse(mats$true_F, f$loadings.pm[[2]])
+})
+stab
+nfactors
+```
+
+
+With stronger effect size we see a nearly monotonic decrease in stability with more stringent thresholds. 
+
+## $\hat{\beta}$ vs $z$-scores
+
+If the $S$ matrix is separable over rows and columns so $\sigma_{ij} = \sigma_{i}\sigma_j$ then I believe that we can recover an equivalent latent structure using effect estimates and $z$-scores. Suppose the true effect size is low rank. Then
+
+$$
+\hat{\beta}_{ij} = \sum_k l_{ik}f_{jk} + e_{ij} + s_{ij}
+$$
+where $s_{ij} \sim N(0, \sigma_{ij})$. If $\sigma_{ij} = \sigma_i \sigma_j$ then
+
+$$
+z_{ij} = \hat{\beta}_{ij}/\sigma_{ij} = \sum_k \frac{l_{ik}}{\sigma_i}\frac{f_{jk}}{\sigma_j} + e^{*}_{ij} + w_{ij}
+$$
+where $w_{ij} \sim N(0, 1)$. 
+
+In GWAS, $\sigma_{ij} \propto \sqrt{\frac{1}{2N_{j} q_{ij} (1-q_{ij})}}$ where $q_{ij}$ is the allele frequency of variant $i$ in GWAS of trait $j$. Thus all studies have similar allele frequencues or the traits are all measured in the same cohort, then using $z$-scores will give the same structure as effect estimates. Lets do a simulation where this is not the case and see what happens. 
