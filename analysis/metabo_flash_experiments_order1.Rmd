@@ -75,9 +75,9 @@ This is a similar comparison to one run by Jason. We are comparing the fits obta
 
 and eight different variance structures. We are fitting 
 $$
-Y = LF^T + S
+Y = LF^T + E + S
 $$
-where , if $S$ is included, $S_{ij} \sim N(0, \hat{se}^2_{ij})$. We consider the following 8 options:
+where , $S_{ij} \sim N(0, \hat{se}^2_{ij})$ and $E_{ij} \sim N(0, \tau_{ij}^2)$. We consider the following 8 options:
 
 
 + "constant": $S = 0$ and $\tau_{ij} = \tau$
@@ -120,9 +120,59 @@ plot_factors_flashier(best_fit, traits) +
   ggtitle('Kroeneker variance without S, Initialize from data')
 ```
 
- In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes. 
+In some ways these factors are qualitatively different than we have obtained before. For example, there is very little sharing between birthweight and type 2 diabetes. 
 
 Despite these results, I think that including $S$ reflects the model better. 
+
+## Comparison of factors by stability metric
+
+I have implemented the stability metric for sparse factors propsed by Gao, Brown, and Engelhardt (2013). This metric compares estimated factor matrices allowing for "factor switching" and can allow us to see how similar the factors estimated using each variance type and initialization are. 
+
+```{r, stability}
+f_mats <- purrr:::map(res$file, function(f){
+          fit <- readRDS(f)
+          fit$loadings.pm[[2]]
+})
+names <- with(res, paste0(var, "__", init))
+stab <- expand.grid(m1=1:24, m2=1:24)
+s <- purrr::map(seq(nrow(stab)), function(j){
+  #cat(j, ": ")
+  gao_stability_sparse(f_mats[[stab[j,1]]], f_mats[[stab[j,2]]])})
+
+stab$stability <- unlist(s)
+stab$name1 <- names[stab$m1]
+stab$name2 <- names[stab$m2]
+```
+
+```{r, plot_stab}
+ggplot(stab) + geom_tile(aes(x=name1, y = name2, fill=stability)) + 
+  scale_fill_gradient2(low="white", mid = "blue", high="red", midpoint=0.6) + 
+  theme(axis.text.x = element_text(angle=90))
+```
+
+```{r, plot_stab_from_data}
+stab %>% filter(str_detect(name1, "from_data") & str_detect(name2, "from_data")) %>%
+  ggplot(.) + geom_tile(aes(x=name1, y = name2, fill=stability)) + 
+  scale_fill_gradient2(low="white", mid = "blue", high="red", midpoint=0.6) + 
+  theme(axis.text.x = element_text(angle=90))
+```
+
+```{r, plot_stab_soft}
+stab %>% filter(str_detect(name1, "soft_impute") & str_detect(name2, "soft_impute")) %>%
+  ggplot(.) + geom_tile(aes(x=name1, y = name2, fill=stability)) + 
+  scale_fill_gradient2(low="white", mid = "blue", high="red", midpoint=0.6) + 
+  theme(axis.text.x = element_text(angle=90))
+```
+
+
+```{r, plot_stab_flashier}
+stab %>% filter(str_detect(name1, "flashier") & str_detect(name2, "flashier")) %>%
+  ggplot(.) + geom_tile(aes(x=name1, y = name2, fill=stability)) + 
+  scale_fill_gradient2(low="white", mid = "blue", high="red", midpoint=0.6) + 
+  theme(axis.text.x = element_text(angle=90))
+```
+
+
 
 ## Comparisons by masking data
 
