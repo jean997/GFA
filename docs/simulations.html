@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2019-11-19" />
+
+<title>simulations</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jean997/ss_factors">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">simulations</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2019-11-19</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-11-21
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+compare1
+</li>
+<li>
+thresholds
+</li>
+<li>
+thresholds2
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>simulations_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree1133e2f124c80a4844c2734eb9d6a691af3d1f28targetblank1133e2fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/1133e2f124c80a4844c2734eb9d6a691af3d1f28" target="_blank">1133e2f</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree1133e2f124c80a4844c2734eb9d6a691af3d1f28targetblank1133e2fa" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors_cache/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
+    Ignored:    analysis/simulations_cache/
+
+Untracked files:
+    Untracked:  R/gao_stability.R
+    Untracked:  R/mask_flashier.R
+    Untracked:  R/pve_by_trait.R
+    Untracked:  R/run_flashier.R
+    Untracked:  R/simulations.R
+    Untracked:  all_annovar.csv
+    Untracked:  all_genes.txt
+    Untracked:  all_vars.tsv
+    Untracked:  analysis/genetic_correlation.Rmd
+    Untracked:  analysis_data/.~lock.metabo2_gwas.csv#
+    Untracked:  analysis_data/HACER-enhancers.txt
+    Untracked:  analysis_data/HACER_README.txt
+    Untracked:  analysis_data/bc_gwas_mats.RDS
+    Untracked:  analysis_data/bc_gwas_mats_order1.RDS
+    Untracked:  analysis_data/bc_order1__flashier__by_col.RDS
+    Untracked:  analysis_data/bc_order1__flashier__by_row.RDS
+    Untracked:  analysis_data/bc_order1__flashier__constant.RDS
+    Untracked:  analysis_data/bc_order1__flashier__kronecker.RDS
+    Untracked:  analysis_data/bc_order1__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_order1__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_order1__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/bc_order1__flashier__zero.RDS
+    Untracked:  analysis_data/bc_order1__from_data__by_col.RDS
+    Untracked:  analysis_data/bc_order1__from_data__by_row.RDS
+    Untracked:  analysis_data/bc_order1__from_data__constant.RDS
+    Untracked:  analysis_data/bc_order1__from_data__kronecker.RDS
+    Untracked:  analysis_data/bc_order1__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_order1__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_order1__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/bc_order1__from_data__zero.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__by_col.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__by_row.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__constant.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/bc_order1__soft_impute__zero.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__by_col.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__by_row.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__kronecker.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__flashier__zero.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__by_col.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__by_row.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__kronecker.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__from_data__zero.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__by_col.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__by_row.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/bc_zscore_order1__soft_impute__zero.RDS
+    Untracked:  analysis_data/bcai_gwas_mats_noprune.RDS
+    Untracked:  analysis_data/bcai_gwas_mats_order1.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__by_col.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__by_row.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__constant.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__kronecker.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/bcai_order1__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__by_col.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__by_row.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__constant.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__kronecker.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/bcai_order1__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__by_col.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__by_row.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__constant.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/bcai_order1__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/eqtl_genes.RDS
+    Untracked:  analysis_data/flashier_res2019-09-03.RDS
+    Untracked:  analysis_data/metabo2_gwas.csv
+    Untracked:  analysis_data/metabo3_order1__flashier__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__flashier__zero.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__from_data__zero.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__constant.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1__soft_impute__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__flashier__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__from_data__zero.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__by_col.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__by_row.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__kronecker.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_bycol.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_byrow.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__noisy_constant.RDS
+    Untracked:  analysis_data/metabo3_order1_mask__soft_impute__zero.RDS
+    Untracked:  analysis_data/metabo_gwas.csv
+    Untracked:  analysis_data/pathway_loadings_data.RDS
+    Untracked:  analysis_data/pathway_loadings_fit.RDS
+    Untracked:  buttons.css
+    Untracked:  code/flashier_compare.R
+    Untracked:  code/flashier_compare_jason.R
+    Untracked:  code/hide_output.js
+    Untracked:  code/mask_flashier.R
+    Untracked:  code/mask_flashr.R
+    Untracked:  docs/figure/blood_cell.Rmd/
+    Untracked:  factor1_annovar.csv
+    Untracked:  factor1_genes.txt
+    Untracked:  factor20_annovar.csv
+    Untracked:  factor20_genes.txt
+    Untracked:  factor2_annovar.csv
+    Untracked:  factor2_genes.txt
+    Untracked:  factor6_annovar.csv
+    Untracked:  factor6_genes.txt
+    Untracked:  factor_19_vars.txt
+    Untracked:  factor_1_vars.tsv
+    Untracked:  factor_20_vars.tsv
+    Untracked:  factor_2_vars.tsv
+    Untracked:  factor_6_vars.tsv
+    Untracked:  factor_6_vars.txt
+    Untracked:  k99_analysis.R
+    Untracked:  k99_fit.RDS
+    Untracked:  metabo_factors.RDS
+    Untracked:  snp_annot.RDS
+
+Unstaged changes:
+    Modified:   NAMESPACE
+    Modified:   R/plot_factors.R
+    Modified:   analysis/metabo_flash_experiments_order1.Rmd
+    Modified:   man/plot_factors.Rd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/1133e2f124c80a4844c2734eb9d6a691af3d1f28/analysis/simulations.Rmd" target="_blank">1133e2f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2019-11-21
+</td>
+<td>
+wflow_publish(c(“analysis/blood_cell.Rmd”, “analysis/simulations.Rmd”, “analysis/index.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This exploration is some first simulations. In this set of explorations I am particularly focused on recovering the <span class="math inline">\(F\)</span> matrix.</p>
+<ol style="list-style-type: decimal">
+<li><p>Verify that we can recover the correct factor structure from a simple simulation scheme.</p></li>
+<li><p><span class="math inline">\(\hat{\beta}\)</span> vs <span class="math inline">\(z\)</span>-score.</p></li>
+<li><p>Find the effect of different <span class="math inline">\(E\)</span> matrices? What if <span class="math inline">\(E\)</span> is sparse (not modeled by EBNM)?</p></li>
+<li><p>What is the affect of selecting top variants?</p></li>
+<li><p>What is the affect of LD (probably not in this document)?</p></li>
+<li><p>How do we choose the best variance and initiation type?</p></li>
+<li><p>Compare with truncated SVD and other methods.</p></li>
+</ol>
+<pre class="r"><code>library(flashier)
+library(sumstatFactors)</code></pre>
+<pre><code>Registered S3 method overwritten by &#39;flashr&#39;:
+  method      from    
+  print.flash flashier</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39;
+when loading &#39;sumstatFactors&#39;</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>✔ ggplot2 3.2.1     ✔ purrr   0.3.2
+✔ tibble  2.1.3     ✔ dplyr   0.8.3
+✔ tidyr   0.8.3     ✔ stringr 1.4.0
+✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(reshape2)</code></pre>
+<pre><code>
+Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    smiths</code></pre>
+<pre class="r"><code>library(causeSims)
+library(ashr)
+library(gridExtra)</code></pre>
+<pre><code>
+Attaching package: &#39;gridExtra&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    combine</code></pre>
+<pre class="r"><code>knitr::opts_chunk$set(autodep = TRUE)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = &quot;#&gt;&quot;, warning = FALSE)</code></pre>
+</div>
+<div id="a-simple-simulated-data-set" class="section level2">
+<h2>A simple simulated data set</h2>
+<p>The function <code>simple()</code> generates matrices of effect estimates and standard errors give the following inputs: <code>rloadings</code>, <code>rfactors</code>, and <code>rerror</code> are random sampling functions that generate elements of <span class="math inline">\(L\)</span>, <span class="math inline">\(F\)</span> and <span class="math inline">\(E\)</span> respectively. They are all functions that take a number and retunr a vector of random samples. <code>S</code> is a matrix of standard errors, and <code>k</code> is the number of factors. These simulations are simple because elements of <span class="math inline">\(L\)</span>, <span class="math inline">\(F\)</span>, and <span class="math inline">\(E\)</span> are iid.</p>
+<p>We start with 1000 variants, 10 traits, 3 factors, and <span class="math inline">\(E = 0\)</span>. Elements of <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> will both be drawn from mixtures of normal distributions. The matrix <span class="math inline">\(S\)</span> will have every entry equal to 1 (i.e. effect sizes are standardized or we are working with <span class="math inline">\(z\)</span>-scores or every variant has the same allele frequency and every trait has the same sample size).</p>
+<pre class="r"><code>set.seed(1)
+nvar &lt;- 1000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors &lt;- function(n){return(rep(0, n))}
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 2
+  p &lt;- 0.5
+  load_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats &lt;- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)</code></pre>
+<p>Now we fit the data with <code>flashier</code>.</p>
+<pre class="r"><code>fit1 &lt;- run_flashier(mats, var_type=&quot;constant&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+ptrue &lt;- plot_factors(mats$true_F, 1:10)
+p1 &lt;- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)</code></pre>
+<p><img src="figure/simulations.Rmd/fit_sim1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+#&gt; [1] 0.4991931</code></pre>
+<p>We have done a good job recovering the latent structure. The generating model for these data is contained in the flash model and the true variance type is “zero”. We can see if this does slighlty better.</p>
+<pre class="r"><code>fit2 &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+p2 &lt;- plot_factors(fit2$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)</code></pre>
+<p><img src="figure/simulations.Rmd/fit_sim2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit2$loadings.pm[[2]])
+#&gt; [1] 0.4991865
+gao_stability_sparse(fit1$loadings.pm[[2]], fit2$loadings.pm[[2]])
+#&gt; [1] 0.4999998</code></pre>
+<p>The stability metric is nearly identical and very close to the maximum value of 0.5.</p>
+</div>
+<div id="adding-sparse-e" class="section level2">
+<h2>Adding sparse <span class="math inline">\(E\)</span></h2>
+<p>Now we add additional effects of variants on traits not mediated by any factors (i.e. uncorrelated with each other).</p>
+<pre class="r"><code>set.seed(1)
+nvar &lt;- 1000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors &lt;- function(n){
+  sigma_1 &lt;- 2
+  p &lt;- 0.3
+  err_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 2
+  p &lt;- 0.5
+  load_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats &lt;- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)</code></pre>
+<p>We will fit with the <code>noisy_constant</code> variance type but can compare later.</p>
+<pre class="r"><code>fit1 &lt;- run_flashier(mats, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 4 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 4 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+ptrue &lt;- plot_factors(mats$true_F, 1:10)
+p1 &lt;- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)</code></pre>
+<p><img src="figure/simulations.Rmd/fit_sim3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+#&gt; [1] 0.5025393</code></pre>
+<p>We still do a good job of recovering the factors. There is an additional single trait factor but this isn’t surprising since sparse <span class="math inline">\(E\)</span> and an additional factor create similar patterns.</p>
+<p>For a comparison of variance types we will make the problem harder by making effect sizes weaker.</p>
+<pre class="r"><code>set.seed(1)
+nvar &lt;- 1000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+rerrors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.3
+  err_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  load_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats &lt;- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)</code></pre>
+<p>We will fit with the <code>noisy_constant</code> variance type but can compare later.</p>
+<pre class="r"><code>fit1 &lt;- run_flashier(mats, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+ptrue &lt;- plot_factors(mats$true_F, 1:10)
+p1 &lt;- plot_factors(fit1$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p1, ncol=2)</code></pre>
+<p><img src="figure/simulations.Rmd/fit_sim5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+#&gt; [1] 0.4863851</code></pre>
+<p>Now it is harder to recover the factors.</p>
+<pre class="r"><code>analysis &lt;- expand.grid( var_type  =  c(&quot;constant&quot;, &quot;by_row&quot;, &quot;by_col&quot;, &quot;kronecker&quot;,
+               &quot;zero&quot;, &quot;noisy_constant&quot;, &quot;noisy_byrow&quot;,
+               &quot;noisy_bycol&quot;), init_type = c(&quot;flashier&quot;, &quot;soft_impute&quot;, &quot;from_data&quot;))
+
+res &lt;- apply(analysis, 1, function(x){run_flashier(mats, var_type=x[1], init_type = x[2])})
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 4 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 4 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Adding factor 6 to flash object...
+#&gt; Adding factor 7 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 6 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 6 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 4 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 4 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Adding factor 6 to flash object...
+#&gt; Adding factor 7 to flash object...
+#&gt; Adding factor 8 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 7 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 7 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 2 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 2 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 4 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 4 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+03...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+03...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+04...
+#&gt;   Difference between iterations is within 1.0e+03...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+04...
+#&gt;   Difference between iterations is within 1.0e+03...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Factor 3 removed, increasing objective by 6.844e+00.
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Backfitting 9 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 9 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+
+rr &lt;- purrr:::map(res, function(fit){
+  c(fit$elbo,  sum(colSums(fit$loadings.pm[[2]]) != 0))
+})
+
+analysis$elbo &lt;- map(rr, 1) %&gt;% unlist()
+analysis$nfactors &lt;- map(rr, 2) %&gt;% unlist()
+max_elbo &lt;- max(analysis$elbo)
+analysis &lt;- analysis %&gt;% mutate(elbo =elbo - max_elbo,
+                      text = paste0(round(elbo), &quot;(&quot;, nfactors, &quot;)&quot;))
+tab &lt;- analysis %&gt;% select(init_type, var_type, text) %&gt;% spread(key = init_type, value = text)
+knitr::kable(tab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">var_type</th>
+<th align="left">flashier</th>
+<th align="left">soft_impute</th>
+<th align="left">from_data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">constant</td>
+<td align="left">-887(3)</td>
+<td align="left">-887(3)</td>
+<td align="left">-941(4)</td>
+</tr>
+<tr class="even">
+<td align="left">by_row</td>
+<td align="left">-273(2)</td>
+<td align="left">-273(2)</td>
+<td align="left">0(7)</td>
+</tr>
+<tr class="odd">
+<td align="left">by_col</td>
+<td align="left">-868(4)</td>
+<td align="left">-869(3)</td>
+<td align="left">-997(3)</td>
+</tr>
+<tr class="even">
+<td align="left">kronecker</td>
+<td align="left">-248(2)</td>
+<td align="left">-248(2)</td>
+<td align="left">-632(9)</td>
+</tr>
+<tr class="odd">
+<td align="left">zero</td>
+<td align="left">-969(6)</td>
+<td align="left">-964(7)</td>
+<td align="left">-528(7)</td>
+</tr>
+<tr class="even">
+<td align="left">noisy_constant</td>
+<td align="left">-887(3)</td>
+<td align="left">-887(3)</td>
+<td align="left">-952(4)</td>
+</tr>
+<tr class="odd">
+<td align="left">noisy_byrow</td>
+<td align="left">-457(2)</td>
+<td align="left">-457(2)</td>
+<td align="left">-519(2)</td>
+</tr>
+<tr class="even">
+<td align="left">noisy_bycol</td>
+<td align="left">-876(4)</td>
+<td align="left">-876(4)</td>
+<td align="left">-934(4)</td>
+</tr>
+</tbody>
+</table>
+<p>In this case it seems like all of the options are similar based on ELBO comparison. We can compare based on the stability metric as well.</p>
+<pre class="r"><code>s &lt;- purrr::map(seq(nrow(analysis)), function(j){
+  gao_stability_sparse(mats$true_F, res[[j]]$loadings.pm[[2]])
+  })
+
+analysis$stability &lt;- unlist(s)
+tab &lt;- analysis %&gt;% select(init_type, var_type, stability) %&gt;% spread(key = init_type, value = stability)
+knitr::kable(tab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">var_type</th>
+<th align="right">flashier</th>
+<th align="right">soft_impute</th>
+<th align="right">from_data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">constant</td>
+<td align="right">0.4863871</td>
+<td align="right">0.4863851</td>
+<td align="right">0.4896622</td>
+</tr>
+<tr class="even">
+<td align="left">by_row</td>
+<td align="right">0.2479533</td>
+<td align="right">0.2479530</td>
+<td align="right">0.4728408</td>
+</tr>
+<tr class="odd">
+<td align="left">by_col</td>
+<td align="right">0.4224259</td>
+<td align="right">0.4467855</td>
+<td align="right">0.4877943</td>
+</tr>
+<tr class="even">
+<td align="left">kronecker</td>
+<td align="right">0.2483246</td>
+<td align="right">0.2483249</td>
+<td align="right">0.4292232</td>
+</tr>
+<tr class="odd">
+<td align="left">zero</td>
+<td align="right">0.4901936</td>
+<td align="right">0.4983013</td>
+<td align="right">0.4933330</td>
+</tr>
+<tr class="even">
+<td align="left">noisy_constant</td>
+<td align="right">0.4863871</td>
+<td align="right">0.4863851</td>
+<td align="right">0.4892472</td>
+</tr>
+<tr class="odd">
+<td align="left">noisy_byrow</td>
+<td align="right">0.2481281</td>
+<td align="right">0.2481288</td>
+<td align="right">0.2481331</td>
+</tr>
+<tr class="even">
+<td align="left">noisy_bycol</td>
+<td align="right">0.4914562</td>
+<td align="right">0.4914540</td>
+<td align="right">0.4916387</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>ggplot(analysis) + geom_point(aes(x=elbo, y=stability, col=var_type, shape=init_type), size=1.5) + theme_bw()</code></pre>
+<p><img src="figure/simulations.Rmd/stab1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Somewhat discouragingly, methods with lower ELBO’s seem to have results closer to the true factors. Lets take a look at some results. We will look at the method with the highest ELBO, the method with the highest stability relative to the truth and one of the methods with lower stability relatvie to the truth.</p>
+<pre class="r"><code>ptrue &lt;- plot_factors(mats$true_F, 1:10) + ggtitle(&quot;Truth&quot;)
+ix &lt;- which.max(analysis$elbo)
+p_best_elbo &lt;- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0(&quot;Best ELBO: &quot;, analysis$var_type[ix], &quot; &quot;, analysis$init_type[ix]))
+ix &lt;- which.max(analysis$stability)
+p_best_stab &lt;- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0(&quot;Best stability: &quot;, analysis$var_type[ix], &quot; &quot;, analysis$init_type[ix]))
+ix &lt;- which.min(analysis$stability)
+p_worst_stab &lt;- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0(&quot;Worst stability: &quot;, analysis$var_type[ix], &quot; &quot;, analysis$init_type[ix]))
+grid.arrange(ptrue, p_best_elbo, p_best_stab, p_worst_stab, ncol=2)</code></pre>
+<p><img src="figure/simulations.Rmd/plots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Here are some things to notice. This seems to be a hard problem, which is not so surprising since we made the effects weak. True factor 3 is well recovered by all methods. the method with the worse stability appear to have this almost entirely as a result of missing one of the factors. The first three factors of Best ELBO and Best stability are pretty similar, capturing true factors 3, 1, and 2 but each have several additional factors with lower pve.</p>
+<p>Also discouraging is that initialization seems to have a large affect on results. The “noisy_constant” variance type seems relatively stable across initializations and generally gives pretty good results. Will this hold for other examples?</p>
+</div>
+<div id="truncated-svd" class="section level2">
+<h2>Truncated SVD</h2>
+<p>How does truncated SVD do on this problem? This is the method used by Tanigawa et al 2019.</p>
+<pre class="r"><code>library(irlba)
+#&gt; Loading required package: Matrix
+#&gt; 
+#&gt; Attaching package: &#39;Matrix&#39;
+#&gt; The following object is masked from &#39;package:tidyr&#39;:
+#&gt; 
+#&gt;     expand
+fit_tsvd_3 &lt;- irlba(mats$beta_hat, 3) 
+p_tsvd &lt;- plot_factors(fit_tsvd_3$v, 1:10)
+grid.arrange(ptrue + ggtitle(&quot;True Latent Factors&quot;), p_tsvd + ggtitle(&quot;Truncated SVD&quot;))</code></pre>
+<p><img src="figure/simulations.Rmd/tsvd-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Not surprisingly, TSVD doesn’t recover the latent structure because singular values are required to be orthonormal and no sparsity is imposed.</p>
+</div>
+<div id="stability-metrics" class="section level2">
+<h2>Stability Metrics</h2>
+<p>The analysis in the previous sections reveals some issues with the Gao et al stability metric. Significantly, the metric depends heavily on the dimension of the two matrices. For two matrices that are 3 columns each, the maximum stability value is 0.5 if the two matrices are identical. However, you can actually get a higher value if one matrix has an extra column. The maximum stability value for matrices with 3 and 2 columns is only 0.25.</p>
+</div>
+<div id="selection-effects" class="section level2">
+<h2>Selection Effects</h2>
+<p>In my analyses of disease data I set a threshold minimum <span class="math inline">\(p\)</span>-value and only take variants that have an association with at least one trait. Does doing this induces spurious factors? We will keep the same set-up but use more variants and then select. Since we are using more variants, we will reduce the probability that each one affects a trait. We will start with a threshold of <span class="math inline">\(1e-4\)</span>.</p>
+<pre class="r"><code>set.seed(10)
+nvar &lt;- 10000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+
+rerrors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.2
+  err_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.3
+  load_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats &lt;- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+minp &lt;- with(mats, apply(beta_hat/se_hat, 1,  function(z){
+  p &lt;- 2*pnorm(-abs(z))
+  min(p)
+}))</code></pre>
+<pre class="r"><code>
+ix &lt;- which(minp &lt; 1e-4)
+mats_4 &lt;- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+fit1 &lt;- run_flashier(mats_4, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+ptrue &lt;- plot_factors(mats$true_F, 1:10)
+p1 &lt;- plot_factors(fit1$loadings.pm[[2]], 1:10)
+gao_stability_sparse(mats$true_F, fit1$loadings.pm[[2]])
+#&gt; [1] 0.3068287</code></pre>
+<p>We can compare this result to running with the full data.</p>
+<pre class="r"><code>
+fit2 &lt;- run_flashier(mats, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+ptrue &lt;- plot_factors(mats$true_F, 1:10)
+p2 &lt;- plot_factors(fit2$loadings.pm[[2]], 1:10)
+gao_stability_sparse(mats$true_F, fit2$loadings.pm[[2]])
+#&gt; [1] 0.4975332</code></pre>
+<pre class="r"><code>grid.arrange(ptrue, p1, p2, ncol=3)</code></pre>
+<p><img src="figure/simulations.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>We do a better job with all the data but it takes much longer to run. Lets look over a range of thresholds.</p>
+<pre class="r"><code>t &lt;- c(0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6)
+fits &lt;- purrr::map(t, function(thresh){
+  ix &lt;- which(minp &lt; thresh)
+  my_mats &lt;- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+  fit &lt;- run_flashier(my_mats, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+  return(fit)
+})
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+nfactors &lt;- sapply(fits, function(f){f$n.factors})
+stab &lt;- sapply(fits, function(f){
+  gao_stability_sparse(mats$true_F, f$loadings.pm[[2]])
+})
+stab
+#&gt; [1] 0.4969566 0.2234772 0.1116309 0.3068287 0.3021017 0.2953682
+nfactors
+#&gt; [1] 3 3 3 3 3 3</code></pre>
+<p>Conveniently, all fits have three factors so the stability is comparable. The best stability occurs with most of the variants, goes down and then goes back up. My hypothesis is that with moderate selection, false signals can be introduced. With strict selection, most of the selected variants are true positives. Perhaps we can see this more clearly using variants with larger effect sizes.</p>
+<pre class="r"><code>set.seed(10)
+nvar &lt;- 10000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+
+rerrors &lt;- function(n){
+  sigma_1 &lt;- 2
+  p &lt;- 0.2
+  err_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, err_dist))
+}
+
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 2
+  p &lt;- 0.3
+  load_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(rnormalmix(n, fact_dist))
+}
+
+mats &lt;- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
+minp &lt;- with(mats, apply(beta_hat/se_hat, 1,  function(z){
+  p &lt;- 2*pnorm(-abs(z))
+  min(p)
+}))</code></pre>
+<pre class="r"><code>t &lt;- c(0.1, 0.01, 1e-3, 1e-4, 1e-5, 1e-6)
+fits &lt;- purrr::map(t, function(thresh){
+  ix &lt;- which(minp &lt; thresh)
+  my_mats &lt;- with(mats, list(beta_hat = beta_hat[ix,], se_hat = se_hat[ix,]))
+  fit &lt;- run_flashier(my_mats, var_type=&quot;noisy_constant&quot;, init_type=&quot;soft_impute&quot;)
+  return(fit)
+})
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 4 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 4 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Adding factor 6 to flash object...
+#&gt; Adding factor 7 to flash object...
+#&gt; Adding factor 8 to flash object...
+#&gt; Adding factor 9 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 8 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 8 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Adding factor 6 to flash object...
+#&gt; Adding factor 7 to flash object...
+#&gt; Adding factor 8 to flash object...
+#&gt; Adding factor 9 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 8 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 8 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Adding factor 5 to flash object...
+#&gt; Adding factor 6 to flash object...
+#&gt; Adding factor 7 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 6 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt;   Difference between iterations is within 1.0e+00...
+#&gt;   Difference between iterations is within 1.0e-01...
+#&gt;   Difference between iterations is within 1.0e-02...
+#&gt; Nullchecking 6 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+#&gt; Initializing flash object...
+#&gt; Adding factor 1 to flash object...
+#&gt; Adding factor 2 to flash object...
+#&gt; Adding factor 3 to flash object...
+#&gt; Adding factor 4 to flash object...
+#&gt; Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+#&gt; Backfitting 3 factors (tolerance: 1.00e-02)...
+#&gt;   Difference between iterations is within 1.0e+02...
+#&gt;   Difference between iterations is within 1.0e+01...
+#&gt; Nullchecking 3 factors...
+#&gt; Wrapping up...
+#&gt; Done.
+nfactors &lt;- sapply(fits, function(f){f$n.factors})
+stab &lt;- sapply(fits, function(f){
+  gao_stability_sparse(mats$true_F, f$loadings.pm[[2]])
+})
+stab
+#&gt; [1] 0.4690712 0.4986542 0.4148483 0.4213229 0.2837029 0.1791321
+nfactors
+#&gt; [1] 4 3 8 8 6 3</code></pre>
+<p>With stronger effect size we see a nearly monotonic decrease in stability with more stringent thresholds.</p>
+</div>
+<div id="hatbeta-vs-z-scores" class="section level2">
+<h2><span class="math inline">\(\hat{\beta}\)</span> vs <span class="math inline">\(z\)</span>-scores</h2>
+<p>If the <span class="math inline">\(S\)</span> matrix is separable over rows and columns so <span class="math inline">\(\sigma_{ij} = \sigma_{i}\sigma_j\)</span> then I believe that we can recover an equivalent latent structure using effect estimates and <span class="math inline">\(z\)</span>-scores. Suppose the true effect size is low rank. Then</p>
+<p><span class="math display">\[
+\hat{\beta}_{ij} = \sum_k l_{ik}f_{jk} + e_{ij} + s_{ij}
+\]</span> where <span class="math inline">\(s_{ij} \sim N(0, \sigma_{ij})\)</span>. If <span class="math inline">\(\sigma_{ij} = \sigma_i \sigma_j\)</span> then</p>
+<p><span class="math display">\[
+z_{ij} = \hat{\beta}_{ij}/\sigma_{ij} = \sum_k \frac{l_{ik}}{\sigma_i}\frac{f_{jk}}{\sigma_j} + e^{*}_{ij} + w_{ij}
+\]</span> where <span class="math inline">\(w_{ij} \sim N(0, 1)\)</span>.</p>
+<p>In GWAS, <span class="math inline">\(\sigma_{ij} \propto \sqrt{\frac{1}{2N_{j} q_{ij} (1-q_{ij})}}\)</span> where <span class="math inline">\(q_{ij}\)</span> is the allele frequency of variant <span class="math inline">\(i\)</span> in GWAS of trait <span class="math inline">\(j\)</span>. Thus all studies have similar allele frequencues or the traits are all measured in the same cohort, then using <span class="math inline">\(z\)</span>-scores will give the same structure as effect estimates. Lets do a simulation where this is not the case and see what happens.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()
+#&gt; R version 3.6.1 (2019-07-05)
+#&gt; Platform: x86_64-pc-linux-gnu (64-bit)
+#&gt; Running under: Ubuntu 18.04.3 LTS
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+#&gt; 
+#&gt; locale:
+#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt;  [1] irlba_2.3.3               Matrix_1.2-17            
+#&gt;  [3] gridExtra_2.3             ashr_2.2-32              
+#&gt;  [5] causeSims_0.1.0           reshape2_1.4.3           
+#&gt;  [7] forcats_0.4.0             stringr_1.4.0            
+#&gt;  [9] dplyr_0.8.3               purrr_0.3.2              
+#&gt; [11] readr_1.3.1               tidyr_0.8.3              
+#&gt; [13] tibble_2.1.3              ggplot2_3.2.1            
+#&gt; [15] tidyverse_1.2.1           sumstatFactors_0.0.0.9000
+#&gt; [17] flashier_0.1.16          
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] colorspace_1.4-1             rjson_0.2.20                
+#&gt;  [3] rprojroot_1.3-2              fs_1.3.1                    
+#&gt;  [5] rstudioapi_0.10              listenv_0.7.0               
+#&gt;  [7] furrr_0.1.0                  lubridate_1.7.4             
+#&gt;  [9] xml2_1.2.2                   codetools_0.2-16            
+#&gt; [11] splines_3.6.1                pscl_1.5.2                  
+#&gt; [13] doParallel_1.0.15            robustbase_0.93-5           
+#&gt; [15] knitr_1.24                   zeallot_0.1.0               
+#&gt; [17] jsonlite_1.6                 workflowr_1.4.0.9000        
+#&gt; [19] broom_0.5.2                  flashr_0.6-6                
+#&gt; [21] compiler_3.6.1               httr_1.4.1                  
+#&gt; [23] backports_1.1.4              assertthat_0.2.1            
+#&gt; [25] RcppZiggurat_0.1.5           lazyeval_0.2.2              
+#&gt; [27] survey_3.36                  cli_1.1.0                   
+#&gt; [29] iterpc_0.4.1                 htmltools_0.3.6             
+#&gt; [31] tools_3.6.1                  gmp_0.5-13.5                
+#&gt; [33] gtable_0.3.0                 glue_1.3.1                  
+#&gt; [35] Rcpp_1.0.2                   softImpute_1.4              
+#&gt; [37] cellranger_1.1.0             vctrs_0.2.0                 
+#&gt; [39] arrangements_1.1.5           nlme_3.1-141                
+#&gt; [41] iterators_1.0.12             xfun_0.9                    
+#&gt; [43] globals_0.12.4               rvest_0.3.4                 
+#&gt; [45] future_1.14.0                DEoptimR_1.0-8              
+#&gt; [47] MASS_7.3-51.4                scales_1.0.0                
+#&gt; [49] hms_0.5.1                    parallel_3.6.1              
+#&gt; [51] yaml_2.2.0                   loo_2.1.0                   
+#&gt; [53] stringi_1.4.3                SQUAREM_2017.10-1           
+#&gt; [55] cause_0.3.0.0224             highr_0.8                   
+#&gt; [57] foreach_1.4.7                RMySQL_0.10.17              
+#&gt; [59] truncnorm_1.0-8              intervals_0.15.1            
+#&gt; [61] rlang_0.4.0                  pkgconfig_2.0.2             
+#&gt; [63] matrixStats_0.54.0           ebnm_0.1-24                 
+#&gt; [65] evaluate_0.14                lattice_0.20-38             
+#&gt; [67] htmlwidgets_1.3              labeling_0.3                
+#&gt; [69] tidyselect_0.2.5             plyr_1.8.4                  
+#&gt; [71] magrittr_1.5                 R6_2.4.0                    
+#&gt; [73] gsmr_1.0.9                   generics_0.0.2              
+#&gt; [75] DBI_1.0.0                    pillar_1.4.2                
+#&gt; [77] haven_2.1.1                  whisker_0.4                 
+#&gt; [79] withr_2.1.2                  survival_2.44-1.1           
+#&gt; [81] mixsqp_0.1-97                modelr_0.1.5                
+#&gt; [83] crayon_1.3.4                 MRPRESSO_1.0                
+#&gt; [85] plotly_4.9.0                 rmarkdown_1.15              
+#&gt; [87] grid_3.6.1                   readxl_1.3.1                
+#&gt; [89] data.table_1.12.2            MendelianRandomization_0.4.1
+#&gt; [91] git2r_0.26.1                 digest_0.6.20               
+#&gt; [93] numDeriv_2016.8-1.1          RcppParallel_4.4.3          
+#&gt; [95] munsell_0.5.0                viridisLite_0.3.0           
+#&gt; [97] mitools_2.4</code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
