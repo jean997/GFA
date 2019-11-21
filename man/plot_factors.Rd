@@ -4,7 +4,7 @@
 \alias{plot_factors}
 \title{Plot Factors from a matrix}
 \usage{
-plot_factors(x, names, factor_names)
+plot_factors(x, names, factor_names, trait_order)
 }
 \description{
 Plot Factors from a matrix
