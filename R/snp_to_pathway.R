@@ -12,12 +12,12 @@ retrieve_go_ids <- function(all_genes){
 
 #'@title Annotate rs IDs to genomic loci
 #'@export
-annotate_snp_loc <- function(rsid,...){
+annotate_snp_loc <- function(rsid,dbname="hg19"){
   con <- RMySQL::dbConnect(RMySQL::MySQL(),
                            host="genome-mysql.cse.ucsc.edu",
                            username="genome",
-                           dbname="hg19")
-  variant_df <- tbl(con,"snp150")
+                           dbname=dbname)
+  variant_df <- dplyr::tbl(con,"snp150")
   anno_df <- dplyr::filter(variant_df,name %in% rsid) %>%
     dplyr::select(name,chrom,pos=chromEnd,observed,func) %>% #Pull out the SNPs we need
     dplyr::collect() %>% #grab the whole thing from the database
