@@ -40,7 +40,7 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>", warning = FA
 
 ## A simple simulated data set
 
-The function `simple()` generates matrices of effect estimates and standard errors give the following inputs: `rloadings`, `rfactors`, and `rerror` are random sampling functions that generate elements of $L$, $F$ and $E$ respectively. They are all functions that take a number and retunr a vector of random samples. `S` is a matrix of standard errors, and `k` is the number of factors. These simulations are simple because elements of $L$, $F$, and $E$ are iid. 
+The function `sim_bh_simple()` generates matrices of effect estimates and standard errors given the inputs: `rloadings`, `rfactors`, and `rerror` are random sampling functions that generate elements of $L$, $F$ and $E$ respectively. They are all functions that take a number and return a vector of random samples. `S` is a matrix of standard errors, and `k` is the number of factors. These simulations are simple because elements of $L$, $F$, and $E$ are iid. 
 
 We start with 1000 variants, 10 traits, 3 factors, and $E = 0$. Elements of $L$ and $F$ will both be drawn from mixtures of normal distributions. The matrix $S$ will have every entry equal to 1 (i.e. effect sizes are standardized or we are working with $z$-scores or every variant has the same allele frequency and every trait has the same sample size).
 
@@ -70,7 +70,7 @@ mats <- sim_bh_simple(rloadings, rfactors, rerrors, S, nfactor)
 
 ```
 
-Now we fit the data with `flashier`.
+Now fit the data with `flashier`.
 
 ```{r, fit_sim1}
 fit1 <- run_flashier(mats, var_type="constant", init_type="soft_impute")
@@ -233,7 +233,7 @@ p_worst_stab <- plot_factors(res[[ix]]$loadings.pm[[2]], 1:10) + ggtitle(paste0(
 grid.arrange(ptrue, p_best_elbo, p_best_stab, p_worst_stab, ncol=2)
 ```
 
-Here are some things to notice. This seems to be a hard problem, which is not so surprising since we made the effects weak. True factor 3 is well recovered by all methods. the method with the worse stability appear to have this almost entirely as a result of missing one of the factors. The first three factors of Best ELBO and Best stability are pretty similar, capturing true factors 3, 1, and 2 but each have several additional factors with lower pve.
+Here are some things to notice. This seems to be a hard problem, which is not so surprising since we made the effects weak. True factor 3 is well recovered by all methods. Low stability seems to result from missing one of the factors. The first three factors of Best ELBO and Best stability are pretty similar, capturing true factors 3, 1, and 2 but each have several additional factors with lower pve.
 
 Also discouraging is that initialization seems to have a large affect on results. The "noisy_constant" variance type seems relatively stable across initializations and generally gives pretty good results. Will this hold for other examples?
 
