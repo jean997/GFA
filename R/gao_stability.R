@@ -1,4 +1,4 @@
-
+# From Gao, Brown, and Engelhardt 2013
 #'@export
 gao_stability_sparse <- function(L1, L2, rows_match=TRUE){
   if(!rows_match){

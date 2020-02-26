@@ -4,7 +4,7 @@
 \alias{annotate_snp_loc}
 \title{Annotate rs IDs to genomic loci}
 \usage{
-annotate_snp_loc(rsid, ...)
+annotate_snp_loc(rsid, dbname = "hg19")
 }
 \description{
 Annotate rs IDs to genomic loci
