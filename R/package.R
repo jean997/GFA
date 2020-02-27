@@ -6,8 +6,7 @@
 #' @author Jean Morrison <jeanm@uchicago.edu>
 #' @import flashr
 #' @import flashier
-#' @import dplyr
-#' @import readr
+#' @import dplyr readr reshape2
 #' @import intervals
 #' @import purrr
 #' @importFrom RMySQL dbConnect
