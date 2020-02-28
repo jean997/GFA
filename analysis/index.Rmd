@@ -19,3 +19,4 @@ In this project I am studying the potential utility of factor analysis applied t
 1. [Computing SNP-based genetic correlation](genetic_correlation.html)
 1. [First Simulations](simulations.html)
 1. [Blood cell traits](blood_cell.html)
+1. [Correcting for sample overlap](simulations2.html)
