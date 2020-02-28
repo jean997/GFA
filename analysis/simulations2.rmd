@@ -8,31 +8,32 @@ editor_options:
 ---
 
 ## Introduction
-If many phenotypes are measured in the same sample or there is partial overlap between studies, there can be correlation in effect estimates that occurs as a result of sample phenotypic correlation rather than correlation in effect size. We would like to correct for this. This correlation occurs in all effect estimates, so it can be estimated using variants that are unlikely to affect any of the phenotypes. We can use this estimate to transform the matrix of effect estimates. Write the decomposition as
+If many phenotypes are measured in the same sample or there is partial overlap between studies, there can be correlation in effect estimates that occurs as a result of sample phenotypic correlation rather than correlation in effect size. We would like to correct for this. This correlation occurs in all effect estimates, so it can be estimated using variants that are unlikely to affect any of the phenotypes. We can use this estimate to transform the matrix of effect estimates. To refresh notation, $J$ = number of variants, $M$ = number of traits, $K$  =  number of hidden factors
+
+Write the decomposition as
 
 $$
-\hat{B}_{p\times M} = L_{K \times p}^{T}F_{K\times M} + \Theta_{p\times M} + E_{p\times M}
+\hat{B}_{J\times M} = L_{K \times J}^{T}F_{K\times M} + \Theta_{J\times M} + E_{J\times M}
 $$
 
-
-$p$ is the number of variants, $M$ the number of phenotypes, $K$ the number of factors. $\Theta$ represents effects of variants on traits not mediated by factors. We assume these are independent and from some unknown distribution. $E$ is the matrix that we are thinking about in this document. This is the estimation error. If each phenotype is measured in a different sample then the elements of $E$, $e_{i,j}$ are indepent and $e_{i,j} \sim N(0, s_{i,j}^2)$ where $s_{i,j}$ is the estimated variance of $\hat{B}_{i,j}$ available in the GWAS. However, if samples overlap, these are not independent and 
+ $\Theta$ represents effects of variants on traits not mediated by factors. We assume these are independent and from some unknown distribution. $E$ is the matrix that we are thinking about in this document. This is the estimation error. If each phenotype is measured in a different sample then the elements of $E$, $e_{j,m}$ are indepent and $e_{i,j} \sim N(0, s_{j,m}^2)$ where $s_{j,m}$ is the estimated variance of $\hat{B}_{j,m}$ available in the GWAS. However, if samples overlap, these are not independent and 
 $$
-Cov(E_{i, \cdot}) = \Sigma_{i (M\times M)} = S_{i}RS_{i}
+Cov(E_{j, \cdot}) = \Sigma_{j (M\times M)} = S_{j}RS_{j}
 $$
-where $R$ is a correlation matrix that can be estimated as described above and $S_i$ is a diagonal matrix $M\times M$ matrix with elements $s_{i,j}$. We are assuming that elements in the same row of $E$ are correlated but that elements in different rows are indendent ($Cov(E_{i,j}, E_{i^\prime, j^\prime}) = 0$ if $i \neq i^\prime$).
+where $R$ is a correlation matrix that can be estimated as described above and $S_j$ is a diagonal matrix $M\times M$ matrix with elements $s_{j,m}$. We are assuming that elements in the same row of $E$ are correlated but that elements in different rows are indendent ($Cov(E_{j,m}, E_{j^\prime, m^\prime}) = 0$ if $j \neq j^\prime$).
 
 It helps to write the relationship above for only one variant, $i$, here also transposing for convenience. 
 
 $$
-\hat{B}_{i (M\times 1)} = F_{(M\times K)}^{\top}L_{i (K\times 1)} + \Theta_{i} + E_i
+\hat{B}_{j (M\times 1)} = F_{(M\times K)}^{\top}L_{j (K\times 1)} + \Theta_{j} + E_j
 $$
 
-In this case, if $R$ is known then we can compute the eigen decomposition of $\Sigma_i = S_i R S_i = V_i D_i V_i^\top$ and find that $V_i^\top\hat{B}_i$ is a vector with independent elements. This is messy though and rquires us to do $p$ eigen decompositions. Further, replacing $\hat{B}$ with a matrix where rows are replaced by $V_i^\top \hat{B}_i$ won't necessarily give a matrix with the same low rank decomposition. If we assume that $s_{ij}$ can be decomposed as $s_i s_j$ then things are a bit easier. This is a reasonable approximation if variant allele frequencies are the same/similar across traits and the GWAS sample size for a single trait is the same/similar across variants because we can assume that $s_{ij} \propto \frac{1}{N_j f_i(1-f_i)}$. In this case $z$-scores have the same low-rank structure as the effect sizes (up to a scaling of the columns of $F$ and $L$) so we can write 
+ If we assume that $s_{j,m}$ can be decomposed as $a_j b_m$ then things are a bit easier. This is a reasonable approximation if variant allele frequencies are the same/similar across traits and the GWAS sample size for a single trait is the same/similar across variants because we can assume that $s_{j,m} \propto \frac{1}{N_m f_j(1-f_j)}$. In this case $z$-scores have the same low-rank structure as the effect sizes (up to a scaling of the columns of $F$ and $L$) so we can write 
 
 $$
-\hat{Z}_{i (M\times 1)} = \tilde{F}_{(M\times K)}^{\top}\tilde{L}_{i (K\times 1)} + \tilde{\Theta}_{i} + \tilde{E}_i
+\hat{Z}_{j (M\times 1)} = \tilde{F}_{(M\times K)}^{\top}\tilde{L}_{j (K\times 1)} + \tilde{\Theta}_{j} + \tilde{E}_j
 $$
-where $Cov(\tilde{E}_i) = R$. So now, with the eigen-decomposition of $R = UDU^\top$, we can replace $\hat{Z}$ with 
+where $Cov(\tilde{E}_j) = R$. So now, with the eigen-decomposition of $R = UDU^\top$, we can replace $\hat{Z}$ with 
 
 $$
 \tilde{Z} = \hat{Z}U
@@ -41,7 +42,7 @@ giving
 $$
 \tilde{Z} = L^T F U + \tilde{\Theta} U + \tilde{E}U
 $$
-where the elements of $\tilde{E}U$ are independent with variance $d_j$. We could also take $\tilde{Z} = \hat{Z}_{p\times M} D^{-1/2} U$ to have elements of $\tilde{E}D^{-1/2}U$ be iid stanard normal. One issue here is that we will end up estimating $FU$ rather than $F$ but it is possible that $FU$ is not sparse. We also now have $\tilde{\Theta}U$ which may have less structure thatn $\tilde{\Theta}$.
+where the elements of $\tilde{E}U$ are independent with variance $d_m$. We could also take $\tilde{Z} = \hat{Z}_{J\times M} D^{-1/2} U$ to have elements of $\tilde{E}D^{-1/2}U$ be iid stanard normal. One issue here is that we will end up estimating $FU$ rather than $F$ but it is possible that $FU$ is not sparse. We also now have $\tilde{\Theta}U$ which may have less structure thatn $\tilde{\Theta}$.
 
 ## Goals
 
@@ -241,4 +242,85 @@ corr_f <- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
                 rep(c(0, 1), c(9, 1)))
 gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])
 gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])
+```
+
+
+## Simulations Results
+
+I ran a larger set of simulations with the goal of demonstrating that the eigenvector correction works as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. $F$ is fixed in all simulations but $L$ and $E$ are random. $\Theta = 0_{J\times M}$ and $S = 1_{J\times M}$.
+
+```{r}
+res <- readRDS("analysis_data/2020-02-28_two.RDS")
+```
+
+### RRMSE
+
+```{r}
+res %>% 
+       filter(eval=="rrmse" &  simulate.which_R!="identity") %>%
+       ggplot(.)  + 
+       geom_boxplot(aes(y=eval.value, x=ebmf, group=paste0(ebmf, "-", ebmf.var_type),
+                        col=ebmf.var_type)) + 
+       facet_wrap(~simulate.which_R)
+
+```
+### Factor Recovery
+
+```{r}
+res %>% 
+     filter(eval=="factor_recovery" & simulate.which_R!="identity") %>%
+     ggplot(.) + 
+       geom_boxplot(aes(y=eval.value, x=ebmf, group=paste0(ebmf, "-", ebmf.var_type, "-"),
+                        col=ebmf.var_type)) + 
+       facet_wrap(~eval.f*simulate.which_R)
+
+```
+
+### How well does ELBO work for choosing the best variance?
+
+```{r}
+r1 <- res %>%
+      filter(eval=="factor_recovery") %>%
+      group_by(ebmf.output.file) %>%
+      summarize(mean_factor_recovery = mean(eval.value)) %>%
+      ungroup()
+
+r2 <- res %>%
+      filter(eval!="factor_recovery") %>%
+      select(-eval.f) %>%
+      spread(eval, eval.value) %>%
+      left_join(., r1) 
+
+r2$rrmse <- r2$rrmse + rnorm(n=nrow(r2), 0, 1e-4) 
+r2$mean_factor_recovery <- r2$mean_factor_recovery + rnorm(n=nrow(r2), 0, 1e-4)
+
+
+r3 <- r2 %>%
+      group_by(simulate.output.file, ebmf ) %>%
+      summarize(best_elbo = max(elbo),
+                best_rrmse = min(rrmse),
+                best_recovery=max(mean_factor_recovery)) %>%
+      left_join(r2, .) %>%
+      ungroup()
+
+b1 <- r3 %>%
+      filter(elbo==best_elbo) %>%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %>%
+      rename(elbo_var = ebmf.var_type)
+b2 <- r3 %>%
+      filter(rrmse==best_rrmse) %>%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %>%
+      rename(rrmse_var = ebmf.var_type)
+b3 <- r3 %>%
+      filter(mean_factor_recovery==best_recovery) %>%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %>%
+      rename(recovery_var = ebmf.var_type)
+
+b <- left_join(b1, b2) %>% left_join(., b3)
+
+with(b, table(elbo_var, rrmse_var))
+
+with(b, table(elbo_var, recovery_var))
+
+
 ```
