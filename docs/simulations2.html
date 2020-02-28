@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2020-02-24" />
+
+<title>Correcting for sample overlap</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jean997/ss_factors">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Correcting for sample overlap</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-02-24</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-02-28
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree726dd7e67fbc05592cdcce19799dd1708da0e873targetblank726dd7ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/726dd7e67fbc05592cdcce19799dd1708da0e873" target="_blank">726dd7e</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree726dd7e67fbc05592cdcce19799dd1708da0e873targetblank726dd7ea" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors_cache/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
+    Ignored:    analysis/simulations_cache/
+
+Untracked files:
+    Untracked:  analysis/genetic_correlation.Rmd
+    Untracked:  buttons.css
+    Untracked:  code/flashier_compare.R
+    Untracked:  code/flashier_compare_jason.R
+    Untracked:  code/hide_output.js
+    Untracked:  code/mask_flashier.R
+    Untracked:  code/mask_flashr.R
+    Untracked:  k99_analysis.R
+    Untracked:  k99_fit.RDS
+
+Unstaged changes:
+    Modified:   README.md
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/726dd7e67fbc05592cdcce19799dd1708da0e873/analysis/simulations2.rmd" target="_blank">726dd7e</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+<td>
+wflow_publish(files = c(“analysis/simulations2.rmd”))
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/91de03c239506c308c35688259939f36e5557f64/analysis/simulations2.rmd" target="_blank">91de03c</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-26
+</td>
+<td>
+new simulations – sample overlap
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>If many phenotypes are measured in the same sample or there is partial overlap between studies, there can be correlation in effect estimates that occurs as a result of sample phenotypic correlation rather than correlation in effect size. We would like to correct for this. This correlation occurs in all effect estimates, so it can be estimated using variants that are unlikely to affect any of the phenotypes. We can use this estimate to transform the matrix of effect estimates. To refresh notation, <span class="math inline">\(J\)</span> = number of variants, <span class="math inline">\(M\)</span> = number of traits, <span class="math inline">\(K\)</span> = number of hidden factors</p>
+<p>Write the decomposition as</p>
+<p><span class="math display">\[
+\hat{B}_{J\times M} = L_{K \times J}^{T}F_{K\times M} + \Theta_{J\times M} + E_{J\times M}
+\]</span></p>
+<p><span class="math inline">\(\Theta\)</span> represents effects of variants on traits not mediated by factors. We assume these are independent and from some unknown distribution. <span class="math inline">\(E\)</span> is the matrix that we are thinking about in this document. This is the estimation error. If each phenotype is measured in a different sample then the elements of <span class="math inline">\(E\)</span>, <span class="math inline">\(e_{j,m}\)</span> are indepent and <span class="math inline">\(e_{i,j} \sim N(0, s_{j,m}^2)\)</span> where <span class="math inline">\(s_{j,m}\)</span> is the estimated variance of <span class="math inline">\(\hat{B}_{j,m}\)</span> available in the GWAS. However, if samples overlap, these are not independent and <span class="math display">\[
+Cov(E_{j, \cdot}) = \Sigma_{j (M\times M)} = S_{j}RS_{j}
+\]</span> where <span class="math inline">\(R\)</span> is a correlation matrix that can be estimated as described above and <span class="math inline">\(S_j\)</span> is a diagonal matrix <span class="math inline">\(M\times M\)</span> matrix with elements <span class="math inline">\(s_{j,m}\)</span>. We are assuming that elements in the same row of <span class="math inline">\(E\)</span> are correlated but that elements in different rows are indendent (<span class="math inline">\(Cov(E_{j,m}, E_{j^\prime, m^\prime}) = 0\)</span> if <span class="math inline">\(j \neq j^\prime\)</span>).</p>
+<p>It helps to write the relationship above for only one variant, <span class="math inline">\(i\)</span>, here also transposing for convenience.</p>
+<p><span class="math display">\[
+\hat{B}_{j (M\times 1)} = F_{(M\times K)}^{\top}L_{j (K\times 1)} + \Theta_{j} + E_j
+\]</span></p>
+<p>If we assume that <span class="math inline">\(s_{j,m}\)</span> can be decomposed as <span class="math inline">\(a_j b_m\)</span> then things are a bit easier. This is a reasonable approximation if variant allele frequencies are the same/similar across traits and the GWAS sample size for a single trait is the same/similar across variants because we can assume that <span class="math inline">\(s_{j,m} \propto \frac{1}{N_m f_j(1-f_j)}\)</span>. In this case <span class="math inline">\(z\)</span>-scores have the same low-rank structure as the effect sizes (up to a scaling of the columns of <span class="math inline">\(F\)</span> and <span class="math inline">\(L\)</span>) so we can write</p>
+<p><span class="math display">\[
+\hat{Z}_{j (M\times 1)} = \tilde{F}_{(M\times K)}^{\top}\tilde{L}_{j (K\times 1)} + \tilde{\Theta}_{j} + \tilde{E}_j
+\]</span> where <span class="math inline">\(Cov(\tilde{E}_j) = R\)</span>. So now, with the eigen-decomposition of <span class="math inline">\(R = UDU^\top\)</span>, we can replace <span class="math inline">\(\hat{Z}\)</span> with</p>
+<p><span class="math display">\[
+\tilde{Z} = \hat{Z}U
+\]</span> giving <span class="math display">\[
+\tilde{Z} = L^T F U + \tilde{\Theta} U + \tilde{E}U
+\]</span> where the elements of <span class="math inline">\(\tilde{E}U\)</span> are independent with variance <span class="math inline">\(d_m\)</span>. We could also take <span class="math inline">\(\tilde{Z} = \hat{Z}_{J\times M} D^{-1/2} U\)</span> to have elements of <span class="math inline">\(\tilde{E}D^{-1/2}U\)</span> be iid stanard normal. One issue here is that we will end up estimating <span class="math inline">\(FU\)</span> rather than <span class="math inline">\(F\)</span> but it is possible that <span class="math inline">\(FU\)</span> is not sparse. We also now have <span class="math inline">\(\tilde{\Theta}U\)</span> which may have less structure thatn <span class="math inline">\(\tilde{\Theta}\)</span>.</p>
+</div>
+<div id="goals" class="section level2">
+<h2>Goals</h2>
+<p>My goals in this document are</p>
+<ol style="list-style-type: decimal">
+<li>See how much correlation affects estimates of <span class="math inline">\(F\)</span></li>
+<li>Verify that the strategy above works for recovering <span class="math inline">\(F\)</span> correctly using the oracle value of <span class="math inline">\(R\)</span>.</li>
+<li>See how well we do estimating <span class="math inline">\(R\)</span> from non-effect variants.</li>
+</ol>
+</div>
+<div id="simulating-data-with-correlation-due-to-sample-overlap" class="section level2">
+<h2>Simulating Data with Correlation Due to Sample Overlap</h2>
+<p>The first set of simulations is the same setup as used previously but now with <span class="math inline">\(R\)</span>. We have 1000 variants, 10, traits and 3 hidden factors. <span class="math inline">\(\Theta = 0_{M\times M}\)</span> and <span class="math inline">\(S = 1_{M\times M}\)</span>.</p>
+<pre class="r"><code>library(flashier)
+library(sumstatFactors)
+library(tidyverse)
+library(reshape2)
+library(gridExtra)</code></pre>
+<pre class="r"><code>set.seed(1)
+nvar &lt;- 1000
+ntrait &lt;- 10
+nfactor &lt;- 3
+
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  load_dist &lt;- ashr::normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(causeSims::rnormalmix(n, load_dist))
+}
+
+rfactors &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.5
+  fact_dist &lt;- ashr::normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(causeSims::rnormalmix(n, fact_dist))
+}
+true_L &lt;- replicate(n=nfactor, rloadings(nvar))
+true_F &lt;- replicate(n=nfactor, rfactors(ntrait))
+true_Theta &lt;- matrix(0, nrow=nvar, ncol=ntrait)
+
+## Generate random correlation matrix
+A &lt;- matrix(rnorm(n=ntrait*ntrait), nrow=ntrait)
+B &lt;- A%*%t(A)
+R &lt;- cov2cor(B)
+
+mats &lt;- sim_bh2(true_L, true_F, true_Theta, S, R)
+true_B = true_L%*%t(true_F)
+### Plot the factors
+ptrue &lt;- plot_factors(true_F, 1:10)
+ptrue</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Try to recover factors without accounting for correlation</p>
+<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 4 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Nullchecking 4 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.3677522</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
+<pre><code>[1] 0.558579</code></pre>
+<p>This is actually not bad. Now with correction.</p>
+<pre class="r"><code>R_eig &lt;- eigen(R)
+#U &lt;- R_eig$vectors
+U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
+mats$beta_hat &lt;- mats$beta_hat %*% U
+#mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
+#fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 3 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+02...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Nullchecking 3 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p3, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.1518444</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
+<pre><code>[1] 0.1386082</code></pre>
+<pre class="r"><code>grid.arrange(ptrue, p2, p3)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>We may get more distortion if <span class="math inline">\(R\)</span> has blocks of correlated traits rather than being random. Lets try with one group of three and one group of 4 highly correlated phenotypes</p>
+<pre class="r"><code>R1 &lt;- matrix(0.7, nrow=3, ncol=3)
+diag(R1) &lt;- 1
+R2 &lt;- matrix(0., nrow=4, ncol=4)
+diag(R2) &lt;- 1
+R3 &lt;- diag(rep(1, 3))
+R &lt;- Matrix::bdiag(R1, R2, R3) %&gt;% as.matrix()
+
+mats &lt;- sim_bh2(true_L, true_F, true_Theta, S, R)</code></pre>
+<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 4 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Nullchecking 4 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.4888774</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
+<pre><code>[1] 0.4681092</code></pre>
+<pre class="r"><code>R_eig &lt;- eigen(R)
+#U &lt;- R_eig$vectors
+U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
+mats$beta_hat &lt;- mats$beta_hat %*% U
+#mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
+#fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 2 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+Nullchecking 2 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p3, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.2400804</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
+<pre><code>[1] 0.4545426</code></pre>
+<pre class="r"><code>corr_f &lt;- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
+                rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
+                rep(c(0, 1), c(9, 1)))
+gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.2704442</code></pre>
+<pre class="r"><code>gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.08857475</code></pre>
+<p>Without the correction, one of the factors represents the structure of the correlation matrix. With the correction, this goes away. However, the correction probably matters more when more null variants are included. This could be because nearly all of the variant included have some effect on at least one factor. Only 123 do not. We can see what is the effect of <span class="math inline">\(R\)</span> when there are more null variants and then see what is the effect when we select based on <span class="math inline">\(p\)</span>-value.</p>
+</div>
+<div id="more-null-variants" class="section level2">
+<h2>More Null Variants</h2>
+<p>I wil regenerate the loadings matrix for more variants but many of them have no effects on any factor. We will keep using the same block diagonal <span class="math inline">\(R\)</span> matrix.</p>
+<pre class="r"><code>set.seed(2)
+nvar &lt;- 10000
+rloadings &lt;- function(n){
+  sigma_1 &lt;- 1
+  p &lt;- 0.1
+  load_dist &lt;- ashr::normalmix(pi=c(1-p, p), mean=rep(0, 2), sd=c(0, sigma_1))
+  return(causeSims::rnormalmix(n, load_dist))
+}
+true_L &lt;- replicate(n=nfactor, rloadings(nvar))
+true_Theta &lt;- matrix(0, nrow=nvar, ncol=ntrait)
+S &lt;- matrix(1, nrow=nvar, ncol=ntrait)
+
+mats &lt;- sim_bh2(true_L, true_F, true_Theta, S, R)
+minp &lt;- with(mats, apply(beta_hat/se_hat, 1,  function(z){
+  p &lt;- 2*pnorm(-abs(z))
+  min(p)
+}))
+true_B = true_L%*%t(true_F)</code></pre>
+<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 3 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Nullchecking 3 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.3718462</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
+<pre><code>[1] 0.8046032</code></pre>
+<p>```</p>
+<p>With many null SNPs we can see the effects of the sample correlation!</p>
+<pre class="r"><code>R_eig &lt;- eigen(R)
+#U &lt;- R_eig$vectors
+U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
+mats$beta_hat &lt;- mats$beta_hat %*% U
+#mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
+#fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
+fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
+<pre><code>Initializing flash object...
+Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Backfitting 2 factors (tolerance: 1.00e-02)...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+Nullchecking 2 factors...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p3, ncol=2)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.2395513</code></pre>
+<pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
+<pre><code>[1] 0.6240238</code></pre>
+<p>```</p>
+<p>The stability has gone down because we are missing a factor but importantly we no longer capture the factor that reflects the structure of the correlation matrix.</p>
+<pre class="r"><code>corr_f &lt;- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
+                rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
+                rep(c(0, 1), c(9, 1)))
+gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.2617244</code></pre>
+<pre class="r"><code>gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
+<pre><code>[1] 0.08763488</code></pre>
+</div>
+<div id="simulations-results" class="section level2">
+<h2>Simulations Results</h2>
+<p>I ran a larger set of simulations with the goal of demonstrating that the eigenvector correction works as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. <span class="math inline">\(F\)</span> is fixed in all simulations but <span class="math inline">\(L\)</span> and <span class="math inline">\(E\)</span> are random. <span class="math inline">\(\Theta = 0_{J\times M}\)</span> and <span class="math inline">\(S = 1_{J\times M}\)</span>.</p>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/2020-02-28_two.RDS&quot;)</code></pre>
+<div id="rrmse" class="section level3">
+<h3>RRMSE</h3>
+<pre class="r"><code>res %&gt;% 
+       filter(eval==&quot;rrmse&quot; &amp;  simulate.which_R!=&quot;identity&quot;) %&gt;%
+       ggplot(.)  + 
+       geom_boxplot(aes(y=eval.value, x=ebmf, group=paste0(ebmf, &quot;-&quot;, ebmf.var_type),
+                        col=ebmf.var_type)) + 
+       facet_wrap(~simulate.which_R)</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /> ### Factor Recovery</p>
+<pre class="r"><code>res %&gt;% 
+     filter(eval==&quot;factor_recovery&quot; &amp; simulate.which_R!=&quot;identity&quot;) %&gt;%
+     ggplot(.) + 
+       geom_boxplot(aes(y=eval.value, x=ebmf, group=paste0(ebmf, &quot;-&quot;, ebmf.var_type, &quot;-&quot;),
+                        col=ebmf.var_type)) + 
+       facet_wrap(~eval.f*simulate.which_R)</code></pre>
+<pre><code>Warning: Removed 5 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="how-well-does-elbo-work-for-choosing-the-best-variance" class="section level3">
+<h3>How well does ELBO work for choosing the best variance?</h3>
+<pre class="r"><code>r1 &lt;- res %&gt;%
+      filter(eval==&quot;factor_recovery&quot;) %&gt;%
+      group_by(ebmf.output.file) %&gt;%
+      summarize(mean_factor_recovery = mean(eval.value)) %&gt;%
+      ungroup()
+
+r2 &lt;- res %&gt;%
+      filter(eval!=&quot;factor_recovery&quot;) %&gt;%
+      select(-eval.f) %&gt;%
+      spread(eval, eval.value) %&gt;%
+      left_join(., r1) </code></pre>
+<pre><code>Joining, by = &quot;ebmf.output.file&quot;</code></pre>
+<pre class="r"><code>r2$rrmse &lt;- r2$rrmse + rnorm(n=nrow(r2), 0, 1e-4) 
+r2$mean_factor_recovery &lt;- r2$mean_factor_recovery + rnorm(n=nrow(r2), 0, 1e-4)
+
+
+r3 &lt;- r2 %&gt;%
+      group_by(simulate.output.file, ebmf ) %&gt;%
+      summarize(best_elbo = max(elbo),
+                best_rrmse = min(rrmse),
+                best_recovery=max(mean_factor_recovery)) %&gt;%
+      left_join(r2, .) %&gt;%
+      ungroup()</code></pre>
+<pre><code>Joining, by = c(&quot;simulate.output.file&quot;, &quot;ebmf&quot;)</code></pre>
+<pre class="r"><code>b1 &lt;- r3 %&gt;%
+      filter(elbo==best_elbo) %&gt;%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %&gt;%
+      rename(elbo_var = ebmf.var_type)
+b2 &lt;- r3 %&gt;%
+      filter(rrmse==best_rrmse) %&gt;%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %&gt;%
+      rename(rrmse_var = ebmf.var_type)
+b3 &lt;- r3 %&gt;%
+      filter(mean_factor_recovery==best_recovery) %&gt;%
+      select(simulate.output.file, simulate.which_R, ebmf, ebmf.var_type) %&gt;%
+      rename(recovery_var = ebmf.var_type)
+
+b &lt;- left_join(b1, b2) %&gt;% left_join(., b3)</code></pre>
+<pre><code>Joining, by = c(&quot;simulate.output.file&quot;, &quot;simulate.which_R&quot;, &quot;ebmf&quot;)Joining,
+by = c(&quot;simulate.output.file&quot;, &quot;simulate.which_R&quot;, &quot;ebmf&quot;)</code></pre>
+<pre class="r"><code>with(b, table(elbo_var, rrmse_var))</code></pre>
+<pre><code>                rrmse_var
+elbo_var         noisy_bycol noisy_byrow noisy_constant zero
+  noisy_bycol              4          31              7   10
+  noisy_byrow             98         101            162  174
+  noisy_constant           1           3              1    1
+  zero                     2           5              0    0</code></pre>
+<pre class="r"><code>with(b, table(elbo_var, recovery_var))</code></pre>
+<pre><code>                recovery_var
+elbo_var         noisy_bycol noisy_byrow noisy_constant zero
+  noisy_bycol             11          17             12   12
+  noisy_byrow            214          39            142  139
+  noisy_constant           1           2              1    2
+  zero                     0           5              0    2</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] gridExtra_2.3             reshape2_1.4.3           
+ [3] forcats_0.4.0             stringr_1.4.0            
+ [5] dplyr_0.8.3               purrr_0.3.3              
+ [7] readr_1.3.1               tidyr_1.0.0              
+ [9] tibble_2.1.3              ggplot2_3.2.1            
+[11] tidyverse_1.2.1           sumstatFactors_0.0.0.9000
+[13] flashier_0.1.16          
+
+loaded via a namespace (and not attached):
+  [1] colorspace_1.4-1             rjson_0.2.20                
+  [3] rprojroot_1.3-2              fs_1.3.1                    
+  [5] rstudioapi_0.10              farver_2.0.1                
+  [7] listenv_0.7.0                furrr_0.1.0                 
+  [9] fansi_0.4.0                  lubridate_1.7.4             
+ [11] xml2_1.2.2                   codetools_0.2-16            
+ [13] splines_3.6.2                pscl_1.5.2                  
+ [15] doParallel_1.0.15            robustbase_0.93-5           
+ [17] knitr_1.24                   zeallot_0.1.0               
+ [19] jsonlite_1.6                 workflowr_1.4.0.9000        
+ [21] broom_0.5.2                  ashr_2.2-39                 
+ [23] flashr_0.6-6                 compiler_3.6.2              
+ [25] httr_1.4.1                   backports_1.1.5             
+ [27] assertthat_0.2.1             RcppZiggurat_0.1.5          
+ [29] Matrix_1.2-17                lazyeval_0.2.2              
+ [31] survey_3.36                  cli_2.0.0                   
+ [33] iterpc_0.4.1                 htmltools_0.3.6             
+ [35] tools_3.6.2                  gmp_0.5-13.5                
+ [37] gtable_0.3.0                 glue_1.3.1                  
+ [39] Rcpp_1.0.3                   softImpute_1.4              
+ [41] cellranger_1.1.0             vctrs_0.2.0                 
+ [43] arrangements_1.1.5           nlme_3.1-141                
+ [45] iterators_1.0.12             xfun_0.9                    
+ [47] globals_0.12.4               rvest_0.3.4                 
+ [49] lifecycle_0.1.0              future_1.14.0               
+ [51] DEoptimR_1.0-8               MASS_7.3-51.4               
+ [53] scales_1.1.0                 hms_0.5.2                   
+ [55] causeSims_0.1.0              parallel_3.6.2              
+ [57] yaml_2.2.0                   loo_2.1.0                   
+ [59] stringi_1.4.3                SQUAREM_2017.10-1           
+ [61] cause_0.3.0.0240             foreach_1.4.7               
+ [63] RMySQL_0.10.17               truncnorm_1.0-8             
+ [65] intervals_0.15.1             rlang_0.4.2                 
+ [67] pkgconfig_2.0.3              matrixStats_0.55.0          
+ [69] ebnm_0.1-24                  evaluate_0.14               
+ [71] lattice_0.20-38              labeling_0.3                
+ [73] htmlwidgets_1.3              tidyselect_0.2.5            
+ [75] plyr_1.8.5                   magrittr_1.5                
+ [77] R6_2.4.1                     gsmr_1.0.9                  
+ [79] generics_0.0.2               DBI_1.0.0                   
+ [81] pillar_1.4.2                 haven_2.1.1                 
+ [83] whisker_0.4                  withr_2.1.2                 
+ [85] survival_2.44-1.1            mixsqp_0.3-6                
+ [87] modelr_0.1.5                 crayon_1.3.4                
+ [89] MRPRESSO_1.0                 plotly_4.9.0                
+ [91] rmarkdown_1.15               grid_3.6.2                  
+ [93] readxl_1.3.1                 data.table_1.12.2           
+ [95] MendelianRandomization_0.4.1 git2r_0.26.1                
+ [97] digest_0.6.23                numDeriv_2016.8-1.1         
+ [99] RcppParallel_4.4.4           munsell_0.5.0               
+[101] viridisLite_0.3.0            mitools_2.4                 </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
