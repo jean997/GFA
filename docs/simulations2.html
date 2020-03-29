@@ -406,7 +406,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-02-28
+<strong>Last updated:</strong> 2020-03-29
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -497,10 +497,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree726dd7e67fbc05592cdcce19799dd1708da0e873targetblank726dd7ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/726dd7e67fbc05592cdcce19799dd1708da0e873" target="_blank">726dd7e</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree21950051e5ec5fa4fa29ff8365b8d81a39ad1b77targetblank2195005a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/21950051e5ec5fa4fa29ff8365b8d81a39ad1b77" target="_blank">2195005</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree726dd7e67fbc05592cdcce19799dd1708da0e873targetblank726dd7ea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree21950051e5ec5fa4fa29ff8365b8d81a39ad1b77targetblank2195005a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -515,17 +515,22 @@ Ignored files:
     Ignored:    analysis/simulations_cache/
 
 Untracked files:
+    Untracked:  R/run_flashier2.R
     Untracked:  analysis/genetic_correlation.Rmd
+    Untracked:  analysis/ld_etc.Rmd
+    Untracked:  analysis/sample_corr2.Rmd
     Untracked:  buttons.css
     Untracked:  code/flashier_compare.R
     Untracked:  code/flashier_compare_jason.R
     Untracked:  code/hide_output.js
     Untracked:  code/mask_flashier.R
     Untracked:  code/mask_flashr.R
+    Untracked:  docs/figure/sample_corr2.Rmd/
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
 
 Unstaged changes:
+    Modified:   R/plot_factors.R
     Modified:   README.md
 
 </code></pre>
@@ -565,6 +570,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/21950051e5ec5fa4fa29ff8365b8d81a39ad1b77/analysis/simulations2.rmd" target="_blank">2195005</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-03-30
+</td>
+<td>
+wflow_publish(“analysis/simulations2.rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/simulations2.html" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -638,6 +677,7 @@ Cov(E_{j, \cdot}) = \Sigma_{j (M\times M)} = S_{j}RS_{j}
 <li>Verify that the strategy above works for recovering <span class="math inline">\(F\)</span> correctly using the oracle value of <span class="math inline">\(R\)</span>.</li>
 <li>See how well we do estimating <span class="math inline">\(R\)</span> from non-effect variants.</li>
 </ol>
+<p>Note: Code below was updated on 3/28/2020 to work with the current version of <code>flashier</code> but simulations were run with an older version using older syntax. The numerical results should be valid as the algorthm hasn’t changed. I’ve left in some of the old code for personal reference.</p>
 </div>
 <div id="simulating-data-with-correlation-due-to-sample-overlap" class="section level2">
 <h2>Simulating Data with Correlation Due to Sample Overlap</h2>
@@ -679,66 +719,177 @@ R &lt;- cov2cor(B)
 mats &lt;- sim_bh2(true_L, true_F, true_Theta, S, R)
 true_B = true_L%*%t(true_F)
 ### Plot the factors
-ptrue &lt;- plot_factors(true_F, 1:10)
+ptrue &lt;- plot_factors(true_F, 1:10)+ ggtitle(&quot;True Factors&quot;)
 ptrue</code></pre>
 <p><img src="figure/simulations2.rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/figure/simulations2.rmd/unnamed-chunk-2-1.png" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Try to recover factors without accounting for correlation</p>
-<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+<pre class="r"><code>#Older code, not run
+fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)
+p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p2, ncol=2)
+gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
+rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
+<pre class="r"><code>fit_naive &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+             flash.backfit() %&gt;%
+             flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Adding factor 4 to flash object...
 Adding factor 5 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 4 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 4 factors (tolerance: 1.49e-04)...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
   Difference between iterations is within 1.0e-02...
-Nullchecking 4 factors...
+  Difference between iterations is within 1.0e-03...
+  Difference between iterations is within 1.0e-04...
 Wrapping up...
+Done.
+Nullchecking 4 factors...
 Done.</code></pre>
-<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle(&quot;Fit with no correction&quot;)
 grid.arrange(ptrue, p2, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.3677522</code></pre>
-<pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
-<pre><code>[1] 0.558579</code></pre>
-<p>This is actually not bad. Now with correction.</p>
-<pre class="r"><code>R_eig &lt;- eigen(R)
+<p><img src="figure/simulations2.rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/figure/simulations2.rmd/unnamed-chunk-4-1.png" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>#gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
+rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
+<pre><code>[1] 0.5585456</code></pre>
+<pre class="r"><code>cor(fit_naive$loadings.pm[[2]], true_F)</code></pre>
+<pre><code>            [,1]       [,2]         [,3]
+[1,]  0.14153508  0.5436445 -0.991706002
+[2,] -0.98671711 -0.4817948  0.167708554
+[3,] -0.04847027  0.5890549 -0.330402984
+[4,] -0.07758778  0.0844527  0.007884713</code></pre>
+<p>We do ok recovering the first and third factor but the second is lost there is a fourth factor that doesn’t represent any of the true factors very well.</p>
+<p>Now with correction.</p>
+<pre class="r"><code>#Older code, not run
+R_eig &lt;- eigen(R)
 #U &lt;- R_eig$vectors
 U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
 mats$beta_hat &lt;- mats$beta_hat %*% U
 #mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
 #fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)
+p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+grid.arrange(ptrue, p3, ncol=2)
+gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])
+rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
+<pre class="r"><code>R_eig &lt;- eigen(R)
+U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
+mats$beta_hat &lt;- mats$beta_hat %*% U
+
+fit_corrected &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+                 flash.backfit() %&gt;%
+                 flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Adding factor 4 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 3 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 3 factors (tolerance: 1.49e-04)...
   Difference between iterations is within 1.0e+02...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
   Difference between iterations is within 1.0e-02...
-Nullchecking 3 factors...
+  Difference between iterations is within 1.0e-03...
+  Difference between iterations is within 1.0e-04...
 Wrapping up...
+Done.
+Nullchecking 3 factors...
 Done.</code></pre>
-<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p3 &lt;- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle(&quot;With correction&quot;)
 grid.arrange(ptrue, p3, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.1518444</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
-<pre><code>[1] 0.1386082</code></pre>
-<pre class="r"><code>grid.arrange(ptrue, p2, p3)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>[1] 0.1386354</code></pre>
+<pre class="r"><code>cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)</code></pre>
+<pre><code>           [,1]       [,2]         [,3]
+[1,]  0.1834522  0.5482086 -0.997483226
+[2,] -0.9185317 -0.1676409 -0.263945898
+[3,]  0.3407059  0.8659298 -0.001397677</code></pre>
+<p>This fit is much better. The RRMSE is lower and all the factors are recovered relatively well. The solution is much less sparse than the truth though.</p>
 <p>We may get more distortion if <span class="math inline">\(R\)</span> has blocks of correlated traits rather than being random. Lets try with one group of three and one group of 4 highly correlated phenotypes</p>
 <pre class="r"><code>R1 &lt;- matrix(0.7, nrow=3, ncol=3)
 diag(R1) &lt;- 1
@@ -748,64 +899,122 @@ R3 &lt;- diag(rep(1, 3))
 R &lt;- Matrix::bdiag(R1, R2, R3) %&gt;% as.matrix()
 
 mats &lt;- sim_bh2(true_L, true_F, true_Theta, S, R)</code></pre>
-<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+<pre class="r"><code>fit_naive &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+             flash.backfit() %&gt;%
+             flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Adding factor 4 to flash object...
-Adding factor 5 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 4 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 3 factors (tolerance: 1.49e-04)...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
   Difference between iterations is within 1.0e-02...
-Nullchecking 4 factors...
+  Difference between iterations is within 1.0e-03...
+  Difference between iterations is within 1.0e-04...
 Wrapping up...
+Done.
+Nullchecking 3 factors...
 Done.</code></pre>
-<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle(&quot;No correction&quot;)
 grid.arrange(ptrue, p2, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.4888774</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/figure/simulations2.rmd/unnamed-chunk-8-1.png" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
-<pre><code>[1] 0.4681092</code></pre>
+<pre><code>[1] 0.4971103</code></pre>
+<pre class="r"><code>cor(fit_naive$loadings.pm[[2]], true_F)</code></pre>
+<pre><code>             [,1]        [,2]       [,3]
+[1,]  0.139707802  0.51534537 -0.9992059
+[2,] -0.992780612 -0.46530286  0.1822932
+[3,] -0.004937077 -0.07346576  0.3270861</code></pre>
 <pre class="r"><code>R_eig &lt;- eigen(R)
-#U &lt;- R_eig$vectors
 U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
 mats$beta_hat &lt;- mats$beta_hat %*% U
-#mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
-#fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+
+fit_corrected &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+                 flash.backfit() %&gt;%
+                 flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 2 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 2 factors (tolerance: 1.49e-04)...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
-Nullchecking 2 factors...
+  Difference between iterations is within 1.0e-02...
+  Difference between iterations is within 1.0e-03...
+  Difference between iterations is within 1.0e-04...
 Wrapping up...
+Done.
+Nullchecking 2 factors...
 Done.</code></pre>
-<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p3 &lt;- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle(&quot;With correction&quot;)
 grid.arrange(ptrue, p3, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.2400804</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
-<pre><code>[1] 0.4545426</code></pre>
+<pre><code>[1] 0.4545877</code></pre>
+<pre class="r"><code>cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)</code></pre>
+<pre><code>           [,1]       [,2]       [,3]
+[1,]  0.1402122  0.5172281 -0.9993387
+[2,] -0.9934672 -0.4578223  0.1742671</code></pre>
 <pre class="r"><code>corr_f &lt;- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
                 rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
                 rep(c(0, 1), c(9, 1)))
-gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.2704442</code></pre>
-<pre class="r"><code>gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.08857475</code></pre>
-<p>Without the correction, one of the factors represents the structure of the correlation matrix. With the correction, this goes away. However, the correction probably matters more when more null variants are included. This could be because nearly all of the variant included have some effect on at least one factor. Only 123 do not. We can see what is the effect of <span class="math inline">\(R\)</span> when there are more null variants and then see what is the effect when we select based on <span class="math inline">\(p\)</span>-value.</p>
+cor( fit_naive$loadings.pm[[2]], corr_f)</code></pre>
+<pre><code>           [,1]       [,2]      [,3]      [,4]        [,5]
+[1,]  0.3917690 -0.4701245 0.1999458 0.2001012 -0.23077403
+[2,] -0.1450755 -0.3163292 0.3310576 0.3711769  0.03593539
+[3,] -0.9869323  0.5745051 0.1908836 0.1879734  0.19054417</code></pre>
+<pre class="r"><code>cor(t(solve(U)) %*% fit_corrected$loadings.pm[[2]], corr_f)</code></pre>
+<pre><code>           [,1]       [,2]      [,3]      [,4]        [,5]
+[1,]  0.3910200 -0.4699461 0.1995012 0.1997168 -0.22909212
+[2,] -0.1259684 -0.3294062 0.3268042 0.3701403  0.03339351</code></pre>
+<p>Without the correction, the third factor represents the structure of the correlation matrix. With the correction, this goes away. In this case using the correction didn’t improve the fit too much and we are still missing a faxtor. The correction likely matters more when more null variants are included. So far, nearly all variants have some effect on at least one factor. Only 123 do not.</p>
 </div>
 <div id="more-null-variants" class="section level2">
 <h2>More Null Variants</h2>
@@ -828,69 +1037,117 @@ minp &lt;- with(mats, apply(beta_hat/se_hat, 1,  function(z){
   min(p)
 }))
 true_B = true_L%*%t(true_F)</code></pre>
-<pre class="r"><code>#fit_naive &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_naive &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+<pre class="r"><code>fit_naive &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+             flash.backfit() %&gt;%
+             flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Adding factor 4 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 3 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 3 factors (tolerance: 1.49e-03)...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
   Difference between iterations is within 1.0e-02...
-Nullchecking 3 factors...
+  Difference between iterations is within 1.0e-03...
 Wrapping up...
+Done.
+Nullchecking 3 factors...
 Done.</code></pre>
-<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p2 &lt;- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle(&quot;No correction&quot;)
 grid.arrange(ptrue, p2, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.3718462</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/figure/simulations2.rmd/unnamed-chunk-11-1.png" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>rrmse(Bhat = fitted(fit_naive), B = true_B)</code></pre>
-<pre><code>[1] 0.8046032</code></pre>
-<p>```</p>
-<p>With many null SNPs we can see the effects of the sample correlation!</p>
+<pre><code>[1] 0.803952</code></pre>
+<p>We are recovering the first and third factor clearly but the first factor clearly represents the correlation matrix.</p>
 <pre class="r"><code>R_eig &lt;- eigen(R)
-#U &lt;- R_eig$vectors
 U &lt;- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
 mats$beta_hat &lt;- mats$beta_hat %*% U
-#mats$se_hat &lt;- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
-#fit_corrected &lt;- run_flashier(mats, var_type=&quot;zero&quot;, init_type=&quot;soft_impute&quot;)
-fit_corrected &lt;- run_flashier(mats, var_type=&quot;noisy_byrow&quot;, init_type=&quot;soft_impute&quot;)</code></pre>
-<pre><code>Initializing flash object...
-Adding factor 1 to flash object...
+
+fit_corrected &lt;- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %&gt;%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %&gt;% 
+                 flash.backfit() %&gt;%
+                 flash.nullcheck()</code></pre>
+<pre><code>Adding factor 1 to flash object...
 Adding factor 2 to flash object...
 Adding factor 3 to flash object...
 Factor doesn&#39;t significantly increase objective and won&#39;t be added.
-Backfitting 2 factors (tolerance: 1.00e-02)...
+Wrapping up...
+Done.
+Backfitting 2 factors (tolerance: 1.49e-03)...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
-Nullchecking 2 factors...
 Wrapping up...
+Done.
+Nullchecking 2 factors...
 Done.</code></pre>
-<pre class="r"><code>p3 &lt;- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+<pre class="r"><code>p3 &lt;- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle(&quot;With correction&quot;)
 grid.arrange(ptrue, p3, ncol=2)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.2395513</code></pre>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)</code></pre>
-<pre><code>[1] 0.6240238</code></pre>
-<p>```</p>
-<p>The stability has gone down because we are missing a factor but importantly we no longer capture the factor that reflects the structure of the correlation matrix.</p>
+<pre><code>[1] 0.6241517</code></pre>
+<pre class="r"><code>cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)</code></pre>
+<pre><code>           [,1]       [,2]      [,3]
+[1,] -0.1321941 -0.4725509 0.9991697
+[2,] -0.9996017 -0.3910550 0.1463074</code></pre>
+<p>With the correction we no longer obtain the first erroneous factor and the RRMSE is better. We still don’t recover the second factor.</p>
 <pre class="r"><code>corr_f &lt;- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
                 rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
                 rep(c(0, 1), c(9, 1)))
-gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.2617244</code></pre>
-<pre class="r"><code>gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])</code></pre>
-<pre><code>[1] 0.08763488</code></pre>
+cor( fit_naive$loadings.pm[[2]], corr_f)</code></pre>
+<pre><code>           [,1]       [,2]       [,3]       [,4]        [,5]
+[1,]  0.9998324 -0.5343574 -0.2182896 -0.2182311 -0.21814658
+[2,] -0.3882447  0.4610187 -0.1978772 -0.1978443  0.23593472
+[3,] -0.1474253 -0.3636933  0.3614275  0.4290900  0.02858707</code></pre>
+<pre class="r"><code>cor(t(solve(U)) %*% fit_corrected$loadings.pm[[2]], corr_f)</code></pre>
+<pre><code>           [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] -0.3875751  0.4602026 -0.1976405 -0.1975767 0.23574023
+[2,] -0.1696513 -0.3440175  0.3602692  0.4255597 0.03509587</code></pre>
 </div>
 <div id="simulations-results" class="section level2">
 <h2>Simulations Results</h2>
-<p>I ran a larger set of simulations with the goal of demonstrating that the eigenvector correction works as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. <span class="math inline">\(F\)</span> is fixed in all simulations but <span class="math inline">\(L\)</span> and <span class="math inline">\(E\)</span> are random. <span class="math inline">\(\Theta = 0_{J\times M}\)</span> and <span class="math inline">\(S = 1_{J\times M}\)</span>.</p>
+<p>I ran a larger set of simulations (see <code>/project2/xinhe/jean/gwas_factors/simulations/2020-02-25_one</code>) with the goal of demonstrating that the eigenvector correction works, as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. <span class="math inline">\(F\)</span> is fixed in all simulations but <span class="math inline">\(L\)</span> and <span class="math inline">\(E\)</span> are random. <span class="math inline">\(\Theta = 0_{J\times M}\)</span> and <span class="math inline">\(S = 1_{J\times M}\)</span>.</p>
 <pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/2020-02-28_two.RDS&quot;)</code></pre>
 <div id="rrmse" class="section level3">
 <h3>RRMSE</h3>
@@ -900,7 +1157,47 @@ gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
        geom_boxplot(aes(y=eval.value, x=ebmf, group=paste0(ebmf, &quot;-&quot;, ebmf.var_type),
                         col=ebmf.var_type)) + 
        facet_wrap(~simulate.which_R)</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /> ### Factor Recovery</p>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-15-1">
+Past versions of unnamed-chunk-15-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-15-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/a9a14c47ec6494fd01df540825559f44710a8f2f/docs/figure/simulations2.rmd/unnamed-chunk-15-1.png" target="_blank">a9a14c4</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="factor-recovery" class="section level3">
+<h3>Factor Recovery</h3>
 <pre class="r"><code>res %&gt;% 
      filter(eval==&quot;factor_recovery&quot; &amp; simulate.which_R!=&quot;identity&quot;) %&gt;%
      ggplot(.) + 
@@ -908,7 +1205,7 @@ gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])</code></pre>
                         col=ebmf.var_type)) + 
        facet_wrap(~eval.f*simulate.which_R)</code></pre>
 <pre><code>Warning: Removed 5 rows containing non-finite values (stat_boxplot).</code></pre>
-<p><img src="figure/simulations2.rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/simulations2.rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="how-well-does-elbo-work-for-choosing-the-best-variance" class="section level3">
 <h3>How well does ELBO work for choosing the best variance?</h3>
@@ -955,15 +1252,15 @@ by = c(&quot;simulate.output.file&quot;, &quot;simulate.which_R&quot;, &quot;ebm
 <pre class="r"><code>with(b, table(elbo_var, rrmse_var))</code></pre>
 <pre><code>                rrmse_var
 elbo_var         noisy_bycol noisy_byrow noisy_constant zero
-  noisy_bycol              4          31              7   10
-  noisy_byrow             98         101            162  174
-  noisy_constant           1           3              1    1
+  noisy_bycol              4          30              7   11
+  noisy_byrow             93         100            182  160
+  noisy_constant           0           4              1    1
   zero                     2           5              0    0</code></pre>
 <pre class="r"><code>with(b, table(elbo_var, recovery_var))</code></pre>
 <pre><code>                recovery_var
 elbo_var         noisy_bycol noisy_byrow noisy_constant zero
   noisy_bycol             11          17             12   12
-  noisy_byrow            214          39            142  139
+  noisy_byrow            215          40            150  129
   noisy_constant           1           2              1    2
   zero                     0           5              0    2</code></pre>
 <br>
@@ -1000,7 +1297,7 @@ other attached packages:
  [7] readr_1.3.1               tidyr_1.0.0              
  [9] tibble_2.1.3              ggplot2_3.2.1            
 [11] tidyverse_1.2.1           sumstatFactors_0.0.0.9000
-[13] flashier_0.1.16          
+[13] flashier_0.2.4           
 
 loaded via a namespace (and not attached):
   [1] colorspace_1.4-1             rjson_0.2.20                
