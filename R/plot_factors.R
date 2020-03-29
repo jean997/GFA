@@ -49,13 +49,14 @@ meltx$Trait = factor(meltx$Trait, levels = names[trait_order])
 
 p <-  ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
       geom_tile() +
-      scale_fill_gradient2(high="purple", low="darkorange", name="") +
+      scale_fill_gradient2(high="purple", low="darkorange", name="Factor effect\non trait") +
       scale_y_discrete(labels = new_names[trait_order]) +
       theme(axis.text.x = element_blank(),
             axis.text.y = element_text(size=12),
             axis.ticks = element_blank(),
-            axis.title = element_text(size=16))
-ggsave(p, file="~/Dropbox/Apps/Overleaf/job_applications/biostatistics/um/job_talk_um/fig/blood_cell_factors1.png",
+            axis.title = element_text(size=16),
+            legend.title = element_text(size=12))
+ggsave(p, file="~/Dropbox/Apps/Overleaf/job_applications/biostatistics/ucdavis/job_talk_ucd/fig/blood_cell_factors1.png",
        height=8, width=7, units="in", dpi=300)
 
 p <-  ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
@@ -63,9 +64,10 @@ p <-  ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
   scale_fill_gradient2(high="purple", low="darkorange", name="") +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
-        axis.title = element_text(size=16),
-        legend.position = "none")
-ggsave(p, file="~/Dropbox/Apps/Overleaf/job_applications/biostatistics/um/job_talk_um/fig/blood_cell_factors0.png",
+        axis.title = element_text(size=20),
+        legend.position = "none",
+        panel.border = element_rect(fill=NA, size=1.5))
+ggsave(p, file="~/Dropbox/Apps/Overleaf/job_applications/biostatistics/ucdavis/job_talk_ucd/fig/blood_cell_factors0.png",
        height=8, width=7, units="in", dpi=300)
 
 }
