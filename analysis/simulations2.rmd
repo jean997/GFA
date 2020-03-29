@@ -52,6 +52,9 @@ My goals in this document are
 2. Verify that the strategy above works for recovering $F$ correctly using the oracle value of $R$.
 3. See how well we do estimating $R$ from non-effect variants. 
 
+
+Note: Code below was updated on 3/28/2020 to work with the current version of `flashier` but simulations were run with an older version using older syntax. The numerical results should be valid as the algorthm hasn't changed. I've left in some of the old code for personal reference.
+
 ## Simulating Data with Correlation Due to Sample Overlap
 
 The first set of simulations is the same setup as used previously but now with $R$. We have 1000 variants, 10, traits and 3 hidden factors. $\Theta = 0_{M\times M}$ and $S = 1_{M\times M}$. 
@@ -96,15 +99,15 @@ R <- cov2cor(B)
 mats <- sim_bh2(true_L, true_F, true_Theta, S, R)
 true_B = true_L%*%t(true_F)
 ### Plot the factors
-ptrue <- plot_factors(true_F, 1:10)
+ptrue <- plot_factors(true_F, 1:10)+ ggtitle("True Factors")
 ptrue
 ```
 
 
 Try to recover factors without accounting for correlation
 
-```{r}
-#fit_naive <- run_flashier(mats, var_type="zero", init_type="soft_impute")
+```{r, eval=FALSE}
+#Older code, not run
 fit_naive <- run_flashier(mats, var_type="noisy_byrow", init_type="soft_impute")
 p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
 grid.arrange(ptrue, p2, ncol=2)
@@ -112,9 +115,26 @@ gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
 rrmse(Bhat = fitted(fit_naive), B = true_B)
 ```
 
-This is actually not bad. Now with correction.
+
 
 ```{r}
+fit_naive <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+             flash.backfit() %>%
+             flash.nullcheck()
+p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle("Fit with no correction")
+grid.arrange(ptrue, p2, ncol=2)
+#gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
+rrmse(Bhat = fitted(fit_naive), B = true_B)
+cor(fit_naive$loadings.pm[[2]], true_F)
+```
+
+We do ok recovering the first and third factor but the second is lost there is a fourth factor that doesn't represent any of the true factors very well. 
+
+Now with correction.
+
+```{r, eval=FALSE}
+#Older code, not run
 R_eig <- eigen(R)
 #U <- R_eig$vectors
 U <- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
@@ -129,8 +149,24 @@ rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)
 ```
 
 ```{r}
-grid.arrange(ptrue, p2, p3)
+R_eig <- eigen(R)
+U <- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
+mats$beta_hat <- mats$beta_hat %*% U
+
+fit_corrected <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+                 flash.backfit() %>%
+                 flash.nullcheck()
+
+p3 <- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle("With correction")
+grid.arrange(ptrue, p3, ncol=2)
+rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)
+cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)
 ```
+
+This fit is much better. The RRMSE is lower and all the factors are recovered relatively well. The solution is much less sparse than the truth though. 
+
+
 
 We may get more distortion if $R$ has blocks of correlated traits rather than being random. Lets try with one group of three and one group of 4 highly correlated phenotypes
 
@@ -146,27 +182,32 @@ mats <- sim_bh2(true_L, true_F, true_Theta, S, R)
 
 ```
 
+
 ```{r}
-#fit_naive <- run_flashier(mats, var_type="zero", init_type="soft_impute")
-fit_naive <- run_flashier(mats, var_type="noisy_byrow", init_type="soft_impute")
-p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+fit_naive <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+             flash.backfit() %>%
+             flash.nullcheck()
+p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle("No correction")
 grid.arrange(ptrue, p2, ncol=2)
-gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
 rrmse(Bhat = fitted(fit_naive), B = true_B)
+cor(fit_naive$loadings.pm[[2]], true_F)
 ```
+
 
 ```{r}
 R_eig <- eigen(R)
-#U <- R_eig$vectors
 U <- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
 mats$beta_hat <- mats$beta_hat %*% U
-#mats$se_hat <- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
-#fit_corrected <- run_flashier(mats, var_type="zero", init_type="soft_impute")
-fit_corrected <- run_flashier(mats, var_type="noisy_byrow", init_type="soft_impute")
-p3 <- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+
+fit_corrected <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+                 flash.backfit() %>%
+                 flash.nullcheck()
+p3 <- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle("With correction")
 grid.arrange(ptrue, p3, ncol=2)
-gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])
 rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)
+cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)
 ```
 
 
@@ -174,12 +215,12 @@ rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)
 corr_f <- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
                 rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
                 rep(c(0, 1), c(9, 1)))
-gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])
-gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])
+cor( fit_naive$loadings.pm[[2]], corr_f)
+cor(t(solve(U)) %*% fit_corrected$loadings.pm[[2]], corr_f)
 ```
 
-Without the correction, one of the factors represents the structure of the correlation matrix. With the correction, this goes away. However, the correction probably matters more when more null variants are included.
-This could be because nearly all of the variant included have some effect on at least one factor. Only 123 do not. We can see what is the effect of $R$ when there are more null variants and then see what is the effect when we select based on $p$-value. 
+Without the correction, the third factor represents the structure of the correlation matrix. With the correction, this goes away. In this case using the correction didn't improve the fit too much and we are still missing a faxtor. The correction likely matters more when more null variants are included.
+So far, nearly all variants have some effect on at least one factor. Only 123 do not. 
 
 
 ## More Null Variants
@@ -208,46 +249,47 @@ true_B = true_L%*%t(true_F)
 
 
 ```{r}
-#fit_naive <- run_flashier(mats, var_type="zero", init_type="soft_impute")
-fit_naive <- run_flashier(mats, var_type="noisy_byrow", init_type="soft_impute")
-p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10)
+fit_naive <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+             flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+             flash.backfit() %>%
+             flash.nullcheck()
+p2 <- plot_factors(fit_naive$loadings.pm[[2]], 1:10) + ggtitle("No correction")
 grid.arrange(ptrue, p2, ncol=2)
-gao_stability_sparse(mats$true_F, fit_naive$loadings.pm[[2]])
 rrmse(Bhat = fitted(fit_naive), B = true_B)
 ```
-```
 
-With many null SNPs we can see the effects of the sample correlation!
+We are recovering the first and third factor clearly but the first factor clearly represents the correlation matrix.
 
 ```{r}
 R_eig <- eigen(R)
-#U <- R_eig$vectors
 U <- R_eig$vectors %*% diag(1/sqrt(R_eig$values))
 mats$beta_hat <- mats$beta_hat %*% U
-#mats$se_hat <- matrix(rep(sqrt(R_eig$values), nvar), nrow=nvar, byrow=T)
-#fit_corrected <- run_flashier(mats, var_type="zero", init_type="soft_impute")
-fit_corrected <- run_flashier(mats, var_type="noisy_byrow", init_type="soft_impute")
-p3 <- plot_factors(U%*%fit_corrected$loadings.pm[[2]], 1:10)
+
+fit_corrected <- flash.init(data=mats$beta_hat, S = mats$se_hat,  var.type=1) %>%
+                 flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>% 
+                 flash.backfit() %>%
+                 flash.nullcheck()
+p3 <- plot_factors(t(solve(U))%*%fit_corrected$loadings.pm[[2]], 1:10) + ggtitle("With correction")
 grid.arrange(ptrue, p3, ncol=2)
-gao_stability_sparse(mats$true_F, U %*% fit_corrected$loadings.pm[[2]])
 rrmse(Bhat = fitted(fit_corrected)%*%solve(U), B = true_B)
-```
+cor(t(solve(U))%*%fit_corrected$loadings.pm[[2]], true_F)
 ```
 
-The stability has gone down because we are missing a factor but importantly we no longer capture the factor that reflects the structure of the correlation matrix. 
+
+With the correction we no longer obtain the first erroneous factor and the RRMSE is better. We still don't recover the second factor. 
 
 ```{r}
 corr_f <- cbind(rep(c(1, 0), c(3, 7)), rep(c(0, 1, 0), c(3, 4, 3)),
                 rep(c(0, 1, 0), c(7, 1, 2)), rep(c(0, 1, 0), c(8, 1, 1)),
                 rep(c(0, 1), c(9, 1)))
-gao_stability_sparse(corr_f, fit_naive$loadings.pm[[2]])
-gao_stability_sparse(corr_f, U %*% fit_corrected$loadings.pm[[2]])
+cor( fit_naive$loadings.pm[[2]], corr_f)
+cor(t(solve(U)) %*% fit_corrected$loadings.pm[[2]], corr_f)
 ```
 
 
 ## Simulations Results
 
-I ran a larger set of simulations with the goal of demonstrating that the eigenvector correction works as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. $F$ is fixed in all simulations but $L$ and $E$ are random. $\Theta = 0_{J\times M}$ and $S = 1_{J\times M}$.
+I ran a larger set of simulations (see `/project2/xinhe/jean/gwas_factors/simulations/2020-02-25_one`) with the goal of demonstrating that the eigenvector correction works, as well as comparing some variance types and assessing how well the elbo works for choosing the best variance type. In these simulations there are 20 traits and 5 factors. $F$ is fixed in all simulations but $L$ and $E$ are random. $\Theta = 0_{J\times M}$ and $S = 1_{J\times M}$.
 
 ```{r}
 res <- readRDS("analysis_data/2020-02-28_two.RDS")
@@ -264,6 +306,7 @@ res %>%
        facet_wrap(~simulate.which_R)
 
 ```
+
 ### Factor Recovery
 
 ```{r}
