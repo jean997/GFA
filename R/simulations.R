@@ -83,7 +83,7 @@ sim_bh3 <- function(true_L, true_F, true_Theta, S, R_rows, R_cols){
     blk_stop <- blk_start + blk_size-1
 
     true_E <- purrr::map(seq_along(blk_size), function(i){
-      apply(S[blk_start[i]:blk_stop[i],], 2, function(si){
+      apply(S[blk_start[i]:blk_stop[i],, drop=FALSE], 2, function(si){
         sigma <- diag(si) %*% R[[i]] %*% diag(si)
         MASS::mvrnorm(n=1, mu = rep(0, blk_size[i]), Sigma = sigma)
       })
