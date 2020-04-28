@@ -1,0 +1,224 @@
+---
+title: "sample_cor_ld_sims"
+author: "Jean Morrison"
+date: "2020-04-03"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+This document summarizes some simulatione I conducted looking at three issues:
+
+1. Methods for correcting for sample overlap
+
+2. Methods for accounting for LD
+
+3. The effect of variant selection
+
+The model:
+$$
+\hat{B}_{J\times M} = L_{K \times J}^{T}F_{K\times M} + \Theta_{J\times M} + E_{J\times M}
+$$
+throughout we will work with $z$-scores instead of effect estimates and assume that the low rank structure of $\hat{Z}$ is the same as the low-rank structure of $\hat{B}$, so the model is
+
+$$
+\hat{Z}_{J\times M} = L_{K \times J}^{T}F_{K\times M} + \Theta_{J\times M} + E_{J\times M}
+$$
+
+## Sample Overlap
+
+If two traits are measured in the same samples or overlapping samples, then effect estimates will be correlated if the traits are correlated due to non-genetic factors, leading to correlation in the rows of $E$. I wrote about this [previously](simulations2.html) and tested a method of correcting in which we post-multiply the matrix of effect estimates by eigenvectors of $R$, the row correlation of $E$. This works in our simulations so far but has a few problems: 
+
+a) we will estimate $FU$ instesad of $F$ which means we are assuming $FU$ is sparse. This may not be true and we lose the advantage of "knowing" that $F$ is sparse
+
+b) The elements of $\Theta U$ are not independent even if the elements of $\Theta$ are. I have not run simulations with $\Theta$ yet so this has not caused a problem but it could. 
+
+There is an alternative approach in which we fit the problem with fixed factors representing the eigenvectors of $R$. This strategy is based on ideas from Matthew and Jason [here](https://willwerscheid.github.io/FLASHvestigations/arbitraryV.html). Briefly, 
+ let $\lambda_{min}$ be the smallest eigenvalue of $R$ and let $W = R - \lambda_{min}I$. Let $v_1, \dots, v_M$ be eigenvectors of $W$ and $a_1, \dots, a_M$ eigenvalues of $W$. 
+Then we can decompose $E$ as
+
+$$
+E = \sum_{k=1}^n v_k t_k^T + E^{\prime}
+$$
+where the elements of $E^{\prime}$ are iid $E^{\prime}_{ij} \sim N(0, \lambda_{min})$ ant $t_k$ are $J\times 1$ vectors with iid elements $t_ki \sim N(0, a_k)$.
+This means that we can fit the model by including $M$ fixed factors $v_1, \dots, v_M$ and specifying the prior for the associated loadings. 
+
+
+This first set of simulations explores 1) how well does the fixed factor method work? and 2) Can we estimate $R$ from null variants. These simulations do not include $\Theta$ and $\hat{B}$ are generated directly from the model. 
+
+Simulations:
+
++ F 20 × 5 fixed over all simulations
++ 10k variants (∼72% null for all traits)
++ R either blocks or a fixed randomly generated correlation matrix
+
+Estimation:
+
++ R known or estimated from variants with large p-values
++ Naive or eigenvector corrected fit
+
+```{r}
+
+library(tidyverse)
+res <- readRDS("analysis_data/2020-04-28_three_traitcor.RDS")
+res$ebmf.thresh[res$ebmf=="flashier_corrected2"] <- 1
+plt1 <- res %>%
+  filter(eval=="rrmse" & ebmf.thresh==1 & simulate.which_R !="identity" ) %>%
+  mutate(fit = str_replace(ebmf, "fit_", "") %>% 
+               str_replace(., "flashier_", "") %>%
+               paste0(., "_", ebmf.R_thresh)) %>%
+  #filter(fit != "corrected_0.1") %>%
+  mutate(fit = recode(fit, "corrected_0.05" = "EV  0.05", 
+                      "corrected_0.1" = "EV 0.1",
+                      "corrected2_0.05" = "FF 0.05",
+                      "corrected2_0.1" = "FF 0.1",
+                      "corrected_oracle" = "EV oracle",
+                      "corrected2_oracle" = "FF oracle",
+                      "naive_NA" = "naive")) %>%
+  ggplot(.)  +
+  geom_boxplot(aes(y=eval.value, x=fit, group=fit,
+                   col=fit)) +
+  scale_color_discrete(guide=FALSE) +
+  ylab("RRMSE") +
+  facet_wrap(~simulate.which_R) +
+  theme_bw() +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(size=14, angle=90),
+        axis.title.y = element_text(size=16),
+        axis.text = element_text(size=14),
+        strip.text =  element_text(size=16))
+plt1
+
+plt2 <-  res %>%
+  filter(eval=="factor_recovery" & ebmf.thresh==1 & simulate.which_R !="identity" ) %>%
+  mutate(fit = str_replace(ebmf, "fit_", "") %>% 
+               str_replace(., "flashier_", "") %>%
+               paste0(., "_", ebmf.R_thresh)) %>%
+  #filter(fit != "corrected_0.1") %>%
+  mutate(fit = recode(fit, "corrected_0.05" = "EV  0.05", 
+                      "corrected_0.1" = "EV 0.1",
+                      "corrected2_0.05" = "FF 0.05",
+                      "corrected2_0.1" = "FF 0.1",
+                      "corrected_oracle" = "EV oracle",
+                      "corrected2_oracle" = "FF oracle",
+                      "naive_NA" = "naive")) %>%
+  ggplot(.) +
+  geom_boxplot(aes(y=eval.value, x=fit, group=fit,
+                   col=fit)) +
+  scale_color_discrete(guide=FALSE) +
+  ylab("Best Factor Correlation") +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size=16),
+        axis.text.x = element_text(size=14, angle=90),
+        axis.text.y = element_text(size=14),
+        strip.text =  element_text(size=14)) +
+  facet_wrap(~simulate.which_R*eval.f, ncol=5)
+
+plt2
+
+
+```
+
+The eigenvector correction (EV) is working as expected but the fixed factor correction (FF) is not working at all. 
+
+## LD
+
+Another issue is linkage disequilibrium (non-indpendence between variants). This induces correlation in the columns of $E$ and changes the expected value of $\hat{B}_{m,j}$. Note that sample overlap only induces correlation. If variants have correlation $A$ then 
+$$
+\hat{Z}_{\bullet, m} \sim N(AZ_{\bullet, m}, A)
+$$
+It may be that if we are mainly interested in recovering $F$, LD doesn't have much of an effect on our estimates and we can simply LD prune. Here I tested that hypothesis in simple simulations. In these simulations:
+
++ $F$ is fixed over all simulations and is $20\times 5$. (20 traits, 5 hidden factors)
++ There are 1,000 LD blocks, each containing exactly one effect variant.
++ The expected number of variants per LD block is 5. In one setting "5 per block", there are exactly 5 variants in every block. In the setting "random block size", the number of variants is drawn from an exponential distribution with mean 5 (and then rounded to the nearest integer). 
+
+Because there is exactly one effect variant per block there is a natural oracle or best case soclution in which you simply estimate $F$ using only true effect variants. I compared this with a strategy of using all variants and a strategy of choosing one variant per block, selecting the variant with the lowest minimum $p$-value across all traits. 
+
+
+```{r}
+res <- readRDS("analysis_data/2020-04-01_one.RDS")
+res <- res %>%
+       mutate(ebmf = recode(ebmf, "flashier_all" = "all",
+                            "flashier_effect" = "oracle",
+                            "flashier_top" = "ld prune"),
+              ebmf = factor(ebmf, levels=c("oracle", "all", "ld prune")),
+              simulate.block_size = recode(simulate.block_size, "fixed" = "5 per block",
+                                           "rexp" = "random block size"))
+
+### RRMSE
+plt1 <- res %>%
+  filter(eval=="rrmse_imp" ) %>%
+  ggplot(.)  +
+  geom_boxplot(aes(y=eval.value, x=ebmf, group=ebmf,
+                   col=ebmf)) +
+  scale_color_discrete(guide=FALSE) +
+  facet_wrap(~simulate.block_size) +
+  ylab("RRMSE") +
+  theme_bw() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size=16),
+        axis.text = element_text(size=14),
+        strip.text =  element_text(size=16))
+plt1
+```
+
+```{r, plot_fct}
+plt2 <- res %>%
+  filter(eval=="factor_recovery" ) %>%
+  ggplot(.) +
+  geom_boxplot(aes(y=eval.value, x=ebmf, group=ebmf,
+                   col=ebmf)) +
+  scale_color_discrete(guide=FALSE) +
+  ylab("Best Factor Correlation") +
+  facet_wrap(~simulate.block_size*eval.f, ncol=5)+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_text(size=14, angle=90),
+        axis.title.y = element_text(size=16),
+        axis.text = element_text(size=14),
+        strip.text =  element_text(size=10))
+plt2
+
+```
+
+## Variant Selection
+
+Finally, the issue of variant selection. In these simulations I fit $L$ and $F$ using only variants that have cross-trait minimum $p$-value below some threshold. These simulations are the same as the sample overlap simulations except that there is no row correlation in $E$.
+
+```{r}
+res <- readRDS("analysis_data/2020-04-03_one_varselect.RDS")
+
+plt1 <- res %>%
+  filter(eval=="rrmse" & simulate.which_R =="identity" & ebmf=="fit_naive" ) %>%
+  mutate(ebmf.thresh = factor(ebmf.thresh, levels =c(1, 0.01,1e-3, 1e-4))) %>%
+  ggplot(.)  +
+  geom_boxplot(aes(y=eval.value, x=ebmf.thresh, group=ebmf.thresh,
+                   col=ebmf.thresh)) +
+  scale_color_discrete(guide=FALSE) +
+  ylab("RRMSE") + xlab("Threshold") +
+  theme_bw() +
+  theme(axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        strip.text =  element_text(size=16))
+plt1
+
+plt2 <- res %>%
+  filter(eval=="factor_recovery" & simulate.which_R =="identity" & ebmf=="fit_naive" ) %>%
+  mutate(ebmf.thresh = factor(ebmf.thresh, levels =c(1, 0.01,1e-3, 1e-4))) %>%
+  ggplot(.) +
+  geom_boxplot(aes(y=eval.value, x=ebmf.thresh, group=ebmf.thresh,
+                   col=ebmf.thresh)) +
+  scale_color_discrete(guide=FALSE) +
+  ylab("Best Factor Correlation") + xlab("Threshold") +
+  theme_bw()+
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(size=16),
+        axis.text.x = element_text(size=14, angle=90),
+        axis.text.y = element_text(size=14),
+        strip.text =  element_text(size=14)) +
+  facet_wrap(~eval.f, ncol=5)
+plt2
+
+```
