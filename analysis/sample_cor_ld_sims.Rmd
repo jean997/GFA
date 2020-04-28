@@ -1,5 +1,5 @@
 ---
-title: "sample_cor_ld_sims"
+title: "Simulations studying effects of sample overlap, LD, and variant selection"
 author: "Jean Morrison"
 date: "2020-04-03"
 output: workflowr::wflow_html
