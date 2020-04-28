@@ -14,7 +14,7 @@
 
 <meta name="date" content="2020-04-03" />
 
-<title>sample_cor_ld_sims</title>
+<title>Simulations studying effects of sample overlap, LD, and variant selection</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -379,7 +379,7 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">sample_cor_ld_sims</h1>
+<h1 class="title toc-ignore">Simulations studying effects of sample overlap, LD, and variant selection</h1>
 <h4 class="author">Jean Morrison</h4>
 <h4 class="date">2020-04-03</h4>
 
@@ -497,10 +497,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreecdb088f75e763f3368618a91350056750f019324targetblankcdb088fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/cdb088f75e763f3368618a91350056750f019324" target="_blank">cdb088f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreedac88990dd752191ced8e354431f80c5bba2f105targetblankdac8899a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/dac88990dd752191ced8e354431f80c5bba2f105" target="_blank">dac8899</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreecdb088f75e763f3368618a91350056750f019324targetblankcdb088fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreedac88990dd752191ced8e354431f80c5bba2f105targetblankdac8899a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -572,6 +572,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/dac88990dd752191ced8e354431f80c5bba2f105/analysis/sample_cor_ld_sims.Rmd" target="_blank">dac8899</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+<td>
+wflow_publish(files = c(“analysis/index.Rmd”, “analysis/sample_cor_ld_sims.Rmd”))
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/aecaabea2bb027624d969100679933c6f13a4f26/docs/sample_cor_ld_sims.html" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -673,6 +707,43 @@ plt1 &lt;- res %&gt;%
 plt1</code></pre>
 <pre><code>Warning: Removed 1 rows containing non-finite values (stat_boxplot).</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-1-1">
+Past versions of unnamed-chunk-1-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/unnamed-chunk-1-1.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>plt2 &lt;-  res %&gt;%
   filter(eval==&quot;factor_recovery&quot; &amp; ebmf.thresh==1 &amp; simulate.which_R !=&quot;identity&quot; ) %&gt;%
   mutate(fit = str_replace(ebmf, &quot;fit_&quot;, &quot;&quot;) %&gt;% 
@@ -701,6 +772,43 @@ plt1</code></pre>
 plt2</code></pre>
 <pre><code>Warning: Removed 25 rows containing non-finite values (stat_boxplot).</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/unnamed-chunk-1-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-1-2">
+Past versions of unnamed-chunk-1-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-1-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/unnamed-chunk-1-2.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>The eigenvector correction (EV) is working as expected but the fixed factor correction (FF) is not working at all.</p>
 </div>
 <div id="ld" class="section level2">
@@ -739,6 +847,43 @@ plt1 &lt;- res %&gt;%
         strip.text =  element_text(size=16))
 plt1</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/unnamed-chunk-2-1.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>plt2 &lt;- res %&gt;%
   filter(eval==&quot;factor_recovery&quot; ) %&gt;%
   ggplot(.) +
@@ -755,6 +900,43 @@ plt1</code></pre>
 plt2</code></pre>
 <pre><code>Warning: Removed 5 rows containing non-finite values (stat_boxplot).</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/plot_fct-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_fct-1">
+Past versions of plot_fct-1.png
+</button>
+</p>
+<div id="fig-plot_fct-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/plot_fct-1.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="variant-selection" class="section level2">
 <h2>Variant Selection</h2>
@@ -775,6 +957,43 @@ plt1 &lt;- res %&gt;%
         strip.text =  element_text(size=16))
 plt1</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/unnamed-chunk-3-1.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>plt2 &lt;- res %&gt;%
   filter(eval==&quot;factor_recovery&quot; &amp; simulate.which_R ==&quot;identity&quot; &amp; ebmf==&quot;fit_naive&quot; ) %&gt;%
   mutate(ebmf.thresh = factor(ebmf.thresh, levels =c(1, 0.01,1e-3, 1e-4))) %&gt;%
@@ -792,6 +1011,43 @@ plt1</code></pre>
   facet_wrap(~eval.f, ncol=5)
 plt2</code></pre>
 <p><img src="figure/sample_cor_ld_sims.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-2">
+Past versions of unnamed-chunk-3-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/aecaabea2bb027624d969100679933c6f13a4f26/docs/figure/sample_cor_ld_sims.Rmd/unnamed-chunk-3-2.png" target="_blank">aecaabe</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
