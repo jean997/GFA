@@ -332,7 +332,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-02-28
+<strong>Last updated:</strong> 2020-04-28
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -363,10 +363,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreee6a93b6873ef4fb2e6655cf18ce71820f828fd94targetblanke6a93b6a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/e6a93b6873ef4fb2e6655cf18ce71820f828fd94" target="_blank">e6a93b6</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreecdb088f75e763f3368618a91350056750f019324targetblankcdb088fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/cdb088f75e763f3368618a91350056750f019324" target="_blank">cdb088f</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreee6a93b6873ef4fb2e6655cf18ce71820f828fd94targetblanke6a93b6a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreecdb088f75e763f3368618a91350056750f019324targetblankcdb088fa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -381,18 +381,26 @@ Ignored files:
     Ignored:    analysis/simulations_cache/
 
 Untracked files:
+    Untracked:  R/sim_ind_data.R
     Untracked:  analysis/genetic_correlation.Rmd
+    Untracked:  analysis/ld_etc.Rmd
+    Untracked:  analysis/sample_corr2.Rmd
+    Untracked:  analysis/variant_selection.Rmd
     Untracked:  buttons.css
     Untracked:  code/flashier_compare.R
     Untracked:  code/flashier_compare_jason.R
     Untracked:  code/hide_output.js
     Untracked:  code/mask_flashier.R
     Untracked:  code/mask_flashr.R
+    Untracked:  docs/figure/ld_etc.Rmd/
+    Untracked:  docs/figure/sample_cor_ld_sims.Rmd/
+    Untracked:  docs/figure/sample_corr2.Rmd/
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
+    Untracked:  man/sim_bh3.Rd
 
 Unstaged changes:
-    Modified:   README.md
+    Modified:   R/simulations.R
 
 </code></pre>
 <p>
@@ -431,6 +439,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/cdb088f75e763f3368618a91350056750f019324/analysis/index.Rmd" target="_blank">cdb088f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-04-29
+</td>
+<td>
+wflow_publish(files = c(“analysis/index.Rmd”, “analysis/sample_cor_ld_sims.Rmd”))
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/98e4a16666ff6a6085b6e304a0d51f9b5ebf4f7b/docs/index.html" target="_blank">98e4a16</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-02-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -722,6 +764,7 @@ Start workflowr project.
 <li><a href="simulations.html">First Simulations</a></li>
 <li><a href="blood_cell.html">Blood cell traits</a></li>
 <li><a href="simulations2.html">Correcting for sample overlap</a></li>
+<li><a href="sample_cor_ld_sims.Rmd">A sumary of early April Simulations</a></li>
 </ol>
 
 
