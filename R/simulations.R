@@ -65,7 +65,7 @@ sim_bh3 <- function(true_L, true_F, true_Theta, S, R_rows, R_cols){
   stopifnot(nrow(S)==J & ncol(S) == M)
   if(!missing(R_rows) & !missing(R_cols)) stop("Please provide only one of R_rows or R_cols")
   if(missing(R_rows) & missing(R_cols)){
-    rows <- TRUE
+    rows <- FALSE
     R <- diag(rep(1, M))
   }else if(!missing(R_rows)){
     rows <- TRUE
@@ -89,8 +89,7 @@ sim_bh3 <- function(true_L, true_F, true_Theta, S, R_rows, R_cols){
       })
     })
     true_E <- do.call(rbind, true_E)
-  }
-  else{
+  }else{
     if(!rows){
       stopifnot(nrow(R)==M & ncol(R) == M)
       true_E <- apply(S, 1, function(si){
