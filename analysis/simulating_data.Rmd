@@ -1,0 +1,114 @@
+---
+title: "Simulating Data"
+author: "Jean Morrison"
+date: "2020-05-07"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Model
+
+Throughout $m$ indexes traits, $j$ indexes variants, $k$ indexes factors, and $i$ indexes individuals. We assume the following data generating model:
+
+$$
+Y_{m,i} = \sum_{k=1}^{K}f_{mk}F_{k,i} + \sum_{j=1}^{J} \theta_{j,m}G_{j,i} + \epsilon_{m,i}
+$$
+where $F_{k,i}$ is the value of factor $k$ for individual $i$. $\epsilon_{m,i}$ is any non-genetic component of $Y_{m,i}$. 
+The covariance of $\epsilon_{\bullet, i} = (\epsilon_{1,i}, \dots, \epsilon_{M,i})$ is equal to $\Sigma_E = S_{E}R_E S_E$ where $R_E$ is the corresponding correlation matrix and $S_E$ is diagonal. 
+
+
+Each factor has a heritable and non-heritable component:
+$$
+F_{k,i} = \sum_{j=1}^J l_{j,k}G_{j,i} + \epsilon_{Fk}
+$$
+We assume that $\epsilon_{Fk}$ are mutually independent of each other and all the other random variables so far discussed. 
+
+We assume that $\mathbf{Y}_m$ and $\mathbf{G}_{j}$ are centered and scaled to have mean 0 and variance 1. For convenience, $f_{m,k}$ are scaled so that $\sum_{m=1}^M f_{m,k}^2 =1$ for all $k$. 
+
+The marginal (and also joint because SNPs are independent) association of $G_j$ with $Y_m$ is $\beta_{j,m} = \sum_{k=1}^{K}l_{jk}f_{mk} + \theta_{j,m}$ (this is our basic factor decomposition equation).  We view $\theta_{j,m}$ and $l_{j,k}$ as random variables that are independent of each other and are mutually independent across SNPs and traits and mean 0. The GWAS estimate of $\beta_{j,m}$ is 
+
+$$
+\hat{\beta}_{j,m} = \frac{1}{N_m}\mathbf{G}_j^\top \mathbf{Y}_{m}
+$$
+ where $N_m$ is the sample size for trait $m$. $Var(\hat{\beta}_{j,m}) \approx 1/N_m$, assuming no variant makes a large contribution to the variance of $Y_m$. 
+ 
+If GWAS for all traits have the same sample ($N_m \equiv N$) and no individual variant makes a large contribution to heritability, covariance of $\hat{\beta}_{j, \bullet}$ is approximately the trait covariance scaled by $1/N$. Denote trait covariance $\Sigma$. 
+
+$$
+\Sigma = \Sigma_G + \Sigma_{FE} + \Sigma_E
+$$
+where $\Sigma_G$ is the genetic covariance, $\Sigma_{FE}$ is the non-genetic covariance due to shared factors and $\Sigma_E$ is environmental covariance not mediated by the heritble factors. 
+
+$$
+(\Sigma_G)_{m, m^\prime} = \sum_{j=1}^J E\left[\left(\sum_{k=1}^K l_{jk}f_{mk} + \theta_{jm}\right)\left(\sum_{k=1}^K l_{jk}f_{m^\prime k} + \theta_{jm^\prime}\right)\right]  \\
+ = \sum_{j=1}^JE\left[\sum_{k =1}^{K} l_{j,k}^2 f_{m,k} f_{m^\prime, k}\right]  + E\left[\theta_{j,m}\theta_{j,m^\prime}\right]   \\
+ = J \sum_{k=1}^K \sigma_{lk}^2  f_{m,k} f_{m^\prime, k} + JCov(\theta_m, \theta_{m^\prime})
+ $$
+Where $\sigma_{lk}^2 = Var(l_{j,k})$ and $Cov(\theta_m, \theta_{m^\prime}) = \sigma_{\theta,m}^2$ if $m = m^\prime$ and 0 otherwise. In matrix form
+
+ $$
+\Sigma_G = J (FV_LF^\top + V_\theta)
+$$
+where $V_\theta$ is a diagonal $M\times M$ matrix who's elements are equal to $\sigma^2_{\theta, m}$ and  $V_L$ is diagonal $K\times K$ with elements $\sigma^2_{l,k}$.
+
+$\Sigma_{FE} = FV_{F}F^\top$ where $V_F$ is a $K \times K$ diagonal matrix who's elements are $Var(\epsilon_{Fk}) \equiv \sigma^2_{Fk}$. 
+
+## Simulating Data
+ 
+Parameters specified to define simulation:
+
++ $N$: GWAS sample size
++ $h^2_1, \dots, h^2_{M}$: Heritability of each trait.
++ $\Omega_m$: Proportion of SNP heritability mediated by factors. 
++ $d^2_1, \dots, d^2_K$: heritability of each factor.
++ $\pi_1, \dots, \pi_K$: SNP sparsity of each factor.
++ $R_E$: Environmental trait correlation not mediated by factors.
++ $J$: Total number of SNPs
+
+Simulation procedure:
+
+1. Generate $L = (l_{jk})$
+2. Generate $\Theta = (\theta_{j,m})$
+3. Compute $\beta = (\beta_{j,m}) = LF^\top + \theta$
+4. Compute row covariance of error, $\frac{1}{N}\Sigma$.
+5. For each $j$, sample $E_{j,\bullet}$ from a $N_{M}(0, \frac{1}{N}\Sigma)$ distribution
+6. Compute $\hat{\beta}_{j,\bullet} = \beta_{j,\bullet} + E_{j, \bullet}$
+7. The standard error of $\hat{\beta}_{j, \bullet}$ is $\sqrt{(sqrt(\Sigma)/N}$
+
+Without constraining the model, we can set $\sigma_{l,k} = 1/J$ for all $k$ making $f_{m,k}^2$ interpretable as the proportion of variance contributed to trait $m$ by the heritable component of factor $k$. This requires re-scaling rows of $F$ so that
+
+$$
+\sum_{k=1}^{K}f_{m,k}^2 = \Omega_m h^2_m
+$$
+
+We need to determine $\sigma_{\theta, m}$, $\sigma_{F,k}$, $\sigma^2_{E,m}$ in terms of the specified model parameters.
+
+We have the following relationships for each $m$ and $k$
+
+$$
+1 = h^2 + \sum_{k=1}^{K}\sigma^2_{Fk}f_{m,k}^2 + \sigma^2_{E,m}\\
+(1-\Omega_m)h^2_m =  J\sigma^2_{\theta,m} \\
+d^2_k =  \frac{1}{1 + \sigma^2_{Fk}} \\
+$$
+This specifies all of the necessary parameters:
+
+$$
+\sigma_{Fk}^2 = \frac{1-d^2_k}{d^2_k}\\
+\sigma^2_{\theta,m} = \frac{1}{J} (1-\Omega_m)h^2_m\\
+\sigma_{E,m}^2 = 1 - h^2 - \sum_{k=1}^K \frac{1-d^2_k}{d^2_k}f_{m,k}^2
+$$
+Some notes about the impact of these parameters: 
+
+## Adding LD
+
+We can add LD by performing the following steps given a SNP correlation matrix $R_{LD} = U_{LD}D_{LD}U_{LD}^\top$:
+
+1. Convert to z-scores: $Z = \beta/S$ where $S$ is the $J \times M$ matrix of standard errors and we are using "R notation" to just mean element-wise division of matrices. Compute $E_z = E/S$ where $E$ is the matrix of errors with row correlation that we generated in the previous section. 
+
+2. Compute $\hat{Z} = R_{LD}Z + U_{LD}D^{1/2}E_{Z} $
+
+3. Convert back to effect sizes if desired.
+
+
+Of note: This procedure generates summary statisitcs with the correct row and column covariance. I am currently unsure if knowing the row and column covariance of a matrix uniquely determines the full covariance of the vectorized matrix (i.e. $Cov(E_{j,m}, E_{j^\prim, m^\prime})$, $j\neq j^\prime$, $m \neq m^\prime$). 

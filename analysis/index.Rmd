@@ -21,3 +21,4 @@ In this project I am studying the potential utility of factor analysis applied t
 1. [Blood cell traits](blood_cell.html)
 1. [Correcting for sample overlap](simulations2.html)
 1. [A sumary of early April Simulations](sample_cor_ld_sims.html)
+1. [How to simulate summary statistics](simulating_data.html)
