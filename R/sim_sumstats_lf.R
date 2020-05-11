@@ -34,6 +34,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   stopifnot(Matrix::isSymmetric(R_E))
   R_E_eig <- eigen(R_E)
   stopifnot(all(R_E_eig$values >= 0))
+  if(any(omega < 1) & pi_theta == 0){stop("Theta contributes non-zero heritability so pi_theta must be greater than 0.")}
 
   #if(!missing(R_LD)){
   #  l <- sapply(R_LD, function(e){length(e$values)})
@@ -63,6 +64,8 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 
   #Generate theta
   sigma_theta <- sqrt( (1/(pi_theta*J))*(1-omega)*h_2_trait)
+  sigma_theta[omega == 1] <- 0
+
   theta <- purrr::map_dfc(sigma_theta, function(s){
     t <- rbinom(n=J, size=1, prob = pi_theta)
     n <- sum(t==1)
