@@ -10,9 +10,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Jean Morrison" />
 
+<meta name="date" content="2020-05-07" />
 
-<title>Home</title>
+<title>Simulating Data</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +22,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -250,6 +255,63 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -257,6 +319,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -307,7 +379,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Simulating Data</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-05-07</h4>
 
 </div>
 
@@ -448,7 +522,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b/analysis/index.Rmd" target="_blank">dd5b4ea</a>
+<a href="https://github.com/jean997/sumstatFactors/blob/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b/analysis/simulating_data.Rmd" target="_blank">dd5b4ea</a>
 </td>
 <td>
 Jean Morrison
@@ -460,380 +534,6 @@ Jean Morrison
 wflow_publish(c(“analysis/index.Rmd”, “analysis/simulating_data.Rmd”))
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/783f78f0799cd14c9cc24e47c73dfcea83e4c421/docs/index.html" target="_blank">783f78f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-29
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/63c504a415dfa16202df578e97b46beb14feb841/docs/index.html" target="_blank">63c504a</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-29
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8e84469759f64234d157b987604429bddb1465bf/analysis/index.Rmd" target="_blank">8e84469</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-29
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/aecaabea2bb027624d969100679933c6f13a4f26/docs/index.html" target="_blank">aecaabe</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-29
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cdb088f75e763f3368618a91350056750f019324/analysis/index.Rmd" target="_blank">cdb088f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-29
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”, “analysis/sample_cor_ld_sims.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/98e4a16666ff6a6085b6e304a0d51f9b5ebf4f7b/docs/index.html" target="_blank">98e4a16</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-02-29
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/e6a93b6873ef4fb2e6655cf18ce71820f828fd94/analysis/index.Rmd" target="_blank">e6a93b6</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-02-29
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5a0e1261efdc5cef3769a8ec34f36a1800e66239/docs/index.html" target="_blank">5a0e126</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-11-21
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/1133e2f124c80a4844c2734eb9d6a691af3d1f28/analysis/index.Rmd" target="_blank">1133e2f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-11-21
-</td>
-<td>
-wflow_publish(c(“analysis/blood_cell.Rmd”, “analysis/simulations.Rmd”, “analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/12603790393f72446e82730a6b0cae6b216c886b/docs/index.html" target="_blank">1260379</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-07
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/index.Rmd" target="_blank">f1d6d49</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-07
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”,
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/08ca7a4c97a73ff19ed9484550c1131b7a3a54b4/docs/index.html" target="_blank">08ca7a4</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8ea9d83def68b2f3096cc21d93e16b6caf0284e7/analysis/index.Rmd" target="_blank">8ea9d83</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/b8a43046fade012a290c95a6b80b27461e96a3d3/docs/index.html" target="_blank">b8a4304</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/eadc4020cf894c7bc9421f81c92afaa3dbda9f9b/analysis/index.Rmd" target="_blank">eadc402</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/index.html" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d51bfe15bc7d399268fd89158d03c57b72d05157/analysis/index.Rmd" target="_blank">d51bfe1</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/fce679d244e406c8c6c80b48c6062c779b612945/docs/index.html" target="_blank">fce679d</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-27
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/index.Rmd" target="_blank">ba80a6a</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-27
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”, “analysis/basic_flash_analysis.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5af52bd9424029838c6b5a7938c256d0cf793de0/docs/index.html" target="_blank">5af52bd</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/4d40fba9780a880e0e1f160f0616791544a71ecf/analysis/index.Rmd" target="_blank">4d40fba</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Project Start
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/0070d00d849da0212059abc7bd065a5199e1e681/analysis/index.Rmd" target="_blank">0070d00</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Start workflowr project.
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -841,21 +541,83 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<p>In this project I am studying the potential utility of factor analysis applied to GWAS summary statistics for understanding relationships between traits.</p>
-<ol start="0" style="list-style-type: decimal">
-<li><a href="basic_flash_analysis.html">Summaries of my first experiments</a></li>
-<li><a href="metabo_flash_experiments.html">A more careful look at ways to use EBMF</a></li>
-<li><a href="https://willwerscheid.github.io/FLASHvestigations/jean.html">Jason ran <code>flash</code> and <code>flashr</code> on our data using many parameters</a></li>
-<li><a href="metabo_flash_experiments_order1.html">More flashier comparisons with slightly different data</a></li>
-<li><a href="fixed_factors.html">Experimenting with fixed factors and loadings</a></li>
-<li><a href="pathway_factors.html">Fixing loadings to represent GO IDs</a></li>
-<li><a href="genetic_correlation.html">Computing SNP-based genetic correlation</a></li>
-<li><a href="simulations.html">First Simulations</a></li>
-<li><a href="blood_cell.html">Blood cell traits</a></li>
-<li><a href="simulations2.html">Correcting for sample overlap</a></li>
-<li><a href="sample_cor_ld_sims.html">A sumary of early April Simulations</a></li>
-<li><a href="simulating_data.html">How to simulate summary statistics</a></li>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<p>Throughout <span class="math inline">\(m\)</span> indexes traits, <span class="math inline">\(j\)</span> indexes variants, <span class="math inline">\(k\)</span> indexes factors, and <span class="math inline">\(i\)</span> indexes individuals. We assume the following data generating model:</p>
+<p><span class="math display">\[
+Y_{m,i} = \sum_{k=1}^{K}f_{mk}F_{k,i} + \sum_{j=1}^{J} \theta_{j,m}G_{j,i} + \epsilon_{m,i}
+\]</span> where <span class="math inline">\(F_{k,i}\)</span> is the value of factor <span class="math inline">\(k\)</span> for individual <span class="math inline">\(i\)</span>. <span class="math inline">\(\epsilon_{m,i}\)</span> is any non-genetic component of <span class="math inline">\(Y_{m,i}\)</span>. The covariance of <span class="math inline">\(\epsilon_{\bullet, i} = (\epsilon_{1,i}, \dots, \epsilon_{M,i})\)</span> is equal to <span class="math inline">\(\Sigma_E = S_{E}R_E S_E\)</span> where <span class="math inline">\(R_E\)</span> is the corresponding correlation matrix and <span class="math inline">\(S_E\)</span> is diagonal.</p>
+<p>Each factor has a heritable and non-heritable component: <span class="math display">\[
+F_{k,i} = \sum_{j=1}^J l_{j,k}G_{j,i} + \epsilon_{Fk}
+\]</span> We assume that <span class="math inline">\(\epsilon_{Fk}\)</span> are mutually independent of each other and all the other random variables so far discussed.</p>
+<p>We assume that <span class="math inline">\(\mathbf{Y}_m\)</span> and <span class="math inline">\(\mathbf{G}_{j}\)</span> are centered and scaled to have mean 0 and variance 1. For convenience, <span class="math inline">\(f_{m,k}\)</span> are scaled so that <span class="math inline">\(\sum_{m=1}^M f_{m,k}^2 =1\)</span> for all <span class="math inline">\(k\)</span>.</p>
+<p>The marginal (and also joint because SNPs are independent) association of <span class="math inline">\(G_j\)</span> with <span class="math inline">\(Y_m\)</span> is <span class="math inline">\(\beta_{j,m} = \sum_{k=1}^{K}l_{jk}f_{mk} + \theta_{j,m}\)</span> (this is our basic factor decomposition equation). We view <span class="math inline">\(\theta_{j,m}\)</span> and <span class="math inline">\(l_{j,k}\)</span> as random variables that are independent of each other and are mutually independent across SNPs and traits and mean 0. The GWAS estimate of <span class="math inline">\(\beta_{j,m}\)</span> is</p>
+<p><span class="math display">\[
+\hat{\beta}_{j,m} = \frac{1}{N_m}\mathbf{G}_j^\top \mathbf{Y}_{m}
+\]</span> where <span class="math inline">\(N_m\)</span> is the sample size for trait <span class="math inline">\(m\)</span>. <span class="math inline">\(Var(\hat{\beta}_{j,m}) \approx 1/N_m\)</span>, assuming no variant makes a large contribution to the variance of <span class="math inline">\(Y_m\)</span>.</p>
+<p>If GWAS for all traits have the same sample (<span class="math inline">\(N_m \equiv N\)</span>) and no individual variant makes a large contribution to heritability, covariance of <span class="math inline">\(\hat{\beta}_{j, \bullet}\)</span> is approximately the trait covariance scaled by <span class="math inline">\(1/N\)</span>. Denote trait covariance <span class="math inline">\(\Sigma\)</span>.</p>
+<p><span class="math display">\[
+\Sigma = \Sigma_G + \Sigma_{FE} + \Sigma_E
+\]</span> where <span class="math inline">\(\Sigma_G\)</span> is the genetic covariance, <span class="math inline">\(\Sigma_{FE}\)</span> is the non-genetic covariance due to shared factors and <span class="math inline">\(\Sigma_E\)</span> is environmental covariance not mediated by the heritble factors.</p>
+<p><span class="math display">\[
+(\Sigma_G)_{m, m^\prime} = \sum_{j=1}^J E\left[\left(\sum_{k=1}^K l_{jk}f_{mk} + \theta_{jm}\right)\left(\sum_{k=1}^K l_{jk}f_{m^\prime k} + \theta_{jm^\prime}\right)\right]  \\
+ = \sum_{j=1}^JE\left[\sum_{k =1}^{K} l_{j,k}^2 f_{m,k} f_{m^\prime, k}\right]  + E\left[\theta_{j,m}\theta_{j,m^\prime}\right]   \\
+ = J \sum_{k=1}^K \sigma_{lk}^2  f_{m,k} f_{m^\prime, k} + JCov(\theta_m, \theta_{m^\prime})
+ \]</span> Where <span class="math inline">\(\sigma_{lk}^2 = Var(l_{j,k})\)</span> and <span class="math inline">\(Cov(\theta_m, \theta_{m^\prime}) = \sigma_{\theta,m}^2\)</span> if <span class="math inline">\(m = m^\prime\)</span> and 0 otherwise. In matrix form</p>
+<p><span class="math display">\[
+\Sigma_G = J (FV_LF^\top + V_\theta)
+\]</span> where <span class="math inline">\(V_\theta\)</span> is a diagonal <span class="math inline">\(M\times M\)</span> matrix who’s elements are equal to <span class="math inline">\(\sigma^2_{\theta, m}\)</span> and <span class="math inline">\(V_L\)</span> is diagonal <span class="math inline">\(K\times K\)</span> with elements <span class="math inline">\(\sigma^2_{l,k}\)</span>.</p>
+<p><span class="math inline">\(\Sigma_{FE} = FV_{F}F^\top\)</span> where <span class="math inline">\(V_F\)</span> is a <span class="math inline">\(K \times K\)</span> diagonal matrix who’s elements are <span class="math inline">\(Var(\epsilon_{Fk}) \equiv \sigma^2_{Fk}\)</span>.</p>
+</div>
+<div id="simulating-data" class="section level2">
+<h2>Simulating Data</h2>
+<p>Parameters specified to define simulation:</p>
+<ul>
+<li><span class="math inline">\(N\)</span>: GWAS sample size</li>
+<li><span class="math inline">\(h^2_1, \dots, h^2_{M}\)</span>: Heritability of each trait.</li>
+<li><span class="math inline">\(\Omega_m\)</span>: Proportion of SNP heritability mediated by factors.</li>
+<li><span class="math inline">\(d^2_1, \dots, d^2_K\)</span>: heritability of each factor.</li>
+<li><span class="math inline">\(\pi_1, \dots, \pi_K\)</span>: SNP sparsity of each factor.</li>
+<li><span class="math inline">\(R_E\)</span>: Environmental trait correlation not mediated by factors.</li>
+<li><span class="math inline">\(J\)</span>: Total number of SNPs</li>
+</ul>
+<p>Simulation procedure:</p>
+<ol style="list-style-type: decimal">
+<li>Generate <span class="math inline">\(L = (l_{jk})\)</span></li>
+<li>Generate <span class="math inline">\(\Theta = (\theta_{j,m})\)</span></li>
+<li>Compute <span class="math inline">\(\beta = (\beta_{j,m}) = LF^\top + \theta\)</span></li>
+<li>Compute row covariance of error, <span class="math inline">\(\frac{1}{N}\Sigma\)</span>.</li>
+<li>For each <span class="math inline">\(j\)</span>, sample <span class="math inline">\(E_{j,\bullet}\)</span> from a <span class="math inline">\(N_{M}(0, \frac{1}{N}\Sigma)\)</span> distribution</li>
+<li>Compute <span class="math inline">\(\hat{\beta}_{j,\bullet} = \beta_{j,\bullet} + E_{j, \bullet}\)</span></li>
+<li>The standard error of <span class="math inline">\(\hat{\beta}_{j, \bullet}\)</span> is <span class="math inline">\(\sqrt{(sqrt(\Sigma)/N}\)</span></li>
 </ol>
+<p>Without constraining the model, we can set <span class="math inline">\(\sigma_{l,k} = 1/J\)</span> for all <span class="math inline">\(k\)</span> making <span class="math inline">\(f_{m,k}^2\)</span> interpretable as the proportion of variance contributed to trait <span class="math inline">\(m\)</span> by the heritable component of factor <span class="math inline">\(k\)</span>. This requires re-scaling rows of <span class="math inline">\(F\)</span> so that</p>
+<p><span class="math display">\[
+\sum_{k=1}^{K}f_{m,k}^2 = \Omega_m h^2_m
+\]</span></p>
+<p>We need to determine <span class="math inline">\(\sigma_{\theta, m}\)</span>, <span class="math inline">\(\sigma_{F,k}\)</span>, <span class="math inline">\(\sigma^2_{E,m}\)</span> in terms of the specified model parameters.</p>
+<p>We have the following relationships for each <span class="math inline">\(m\)</span> and <span class="math inline">\(k\)</span></p>
+<p><span class="math display">\[
+1 = h^2 + \sum_{k=1}^{K}\sigma^2_{Fk}f_{m,k}^2 + \sigma^2_{E,m}\\
+(1-\Omega_m)h^2_m =  J\sigma^2_{\theta,m} \\
+d^2_k =  \frac{1}{1 + \sigma^2_{Fk}} \\
+\]</span> This specifies all of the necessary parameters:</p>
+<p><span class="math display">\[
+\sigma_{Fk}^2 = \frac{1-d^2_k}{d^2_k}\\
+\sigma^2_{\theta,m} = \frac{1}{J} (1-\Omega_m)h^2_m\\
+\sigma_{E,m}^2 = 1 - h^2 - \sum_{k=1}^K \frac{1-d^2_k}{d^2_k}f_{m,k}^2
+\]</span> Some notes about the impact of these parameters:</p>
+</div>
+<div id="adding-ld" class="section level2">
+<h2>Adding LD</h2>
+<p>We can add LD by performing the following steps given a SNP correlation matrix <span class="math inline">\(R_{LD} = U_{LD}D_{LD}U_{LD}^\top\)</span>:</p>
+<ol style="list-style-type: decimal">
+<li><p>Convert to z-scores: <span class="math inline">\(Z = \beta/S\)</span> where <span class="math inline">\(S\)</span> is the <span class="math inline">\(J \times M\)</span> matrix of standard errors and we are using “R notation” to just mean element-wise division of matrices. Compute <span class="math inline">\(E_z = E/S\)</span> where <span class="math inline">\(E\)</span> is the matrix of errors with row correlation that we generated in the previous section.</p></li>
+<li><p>Compute $ = R_{LD}Z + U_{LD}D^{1/2}E_{Z} $</p></li>
+<li><p>Convert back to effect sizes if desired.</p></li>
+</ol>
+<p>Of note: This procedure generates summary statisitcs with the correct row and column covariance. I am currently unsure if knowing the row and column covariance of a matrix uniquely determines the full covariance of the vectorized matrix (i.e. <span class="math inline">\(Cov(E_{j,m}, E_{j^\prim, m^\prime})\)</span>, <span class="math inline">\(j\neq j^\prime\)</span>, <span class="math inline">\(m \neq m^\prime\)</span>).</p>
+</div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
@@ -871,6 +633,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+</div>
+</div>
 
 </div>
 
@@ -903,6 +667,32 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
