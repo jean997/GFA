@@ -106,9 +106,152 @@ We can add LD by performing the following steps given a SNP correlation matrix $
 
 1. Convert to z-scores: $Z = \beta/S$ where $S$ is the $J \times M$ matrix of standard errors and we are using "R notation" to just mean element-wise division of matrices. Compute $E_z = E/S$ where $E$ is the matrix of errors with row correlation that we generated in the previous section. 
 
-2. Compute $\hat{Z} = R_{LD}Z + U_{LD}D^{1/2}E_{Z} $
+2. Compute $\hat{Z} = R_{LD}Z + U_{LD}D_{LD}^{1/2}E_{Z}$
 
 3. Convert back to effect sizes if desired.
 
 
-Of note: This procedure generates summary statisitcs with the correct row and column covariance. I am currently unsure if knowing the row and column covariance of a matrix uniquely determines the full covariance of the vectorized matrix (i.e. $Cov(E_{j,m}, E_{j^\prim, m^\prime})$, $j\neq j^\prime$, $m \neq m^\prime$). 
+Of note: This procedure generates summary statisitcs with the correct row and column covariance. However, the row and column covariance doesn't uniquely determine the full covariance structure of $E$. I am not currently sure what additional assumptions we need to define that. 
+
+
+## Some notes and consequences of the model 
+
+
+
+From the expression for $\Sigma$ we can see that one of the components of $\Sigma$ is $FF^\top$ which is the genetic covariance. Will we be able to distinguish low rank structure from correlation due to sample overlap. Here are some illustrative examples. 
+
+
+1. $\Sigma = \Sigma_G = \frac{1}{N} F F^\top + \sigma^2_e I$ and $L$ is dense. 
+
+Under this condition, it should be impossible to distinguish the low rank structure of the summary statistics from covariance due to sample overlap. This occurs when
+
++ All traits have the same heritability
++ All heritability is mediated by factors, or the same proportion of each trait's heritability is meadiated by factors
++ Either all factors are fully heritable or have the same heritability
++ Non-genetic correlation between traits is equal to $I$. 
+
+Under these conditions, we can write
+$$
+\hat{\beta} = LF^\top + E\\
+= LF^\top + BF^\top + E^{\star}
+$$
+
+where both $L$ and $B$ are dense and normally distributed and elements of $E^\star$ are iid $N(0,1)$. In this case performing the eigenvector correction completely ablates the signal of the low rank structure so we should not find any factors after performing it. 
+To make the point, I will set $N$ very high so we know that lack of power is not a problem. 
+
+```{r}
+library(dplyr)
+library(sumstatFactors)
+library(flashier)
+F_mat <- readRDS("analysis_data/factors2.RDS")
+F_mat[13,3] <- 0.3
+set.seed(1)
+dat <- sim_sumstats_lf(F_mat = F_mat, N = 100000, J = 5000, 
+                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(1, 5), 
+                      pi_L = rep(1, 5), pi_theta = 0, R_E = diag(rep(1, 20)))
+
+#all.equal(dat$Sigma*10000, dat$F_mat%*%t(dat$F_mat))
+```
+
+Confirm that FLASH does not find any factors in this data after transforming by eigenvectors. The naive fit recovers the factors close to perfectly. 
+
+
+```{r, echo=FALSE}
+fit_ev_correct <- function(dat, R, zero_thresh = 1e-15){
+    R_eig <- eigen(R)
+    v <- R_eig$values
+    R_eig$values[abs(v) < zero_thresh] <- 0
+    if(any(R_eig$values < 0))stop("R is not psd")
+    d <- 1/sqrt(R_eig$values)
+    d[R_eig$values==0] <- 0
+    U <- R_eig$vectors %*% diag(d)
+    Z_tilde <- with(dat, (beta_hat/se_beta_hat) %*% U)
+    fit <- flash.init(data=Z_tilde, S = matrix(1, nrow=nrow(Z_tilde), ncol=ncol(Z_tilde)),  var.type=2) %>%
+                      flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>%
+                      flash.backfit() %>%
+                      flash.nullcheck();
+    
+    if(fit$n.factors > 0){
+      B_hat <- fitted(fit) %*% diag(sqrt(R_eig$values)) %*% t(R_eig$vectors);
+      F_hat <- R_eig$vectors %*% diag(sqrt(R_eig$values)) %*% fit$loadings.pm[[2]];
+      L_hat <- fit$loadings.pm[[1]]
+    }else{
+      B_hat <- F_hat  <- L_hat <- NULL;
+    }
+  ret <- list(fit=fit, B_hat = B_hat, L_hat = L_hat, F_hat = F_hat)
+  return(ret)
+}
+
+fit_naive <- function(dat){
+   
+    Z <- with(dat, beta_hat/se_beta_hat)
+    fit <- flash.init(data=Z, S = matrix(1, nrow=nrow(Z), ncol=ncol(Z)),  var.type=2) %>%
+                      flash.add.greedy(Kmax = 20, init.fn = init.fn.softImpute) %>%
+                      flash.backfit() %>%
+                      flash.nullcheck();
+    
+    if(fit$n.factors > 0){
+      B_hat <- fitted(fit)
+      F_hat <- fit$loadings.pm[[2]];
+      L_hat <- fit$loadings.pm[[1]]
+    }else{
+      B_hat <- F_hat  <- L_hat <- NULL;
+    }
+  ret <- list(fit=fit, B_hat = B_hat, L_hat = L_hat, F_hat = F_hat)
+  return(ret)
+}
+```
+
+```{r}
+R <- cov2cor(dat$Sigma)
+fit_e <- fit_ev_correct(dat, R)
+fit_n <- fit_naive(dat)
+cor(fit_n$F_hat, dat$F_mat)
+```
+
+
+1. $\Sigma = \Sigma_G = \frac{1}{N} F F^\top + \sigma^2_e I$ and $L$ is sparse. 
+
+The same circumstance as above but with sparse $L$. Note that we would get the same pattern if $L$ were a sum of a dense effect and a sparse effect. I will decrease $\pi_L$ to 0.1 and increase the number of SNPs by a factor of 10 so there are the same number of effect variants. 
+
+
+```{r}
+dat <- sim_sumstats_lf(F_mat = F_mat, N = 100000, J = 50000, 
+                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(1, 5), 
+                      pi_L = rep(0.1, 5), pi_theta = 0, R_E = diag(rep(1, 20)))
+
+```
+
+Now we can recover the factors using the eigenvector transformation no problem. In fact, using the transformation yields a better RRMSE than the naive fit even though both are able to recover the factors correctly. This corresponds to a better recovery of $L$ using the corrected fit. In the naive fit $L$ and $B$ are combined together. 
+```{r}
+R <- cov2cor(dat$Sigma)
+fit_e <- fit_ev_correct(dat, R)
+cor(fit_e$F_hat, dat$F_mat)
+fit_n <- fit_naive(dat)
+cor(fit_n$F_hat, dat$F_mat)
+```
+
+```{r}
+Z_true <- with(dat, (L_mat %*% t(F_mat) + theta)/se_beta_hat)
+sqrt(sum((fit_e$B_hat-Z_true)^2)/sum(Z_true^2))
+sqrt(sum((fit_n$B_hat-Z_true)^2)/sum(Z_true^2))
+```
+
+The difference in $L$ estimates can be seen by plotting the loadings of the fits against each other. The two fits have nearly the same estimates of $F$
+
+```{r}
+plot(fit_e$L_hat[,1], fit_n$L_hat[,1])
+plot(fit_e$L_hat[,2], fit_n$L_hat[,2])
+plot(fit_e$L_hat[,3], fit_n$L_hat[,3])
+plot(fit_e$L_hat[,4], fit_n$L_hat[,4])
+plot(fit_e$L_hat[,5], fit_n$L_hat[,5])
+```
+
+The fit using the eigenvector transformation has more of the loadings very close to zero. 
+
+
+Consequences: We will be unable to detect dense factors for traits measured in the same sample because the signal is confounded with the pattern of the noise. We generally don't expect factors to be completely dense (i.e. variant effects normally distributed with a single variance for all SNPs). One exception to this is that "population stratification" factors may be dense. 
+
+The eigenvector transformation can be thought of both as a correction for sample overlap and as removing dense factors. In this sense, it may be wise to use it even when samples don't overlap as a correction for population stratification effects. 
+
+
