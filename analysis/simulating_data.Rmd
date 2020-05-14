@@ -1,5 +1,5 @@
 ---
-title: "Simulating Data"
+title: "Individual data model, eigenvector transformation, and how to simulate data"
 author: "Jean Morrison"
 date: "2020-05-07"
 output: workflowr::wflow_html
@@ -116,28 +116,28 @@ Of note: This procedure generates summary statisitcs with the correct row and co
 
 ## Some notes and consequences of the model 
 
+One way to think about row covariance of $E$ in the factor model is that if 
 
-
-From the expression for $\Sigma$ we can see that one of the components of $\Sigma$ is $FF^\top$ which is the genetic covariance. Will we be able to distinguish low rank structure from correlation due to sample overlap. Here are some illustrative examples. 
-
-
-1. $\Sigma = \Sigma_G = \frac{1}{N} F F^\top + \sigma^2_e I$ and $L$ is dense. 
-
-Under this condition, it should be impossible to distinguish the low rank structure of the summary statistics from covariance due to sample overlap. This occurs when
-
-+ All traits have the same heritability
-+ All heritability is mediated by factors, or the same proportion of each trait's heritability is meadiated by factors
-+ Either all factors are fully heritable or have the same heritability
-+ Non-genetic correlation between traits is equal to $I$. 
-
-Under these conditions, we can write
 $$
-\hat{\beta} = LF^\top + E\\
-= LF^\top + BF^\top + E^{\star}
+\hat{B} = LF^\top + E
+$$
+where $E$ has row covariance $A + bI$, where $A = \tilde{F}\tilde{F}^\top is a positive semidefinite matrix , this is equivalent to a model where
+
+$$
+\hat{B} = LF^\top + W\tilde{F}^\top + E^{*}
 $$
 
-where both $L$ and $B$ are dense and normally distributed and elements of $E^\star$ are iid $N(0,1)$. In this case performing the eigenvector correction completely ablates the signal of the low rank structure so we should not find any factors after performing it. 
-To make the point, I will set $N$ very high so we know that lack of power is not a problem. 
+where the elements of $E^*$ are iid $N(0, b)$ and the elements of $W$ are iid $N(0,1)$. When we perform the eigenvector transformation, we are removing the "dense factors", $\tilde{F}$.  From the expression for $\Sigma$ above, we can see that our model implies that
+
+$$
+\Sigma = a FDF^\top +  bR_{E} + cI
+$$
+where $D$ is diagonal, $R_E$ is the environmental covariance and $a$, $b$, and $c$ and constants. Therefore, even with perfect knowledge of $\Sigma$, we can only recover $F$ if the columns of $L$ are not normally distributed. To see this consider the two examples: 
+
+
+1. Dense $L$
+
+For simplicity we will let $R_E = I$ and generate some data. To make $L$ dense we set `pi_L = rep(1, M)`. Below I made the heritability of each trait 0.3 and the heritability of each factor 0.8 but these are arbitrary, we will get the same result with other values.
 
 ```{r}
 library(dplyr)
@@ -147,13 +147,12 @@ F_mat <- readRDS("analysis_data/factors2.RDS")
 F_mat[13,3] <- 0.3
 set.seed(1)
 dat <- sim_sumstats_lf(F_mat = F_mat, N = 100000, J = 5000, 
-                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(1, 5), 
+                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(0.8, 5), 
                       pi_L = rep(1, 5), pi_theta = 0, R_E = diag(rep(1, 20)))
 
-#all.equal(dat$Sigma*10000, dat$F_mat%*%t(dat$F_mat))
 ```
 
-Confirm that FLASH does not find any factors in this data after transforming by eigenvectors. The naive fit recovers the factors close to perfectly. 
+Confirm that FLASH does not find any factors in this data after transforming by eigenvectors. The naive fit recovers the factors close to perfectly because there is no environmental covariance. 
 
 
 ```{r, echo=FALSE}
@@ -210,19 +209,19 @@ cor(fit_n$F_hat, dat$F_mat)
 ```
 
 
-1. $\Sigma = \Sigma_G = \frac{1}{N} F F^\top + \sigma^2_e I$ and $L$ is sparse. 
+2. $L$ is sparse. 
 
-The same circumstance as above but with sparse $L$. Note that we would get the same pattern if $L$ were a sum of a dense effect and a sparse effect. I will decrease $\pi_L$ to 0.1 and increase the number of SNPs by a factor of 10 so there are the same number of effect variants. 
+I'll generate data in the same way but change $\pi_L$ to 0.1 and increase the number of variants by a factor of 10 so that average effect size stays the same. 
 
 
 ```{r}
 dat <- sim_sumstats_lf(F_mat = F_mat, N = 100000, J = 50000, 
-                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(1, 5), 
+                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(0.8, 5), 
                       pi_L = rep(0.1, 5), pi_theta = 0, R_E = diag(rep(1, 20)))
 
 ```
 
-Now we can recover the factors using the eigenvector transformation no problem. In fact, using the transformation yields a better RRMSE than the naive fit even though both are able to recover the factors correctly. This corresponds to a better recovery of $L$ using the corrected fit. In the naive fit $L$ and $B$ are combined together. 
+Now we can recover the factors using the eigenvector transformation, no problem. In fact, using the transformation yields a better RRMSE than the naive fit even though both are able to recover the factors correctly. This corresponds to a better recovery of $L$ using the corrected fit. In the naive fit $L$ and $B$ are combined together. 
 ```{r}
 R <- cov2cor(dat$Sigma)
 fit_e <- fit_ev_correct(dat, R)
@@ -249,9 +248,6 @@ plot(fit_e$L_hat[,5], fit_n$L_hat[,5])
 
 The fit using the eigenvector transformation has more of the loadings very close to zero. 
 
-
-Consequences: We will be unable to detect dense factors for traits measured in the same sample because the signal is confounded with the pattern of the noise. We generally don't expect factors to be completely dense (i.e. variant effects normally distributed with a single variance for all SNPs). One exception to this is that "population stratification" factors may be dense. 
-
-The eigenvector transformation can be thought of both as a correction for sample overlap and as removing dense factors. In this sense, it may be wise to use it even when samples don't overlap as a correction for population stratification effects. 
+The consequence of this is that using the eigenvector transformation removes all dense factors. In my view, this is a good thin. We generally don't expect biological factors to be completely dense (i.e. variant effects normally distributed with a single variance for all SNPs). Population stratification factors may be dense or close to dense so it is possible that using the transformation will have the effect of removing some of these. One outstanding question is how dense can a factor be before it is no longer possible to detect it. The existence of population stratification factors is one argument in favor of using the ev transformation even in cases wehre we don't believe there is sample overlap. 
 
 
