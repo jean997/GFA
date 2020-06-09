@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2020-05-20" />
+
+<title>Fixed Factor Correction for Row Correlation</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jean997/ss_factors">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Fixed Factor Correction for Row Correlation</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-05-20</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-06-08
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+unnamed-chunk-10
+</li>
+<li>
+unnamed-chunk-11
+</li>
+<li>
+unnamed-chunk-3
+</li>
+<li>
+unnamed-chunk-4
+</li>
+<li>
+unnamed-chunk-9
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>fixed_factors2_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree0a109f11180fec895c756cc06136dd7381913e2atargetblank0a109f1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/0a109f11180fec895c756cc06136dd7381913e2a" target="_blank">0a109f1</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree0a109f11180fec895c756cc06136dd7381913e2atargetblank0a109f1a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/jean997/sumstatFactors/tree/0a109f11180fec895c756cc06136dd7381913e2a" target="_blank">0a109f1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors2_cache/
+    Ignored:    analysis/fixed_factors_cache/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
+    Ignored:    analysis/simulations_cache/
+    Ignored:    analysis/z_scores_cache/
+
+Untracked files:
+    Untracked:  R/est_R_pairwise.R
+    Untracked:  analysis/2020-04-28-meeting_notes.Rmd
+    Untracked:  analysis/literature.Rmd
+    Untracked:  analysis/sample_corr2.Rmd
+    Untracked:  analysis/sumstat_factors.bib
+    Untracked:  astle_blood_cell.png
+    Untracked:  bcai_fitev_Inf_100_X_TRUE_100.png
+    Untracked:  bcai_fitev_Inf_100_ev_TRUE_100.png
+    Untracked:  bcai_fitev_Inf_100_naive_TRUE_100.png
+    Untracked:  buttons.css
+    Untracked:  bw_factors2.png
+    Untracked:  code/flashier_compare.R
+    Untracked:  code/flashier_compare_jason.R
+    Untracked:  code/hide_output.js
+    Untracked:  code/mask_flashier.R
+    Untracked:  code/mask_flashr.R
+    Untracked:  covariance_scratch.R
+    Untracked:  for_jason/
+    Untracked:  k99_analysis.R
+    Untracked:  k99_fit.RDS
+    Untracked:  man/sim_sumstats_lf.Rd
+    Untracked:  simulate_1.rds
+    Untracked:  simulate_2.rds
+
+Unstaged changes:
+    Modified:   DESCRIPTION
+    Modified:   NAMESPACE
+    Modified:   R/package.R
+    Modified:   R/sim_sumstats_lf.R
+    Modified:   man/mask_and_fit.Rd
+    Modified:   man/sumstatFactors.Rd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/fixed_factors2.Rmd</code>) and HTML (<code>docs/fixed_factors2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/0a109f11180fec895c756cc06136dd7381913e2a/analysis/fixed_factors2.Rmd" target="_blank">0a109f1</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-08
+</td>
+<td>
+wflow_publish(“analysis/fixed_factors2.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>I am revisiting the idea of using fixed factors to account for sample correlation. In <a href="sample_cor_ld_sims.html">previous attempts</a>, that approach didn’t work. Maybe the algorithm is not converging to the correct local minimum? However, the method has several advantages over the eigenvector transformaiton: 1) It is easier to deal with missing data and 2) We preserve sparsity assumptions about <span class="math inline">\(F\)</span>. So I am going to try another attempt where 1) the fixed factors are scaled so that the associated loadings are all <span class="math inline">\(N(0, 1)\)</span> and second I will try a two stage fit, fitting the fixed factors and then estimating factors in the residuals.</p>
+<p>A reminder of the model: If</p>
+<p><span class="math display">\[
+Z = LF^\top + E
+\]</span> Let <span class="math inline">\(\lambda_{min}\)</span> be the smallest eigenvalue of <span class="math inline">\(\Sigma\)</span> and <span class="math inline">\(\Sigma - \lambda_{min}I = V DV^\top\)</span></p>
+<p><span class="math display">\[
+E = AW^\top + E_1
+\]</span></p>
+<p>where elements of <span class="math inline">\(E_1\)</span> are iid N<span class="math inline">\((0, \lambda_{min})\)</span>, the elements of <span class="math inline">\(A\)</span> are iid <span class="math inline">\(N(0, 1)\)</span> and <span class="math inline">\(A = V D^{1/2}\)</span>. I will try fitting on a couple examples.</p>
+<pre class="r"><code>knitr::opts_chunk$set(autodep = TRUE)
+library(dplyr)</code></pre>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(sumstatFactors)</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39; when
+loading &#39;sumstatFactors&#39;</code></pre>
+<pre class="r"><code>library(flashier)
+library(ggplot2)</code></pre>
+<p>Generate some data and fit using eigenvector transformation method and navie method for comparison.</p>
+<pre class="r"><code>F_mat &lt;- readRDS(&quot;analysis_data/factors2.RDS&quot;)
+F_mat[13,3] &lt;- 0.3
+set.seed(1)
+R1 &lt;- matrix(0.7, nrow=4, ncol=4)
+diag(R1) &lt;- 1
+R_E &lt;- Matrix::bdiag(R1, R1, R1, R1, R1) %&gt;% as.matrix()
+dat &lt;- sim_sumstats_lf(F_mat = F_mat, N = 10000, J = 10000, 
+                       h_2_trait = rep(0.3, 20), omega = rep(1, 20), h_2_factor = rep(0.8, 5), 
+                      pi_L = rep(0.1, 5), pi_theta = 0, R_E = R_E)
+#dat &lt;- readRDS(&quot;dat.RDS&quot;)</code></pre>
+<pre class="r"><code>fitn &lt;- fit_naive(dat)</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Adding factor 7 to flash object...
+Adding factor 8 to flash object...
+Adding factor 9 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 8 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Nullchecking 8 factors...
+Done.</code></pre>
+<pre class="r"><code>fitev &lt;- fit_transformed(dat, cov2cor(dat$Sigma))</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 5 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+02...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+  Difference between iterations is within 1.0e-03...
+Wrapping up...
+Done.
+Nullchecking 5 factors...
+Done.</code></pre>
+<pre class="r"><code>plot_factors(fitn$F_hat, 1:20)</code></pre>
+<p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_factors(fitev$F_hat, 1:20)</code></pre>
+<p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(fitn$F_hat, dat$F_mat)</code></pre>
+<pre><code>            [,1]        [,2]        [,3]         [,4]        [,5]
+[1,] -0.01204722  0.14002207 -0.29450841 -0.958242620 -0.09620106
+[2,]  0.96045739  0.04605195  0.01892673  0.027470383  0.12820930
+[3,] -0.01745420 -0.11551098  0.02051216  0.032081447 -0.97122295
+[4,] -0.09794199 -0.43320098 -0.84187360 -0.004581021 -0.08057724
+[5,]  0.16919900  0.51280697 -0.53524362 -0.066065161  0.02095888
+[6,] -0.20691246  0.62722895 -0.02695702  0.140587440 -0.06245062
+[7,]  0.21776278 -0.06171218  0.04479653 -0.262090863  0.05392528
+[8,]  0.02484825  0.99893273  0.13634856 -0.080107382  0.10400442</code></pre>
+<pre class="r"><code>cor(fitev$F_hat, dat$F_mat)</code></pre>
+<pre><code>            [,1]        [,2]        [,3]         [,4]         [,5]
+[1,] -0.04551064 -0.99824107 -0.14864823  0.089895532 -0.154471429
+[2,] -0.06065079 -0.10994025 -0.01720328  0.012773159 -0.999584410
+[3,]  0.99931383  0.01675207  0.09402859 -0.008956096  0.064573181
+[4,] -0.04834907 -0.07718953  0.24606692  0.999701263  0.005086838
+[5,] -0.09964846 -0.15481632 -0.99799245 -0.233942310 -0.065682614</code></pre>
+<p>The eigenvector transsformation fit is clearly much better than the naive fit. This can also be seen in the RRMSE for estimated <span class="math inline">\(Z\)</span>.</p>
+<pre class="r"><code>B = with(dat, L_mat %*% t(F_mat) + theta)
+sqrt(sum((fitn$B_hat-B)^2)/sum(B^2))</code></pre>
+<pre><code>[1] 130.8834</code></pre>
+<pre class="r"><code>sqrt(sum((fitev$B_hat-B)^2)/sum(B^2))</code></pre>
+<pre><code>[1] 83.22996</code></pre>
+<p>Now fitting with fixed factors. We have found that the order of adding the fixed factors matters and whether you perform two back fits or one also matters. Also using <code>method = sequential</code> seems to work better than <code>extrapolate</code>.</p>
+<p>Backfitting only the fixed factors first gives the ridge regression solution since the fixed factors have a normal prior:</p>
+<pre class="r"><code>R &lt;- cov2cor(dat$Sigma)
+
+ntrait &lt;- ncol(dat$beta_hat)
+nvar &lt;- nrow(dat$beta_hat)
+R_eig &lt;- eigen(R)
+lambda_min &lt;- min(R_eig$values)
+W &lt;- R - lambda_min*diag(rep(1, ntrait))
+W_eig &lt;- eigen(W)
+Z &lt;- with(dat, beta_hat/se_beta_hat) 
+V &lt;- W_eig$vectors[, -ntrait]
+a &lt;- sqrt(W_eig$values[-ntrait])
+Vstar &lt;- V %*% diag(a)
+
+#Ridge solution
+Lstar &lt;- diag(1/(a^2 + lambda_min))%*%t(Vstar)%*%t(Z) %&gt;% t()
+
+#flash solution
+fit0 &lt;- flash.init(Z, S =sqrt(lambda_min), var.type = NULL) %&gt;%
+          flash.init.factors(., EF = list(Lstar, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+          flash.fix.loadings(., kset = 1:19, mode=2) %&gt;%
+          flash.backfit()</code></pre>
+<pre><code>Backfitting 19 factors (tolerance: 2.98e-03)...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>fit0$elbo</code></pre>
+<pre><code>[1] -240426.7</code></pre>
+<pre class="r"><code>#ridge solution and flash solution are identical
+cor(as.vector(Lstar %*% t(Vstar)), as.vector(fitted(fit0)))</code></pre>
+<pre><code>[1] 1</code></pre>
+<p>If we then add additional factors, none are added. My hypothesis is that flash is stuck in a local minimum (note that here <code>var.type=2</code> rather than <code>NULL</code> so the first backfit doesn’t yield exactly the ridge solution.</p>
+<pre class="r"><code>fit1 &lt;- flash.init(Z, S =sqrt(lambda_min), var.type = 2) %&gt;%
+          flash.init.factors(., EF = list(Lstar, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+          flash.fix.loadings(., kset = 1:19, mode=2) %&gt;%
+          flash.backfit() %&gt;%
+          flash.add.greedy() %&gt;%
+          flash.backfit()</code></pre>
+<pre><code>Backfitting 19 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Adding factor 20 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 19 factors (tolerance: 2.98e-03)...
+Wrapping up...
+Done.</code></pre>
+<p>If we don’t backfit first and just randomly initialize the fixed factors and then add greedy factors we get only one additional factor and the elbo is slightly lower than the ridge solution. The one recovered factor corresponds the the fourth true factor.</p>
+<pre class="r"><code>set.seed(1)
+L_rand &lt;- matrix(rnorm(n=nvar*(ntrait-1)), nrow=nvar, ncol=(ntrait-1))
+fit2 &lt;- flash.init(Z, S =sqrt(lambda_min), var.type = 2) %&gt;%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+        flash.fix.loadings(., kset = 1:19, mode=2) %&gt;%
+        flash.add.greedy() %&gt;%
+        flash.backfit(method=&quot;sequential&quot;, verbose.lvl=0)</code></pre>
+<pre><code>Adding factor 20 to flash object...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>fit2$elbo</code></pre>
+<pre><code>[1] -241272.9</code></pre>
+<pre class="r"><code>F_hat &lt;- fit2$loadings.pm[[2]][,-(1:(ntrait-1))]
+cor(F_hat, dat$F_mat)</code></pre>
+<pre><code>            [,1]      [,2]       [,3]       [,4]        [,5]
+[1,] -0.01211156 0.1126366 -0.2524863 -0.9957512 -0.05749441</code></pre>
+<p>However, if we add the greedy factors first and then the fixed factors, we get a better solution in terms of factor recovery. The elbo is slightly worse than the fit that came up with only one factor and which we started at the ridge solution. The RRMSE is slightly worse than the RRMSE from the eigenvector transformed solution but not as bad as the RRMSE from the naive solution.</p>
+<pre class="r"><code>set.seed(2)
+fit3 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
+         flash.add.greedy(Kmax = 10, init.fn = init.fn.default )</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Adding factor 7 to flash object...
+Adding factor 8 to flash object...
+Adding factor 9 to flash object...
+Adding factor 10 to flash object...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>n &lt;- fit3$n.factors
+
+fit3 &lt;- fit3 %&gt;%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+        flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
+        flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
+fit3$elbo</code></pre>
+<pre><code>[1] -241767.1</code></pre>
+<pre class="r"><code>F_hat &lt;- fit3$loadings.pm[[2]][,1:n]
+plot_factors(F_hat, 1:20)</code></pre>
+<p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
+<pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
+<pre><code>             [,1]        [,2]        [,3]         [,4]        [,5]
+ [1,]  0.01327836  0.07985570 -0.22672173 -0.998562054 -0.02495756
+ [2,] -0.99878351 -0.03255963 -0.10003963  0.033418208 -0.06897625
+ [3,] -0.02542984 -0.08634439 -0.03265362  0.004158651 -0.99722493
+ [4,] -0.08514346 -0.26641049 -0.99101674 -0.219016147 -0.02772259
+ [5,]  0.03082532  0.99119136  0.03049712 -0.131763066  0.16998646
+ [6,]          NA          NA          NA           NA          NA
+ [7,]  0.53927234 -0.25822636 -0.05571600 -0.253712129 -0.16020151
+ [8,]          NA          NA          NA           NA          NA
+ [9,]          NA          NA          NA           NA          NA
+[10,]          NA          NA          NA           NA          NA</code></pre>
+<pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
+B_hat &lt;- fitted(fit3) - with(fit3, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
+<pre><code>[1] 97.28984</code></pre>
+<p>Trying a different seed</p>
+<pre class="r"><code>set.seed(2000)
+fit3 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
+         flash.add.greedy(Kmax = 10, init.fn = init.fn.default )</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Adding factor 7 to flash object...
+Adding factor 8 to flash object...
+Adding factor 9 to flash object...
+Adding factor 10 to flash object...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>n &lt;- fit3$n.factors
+
+fit3 &lt;- fit3 %&gt;%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+        flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
+        flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
+fit3$elbo</code></pre>
+<pre><code>[1] -241767.1</code></pre>
+<pre class="r"><code>F_hat &lt;- fit3$loadings.pm[[2]][,1:n]
+plot_factors(F_hat, 1:20)</code></pre>
+<p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
+<pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
+<pre><code>             [,1]        [,2]        [,3]         [,4]        [,5]
+ [1,]  0.01327836  0.07985570 -0.22672173 -0.998562054 -0.02495756
+ [2,] -0.99878351 -0.03255963 -0.10003963  0.033418208 -0.06897625
+ [3,] -0.02542984 -0.08634439 -0.03265362  0.004158651 -0.99722493
+ [4,] -0.08514346 -0.26641049 -0.99101674 -0.219016147 -0.02772259
+ [5,]  0.03082532  0.99119136  0.03049712 -0.131763066  0.16998646
+ [6,]          NA          NA          NA           NA          NA
+ [7,]  0.53927234 -0.25822636 -0.05571600 -0.253712129 -0.16020151
+ [8,]          NA          NA          NA           NA          NA
+ [9,]          NA          NA          NA           NA          NA
+[10,]          NA          NA          NA           NA          NA</code></pre>
+<pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
+B_hat &lt;- fitted(fit3) - with(fit3, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
+<pre><code>[1] 97.28984</code></pre>
+<p>Adding only 5 (the correct number) of greedy factors:</p>
+<pre class="r"><code>set.seed(2)
+fit4 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
+         flash.add.greedy(Kmax = 5, init.fn = init.fn.default )</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>n &lt;- fit4$n.factors
+
+fit4 &lt;- fit4 %&gt;%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %&gt;%
+        flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
+        flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
+fit4$elbo</code></pre>
+<pre><code>[1] -241671.9</code></pre>
+<pre class="r"><code>F_hat &lt;- fit4$loadings.pm[[2]][,1:n]
+plot_factors(F_hat, 1:20)</code></pre>
+<p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
+<pre><code>            [,1]        [,2]        [,3]         [,4]        [,5]
+[1,]  0.01850519  0.07883172 -0.22917167 -0.999003742 -0.02167474
+[2,] -0.99987884 -0.02390771 -0.09077861  0.038495335 -0.05978359
+[3,] -0.02243445 -0.05229457 -0.02085770  0.001647753 -0.99612115
+[4,] -0.08601906 -0.26337511 -0.99150005 -0.222693491 -0.02803516
+[5,]  0.03202068  0.99086146  0.03152872 -0.137075886  0.17319838</code></pre>
+<pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
+B_hat &lt;- fitted(fit4) - with(fit4, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
+<pre><code>[1] 97.04889</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.3 (2020-02-29)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS Catalina 10.15.4
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggplot2_3.3.0             flashier_0.2.4           
+[3] sumstatFactors_0.0.0.9000 dplyr_0.8.5              
+[5] workflowr_1.6.2          
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.0.0 xfun_0.12        ashr_2.2-50      purrr_0.3.3     
+ [5] reshape2_1.4.3   lattice_0.20-38  colorspace_1.4-1 vctrs_0.2.4     
+ [9] htmltools_0.4.0  yaml_2.2.1       rlang_0.4.5      mixsqp_0.3-43   
+[13] later_1.1.0.1    pillar_1.4.3     withr_2.1.2      glue_1.4.1      
+[17] DBI_1.1.0        lifecycle_0.2.0  plyr_1.8.6       stringr_1.4.0   
+[21] munsell_0.5.0    gtable_0.3.0     codetools_0.2-16 evaluate_0.14   
+[25] labeling_0.3     knitr_1.28       httpuv_1.5.4     invgamma_1.1    
+[29] irlba_2.3.3      parallel_3.6.3   Rcpp_1.0.4.6     readr_1.3.1     
+[33] promises_1.1.0   backports_1.1.5  scales_1.1.0     truncnorm_1.0-8 
+[37] farver_2.0.3     fs_1.3.2         RMySQL_0.10.20   hms_0.5.3       
+[41] digest_0.6.25    stringi_1.4.6    ebnm_0.1-24      grid_3.6.3      
+[45] rprojroot_1.3-2  tools_3.6.3      magrittr_1.5     tibble_2.1.3    
+[49] crayon_1.3.4     whisker_0.4      pkgconfig_2.0.3  MASS_7.3-51.5   
+[53] Matrix_1.2-18    SQUAREM_2020.3   assertthat_0.2.1 rmarkdown_2.1   
+[57] R6_2.4.1         intervals_0.15.2 git2r_0.27.1     compiler_3.6.3  </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
