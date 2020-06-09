@@ -226,7 +226,7 @@ sqrt(sum((B_hat-B)^2)/sum(B^2))
 
 Adding only 5 (the correct number) of greedy factors:
 
-```{r}
+```{r, cache=TRUE}
 set.seed(2)
 fit4 <-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 5, init.fn = init.fn.default )
@@ -246,3 +246,92 @@ B_hat <- fitted(fit4) - with(fit4, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.
 sqrt(sum((B_hat-B)^2)/sum(B^2))
 ```
 
+
+## Missing Data
+
+Ok so this may be a workable solution. How does it work with missing data?
+
+randomly maskibg 20% of data:
+```{r}
+set.seed(1)
+mask <- matrix(rbinom(n=ntrait*nvar, size=1, prob = 0.8), nrow=nvar)
+mask[mask==0] <- NA
+dat_mask <- dat
+dat_mask$beta_hat <- dat$beta_hat*mask
+dat_mask$se_beta_hat <- dat$se_beta_hat*mask
+```
+
+
+Fitting
+
+```{r, cache=TRUE}
+Z_mask <- with(dat_mask, beta_hat/se_beta_hat)
+fit <-  flash.init(Z_mask, S = sqrt(lambda_min), var.type = 2) %>%
+         flash.add.greedy(Kmax = 20, init.fn = init.fn.default )
+
+n <- fit$n.factors
+
+fit <- fit %>%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %>%
+        flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %>%
+        flash.backfit(method = "sequential", verbose.lvl=0)
+fit$elbo
+F_hat <- fit$loadings.pm[[2]][,1:n]
+plot_factors(F_hat, 1:20)
+cor(F_hat, dat$F_mat)
+fixed_ix <- n + (1:(ntrait-1))
+B_hat <- fitted(fit) - with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+sqrt(sum((B_hat-B)^2)/sum(B^2))
+```
+
+This is successful (was also successfull with 10% but only including 20% here).
+
+A big question is what happens if missingness is not random across traits and occurs in chunks. In this experiment different subsets of SNPs are missing in different blocks of traits. I will do two blocks of traits, evens and odds, so that they don't align with the correlation structure.
+
+```{r}
+set.seed(2)
+missing_snps <- sample(1:nvar, size=0.4*nvar, replace=FALSE)
+even_missing <- missing_snps[1:(0.2*nvar)]
+odd_missing <- missing_snps[(0.2*nvar + 1):(0.4*nvar)]
+mask <- matrix(1, nrow=nvar, ncol=ntrait)
+mask[odd_missing, seq(1, ntrait, 2)] <- NA
+mask[even_missing, seq(2, ntrait, 2)] <- NA
+dat_mask <- dat
+dat_mask$beta_hat <- dat$beta_hat*mask
+dat_mask$se_beta_hat <- dat$se_beta_hat*mask
+```
+
+```{r, cache=TRUE}
+Z_mask <- with(dat_mask, beta_hat/se_beta_hat)
+fit <-  flash.init(Z_mask, S = sqrt(lambda_min), var.type = 2) %>%
+         flash.add.greedy(Kmax = 20, init.fn = init.fn.default )
+
+n <- fit$n.factors
+
+fit <- fit %>%
+        flash.init.factors(., EF = list(L_rand, Vstar), prior.family = prior.normal(scale= 1)) %>%
+        flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %>%
+        flash.backfit(method = "sequential", verbose.lvl=0)
+fit$elbo
+F_hat <- fit$loadings.pm[[2]][,1:n]
+plot_factors(F_hat, 1:20)
+cor(F_hat, dat$F_mat)
+fixed_ix <- n + (1:(ntrait-1))
+B_hat <- fitted(fit) - with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+sqrt(sum((B_hat-B)^2)/sum(B^2))
+```
+
+We still seem to be getting a good fit. Comparing this to just setting the missing z-scores to zero and using the eigenvector transformation:
+
+```{r}
+mask[is.na(mask)] <- 0
+dat_mask <- dat
+dat_mask$beta_hat <- dat$beta_hat*mask
+fit2 <- fit_transformed(dat_mask, cov2cor(dat$Sigma))
+plot_factors(fit2$F_hat, 1:ntrait)
+cor(fit2$F_hat, F_hat)
+sqrt(sum((fit2$B_hat-B)^2)/sum(B^2))
+```
+
+
+This fit has many additional factors, although the RRMSE is lower. It is worth noting that the RRMSE of estimating $B = 0$ is 1 so perhaps this is not the best measure.
