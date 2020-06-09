@@ -7,7 +7,7 @@
 #' @import flashier
 #' @import dplyr readr reshape2
 #' @import intervals
-#' @import purrr
+#' @import purrr ggplot2
 #' @importFrom RMySQL dbConnect
 #' @name sumstatFactors
 NULL
