@@ -96,7 +96,7 @@ dat <- sim_sumstats_lf(F_mat = F_mat, N = 10000, J = 10000,
 ```
 
 
-```{r, cache=TRUE}
+```{r}
 fitn <- fit_naive(dat)
 fitev <- fit_transformed(dat, cov2cor(dat$Sigma))
 ```
@@ -168,7 +168,7 @@ fit1 <- flash.init(Z, S =sqrt(lambda_min), var.type = 2) %>%
 
 If we don't backfit first and just randomly initialize the fixed factors and then add greedy factors we get only one additional factor and the elbo is slightly lower than the ridge solution. The one recovered factor corresponds the the fourth true factor. 
 
-```{r, cache=TRUE}
+```{r}
 set.seed(1)
 L_rand <- matrix(rnorm(n=nvar*(ntrait-1)), nrow=nvar, ncol=(ntrait-1))
 fit2 <- flash.init(Z, S =sqrt(lambda_min), var.type = 2) %>%
@@ -182,7 +182,7 @@ cor(F_hat, dat$F_mat)
 ```
 
 However, if we add the greedy factors first and then the fixed factors, we get a better solution in terms of factor recovery. The elbo is slightly worse than the fit that came up with only one factor and which we started at the ridge solution. The RRMSE is slightly worse than the RRMSE from the eigenvector transformed solution but not as bad as the RRMSE from the naive solution. 
-```{r, cache=TRUE}
+```{r}
 set.seed(2)
 fit3 <-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 10, init.fn = init.fn.default )
@@ -204,7 +204,7 @@ sqrt(sum((B_hat-B)^2)/sum(B^2))
 
 Trying a different seed
 
-```{r, cache=TRUE}
+```{r}
 set.seed(2000)
 fit3 <-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 10, init.fn = init.fn.default )
@@ -226,7 +226,7 @@ sqrt(sum((B_hat-B)^2)/sum(B^2))
 
 Adding only 5 (the correct number) of greedy factors:
 
-```{r, cache=TRUE}
+```{r}
 set.seed(2)
 fit4 <-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 5, init.fn = init.fn.default )
@@ -264,7 +264,7 @@ dat_mask$se_beta_hat <- dat$se_beta_hat*mask
 
 Fitting
 
-```{r, cache=TRUE}
+```{r}
 Z_mask <- with(dat_mask, beta_hat/se_beta_hat)
 fit <-  flash.init(Z_mask, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 20, init.fn = init.fn.default )
@@ -301,7 +301,7 @@ dat_mask$beta_hat <- dat$beta_hat*mask
 dat_mask$se_beta_hat <- dat$se_beta_hat*mask
 ```
 
-```{r, cache=TRUE}
+```{r}
 Z_mask <- with(dat_mask, beta_hat/se_beta_hat)
 fit <-  flash.init(Z_mask, S = sqrt(lambda_min), var.type = 2) %>%
          flash.add.greedy(Kmax = 20, init.fn = init.fn.default )
@@ -335,3 +335,17 @@ sqrt(sum((fit2$B_hat-B)^2)/sum(B^2))
 
 
 This fit has many additional factors, although the RRMSE is lower. It is worth noting that the RRMSE of estimating $B = 0$ is 1 so perhaps this is not the best measure.
+
+## Non-Fixed Dense factors
+
+One issue is that it can be difficult to estimate $R$ which is the residual correlation *after* removing the sparse factors. Could we learn both the dense and sparse factors simultaneously? So far no, I have not been able to fit both dense and sparse non-fixed factors simultaneously, it doesn't seem to matter what order I add them in or if I backfit in between.  This is a similar idea to @Gao2013.
+
+```{r, eval=FALSE}
+set.seed(2)
+fit5 <-  flash.init(Z, var.type = 2) %>%
+         flash.add.greedy(Kmax = 20, prior.family = prior.point.normal()) %>%
+         flash.backfit() %>%
+         flash.add.greedy(Kmax = 20, prior.family = prior.normal()) %>%
+         flash.backfit()
+
+```
