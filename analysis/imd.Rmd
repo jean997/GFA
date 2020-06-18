@@ -98,4 +98,18 @@ plot_factors(svd_res$svd2$v, res_ev2$names) + ggtitle("SVD sparse")
 
 ## Variants present in at least two studies
 
+If we allow missing data we can use many more variants. This analysis has 168,142 variants rather than 3,991. We can no longer use the eigenvector transformation. Both with and without correction, these fits are "less neat" than the non-missing data fits. This may because the imuno chip traits have very high (90%) missingness. To explore further, I will analyze only the non-imunochip traits.
+
+```{r, echo=FALSE}
+res_none <- readRDS("analysis_data/2020-06-10_ai/ai_fit_Inf_100_naive_FALSE_2.RDS")
+p1 <- with(res_none, plot_factors(F_hat, names)) + ggtitle("allow missing, R = I")
+
+res_ff1 <- readRDS("analysis_data/2020-06-10_ai/ai_fit_Inf_100_ff_FALSE_2.RDS")
+p_ff1 <- with(res_ff1, plot_factors(t(t(F_hat)/sqrt(colSums(F_hat^2))), names)) + ggtitle("allow missing, R1 (all), ff")
+
+p1
+p_ff1
+
+```
+
 ## Non-missing variants, non immunochip studies
