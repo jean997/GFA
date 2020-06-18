@@ -303,6 +303,8 @@ div.section {
 }
 </style>
 
+
+
 <div class="fluid-row" id="header">
 
 
@@ -332,7 +334,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-05-11
+<strong>Last updated:</strong> 2020-06-18
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -363,10 +365,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreedd5b4eaf5f7ddf793d8c95992748c49c49fd864btargetblankdd5b4eaa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b" target="_blank">dd5b4ea</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreed5383719d57fe639df99dc75cbbedeeb86da96f1targetblankd538371a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/d5383719d57fe639df99dc75cbbedeeb86da96f1" target="_blank">d538371</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreedd5b4eaf5f7ddf793d8c95992748c49c49fd864btargetblankdd5b4eaa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreed5383719d57fe639df99dc75cbbedeeb86da96f1targetblankd538371a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -375,6 +377,7 @@ Great! You are using Git for version control. Tracking code development and conn
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors2_cache/
     Ignored:    analysis/fixed_factors_cache/
     Ignored:    analysis/metabo_flash_experiments_cache/
     Ignored:    analysis/pathway_factors_cache/
@@ -383,13 +386,10 @@ Ignored files:
 
 Untracked files:
     Untracked:  R/est_R_pairwise.R
-    Untracked:  R/sim_sumstats_lf.R
     Untracked:  analysis/2020-04-28-meeting_notes.Rmd
-    Untracked:  analysis/genetic_correlation.Rmd
-    Untracked:  analysis/ld_etc.Rmd
+    Untracked:  analysis/literature.Rmd
     Untracked:  analysis/sample_corr2.Rmd
-    Untracked:  analysis/variant_selection.Rmd
-    Untracked:  analysis/z_scores.Rmd
+    Untracked:  analysis/sumstat_factors.bib
     Untracked:  buttons.css
     Untracked:  code/flashier_compare.R
     Untracked:  code/flashier_compare_jason.R
@@ -399,12 +399,16 @@ Untracked files:
     Untracked:  covariance_scratch.R
     Untracked:  docs/figure/ld_etc.Rmd/
     Untracked:  docs/figure/sample_corr2.Rmd/
+    Untracked:  for_jason/
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
     Untracked:  man/sim_sumstats_lf.Rd
+    Untracked:  simulate_1.rds
+    Untracked:  simulate_2.rds
 
 Unstaged changes:
-    Modified:   NAMESPACE
+    Modified:   man/mask_and_fit.Rd
+    Modified:   man/sumstatFactors.Rd
 
 </code></pre>
 <p>
@@ -443,6 +447,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/d5383719d57fe639df99dc75cbbedeeb86da96f1/analysis/index.Rmd" target="_blank">d538371</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-18
+</td>
+<td>
+wflow_publish(“analysis/index.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/d640421bc09d1876379e7275e909aed4d6b47836/docs/index.html" target="_blank">d640421</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-05-12
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -855,6 +893,7 @@ Start workflowr project.
 <li><a href="simulations2.html">Correcting for sample overlap</a></li>
 <li><a href="sample_cor_ld_sims.html">A sumary of early April Simulations</a></li>
 <li><a href="simulating_data.html">How to simulate summary statistics</a></li>
+<li><a href="fixed_factors2.html">Revisiting Fixed Factor Sample Correlation Correction</a></li>
 </ol>
 
 
@@ -869,6 +908,8 @@ footer is added to webpages before the MathJax javascript. -->
     "HTML-CSS": { availableFonts: ["TeX"] }
   });
 </script>
+
+
 
 
 
