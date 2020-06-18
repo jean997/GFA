@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 
 <meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -29,14 +30,6 @@
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
-
-<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
-<!-- Add a small amount of space between sections. -->
-<style type="text/css">
-div.section {
-  padding-top: 12px;
-}
-</style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -246,7 +239,6 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
-  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -275,12 +267,6 @@ $(document).ready(function () {
 }
 }
 
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
 
 .toc-content {
   padding-left: 30px;
@@ -382,6 +368,15 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
 <div class="fluid-row" id="header">
 
 
@@ -413,7 +408,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-06-09
+<strong>Last updated:</strong> 2020-06-18
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -423,7 +418,7 @@ div.tocify {
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -461,7 +456,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
 </div>
 </div>
 </div>
@@ -531,19 +526,13 @@ unnamed-chunk-9
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreeacc09341ec66cb54f8ea8ef2ea289f09af80ed73targetblankacc0934a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/acc09341ec66cb54f8ea8ef2ea289f09af80ed73" target="_blank">acc0934</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreef156a66ad85004d0286ea03d6e1a3adba4b59e6ctargetblankf156a66a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/f156a66ad85004d0286ea03d6e1a3adba4b59e6c" target="_blank">f156a66</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreeacc09341ec66cb54f8ea8ef2ea289f09af80ed73targetblankacc0934a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreef156a66ad85004d0286ea03d6e1a3adba4b59e6ctargetblankf156a66a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
-Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
-</p>
-<p>
-The results in this page were generated with repository version <a href="https://github.com/jean997/sumstatFactors/tree/acc09341ec66cb54f8ea8ef2ea289f09af80ed73" target="_blank">acc0934</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
-</p>
-<p>
-Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
@@ -559,21 +548,19 @@ Ignored files:
 Untracked files:
     Untracked:  R/est_R_pairwise.R
     Untracked:  analysis/2020-04-28-meeting_notes.Rmd
+    Untracked:  analysis/imd.Rmd
     Untracked:  analysis/literature.Rmd
     Untracked:  analysis/sample_corr2.Rmd
     Untracked:  analysis/sumstat_factors.bib
-    Untracked:  astle_blood_cell.png
-    Untracked:  bcai_fitev_Inf_100_X_TRUE_100.png
-    Untracked:  bcai_fitev_Inf_100_ev_TRUE_100.png
-    Untracked:  bcai_fitev_Inf_100_naive_TRUE_100.png
     Untracked:  buttons.css
-    Untracked:  bw_factors2.png
     Untracked:  code/flashier_compare.R
     Untracked:  code/flashier_compare_jason.R
     Untracked:  code/hide_output.js
     Untracked:  code/mask_flashier.R
     Untracked:  code/mask_flashr.R
     Untracked:  covariance_scratch.R
+    Untracked:  docs/figure/ld_etc.Rmd/
+    Untracked:  docs/figure/sample_corr2.Rmd/
     Untracked:  for_jason/
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
@@ -598,7 +585,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/fixed_factors2.Rmd</code>) and HTML (<code>docs/fixed_factors2.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -627,13 +614,47 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/jean997/sumstatFactors/blob/f156a66ad85004d0286ea03d6e1a3adba4b59e6c/analysis/fixed_factors2.Rmd" target="_blank">f156a66</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-18
+</td>
+<td>
+wflow_publish(“analysis/fixed_factors2.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/3339c4fce66e8ab236fbb58e41ca01b62fcd78ee/docs/fixed_factors2.html" target="_blank">3339c4f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-10
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/jean997/sumstatFactors/blob/acc09341ec66cb54f8ea8ef2ea289f09af80ed73/analysis/fixed_factors2.Rmd" target="_blank">acc0934</a>
 </td>
 <td>
 Jean Morrison
 </td>
 <td>
-2020-06-09
+2020-06-10
 </td>
 <td>
 wflow_publish(“analysis/fixed_factors2.Rmd”)
@@ -650,7 +671,7 @@ html
 Jean Morrison
 </td>
 <td>
-2020-06-08
+2020-06-09
 </td>
 <td>
 Build site.
@@ -667,7 +688,7 @@ Rmd
 Jean Morrison
 </td>
 <td>
-2020-06-08
+2020-06-09
 </td>
 <td>
 wflow_publish(“analysis/fixed_factors2.Rmd”)
@@ -702,8 +723,8 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 
     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(sumstatFactors)</code></pre>
-<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39; when
-loading &#39;sumstatFactors&#39;</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39;
+when loading &#39;sumstatFactors&#39;</code></pre>
 <pre class="r"><code>library(flashier)
 library(ggplot2)</code></pre>
 <p>Generate some data and fit using eigenvector transformation method and navie method for comparison.</p>
@@ -735,6 +756,7 @@ Backfitting 8 factors (tolerance: 2.98e-03)...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
   Difference between iterations is within 1.0e-02...
+  Difference between iterations is within 1.0e-03...
 Wrapping up...
 Done.
 Nullchecking 8 factors...
@@ -792,7 +814,7 @@ Date
 Jean Morrison
 </td>
 <td>
-2020-06-08
+2020-06-09
 </td>
 </tr>
 </tbody>
@@ -831,7 +853,7 @@ Date
 Jean Morrison
 </td>
 <td>
-2020-06-08
+2020-06-09
 </td>
 </tr>
 </tbody>
@@ -839,28 +861,28 @@ Jean Morrison
 </div>
 </div>
 <pre class="r"><code>cor(fitn$F_hat, dat$F_mat)</code></pre>
-<pre><code>            [,1]        [,2]        [,3]         [,4]        [,5]
-[1,] -0.01204722  0.14002207 -0.29450841 -0.958242620 -0.09620106
-[2,]  0.96045739  0.04605195  0.01892673  0.027470383  0.12820930
-[3,] -0.01745420 -0.11551098  0.02051216  0.032081447 -0.97122295
-[4,] -0.09794199 -0.43320098 -0.84187360 -0.004581021 -0.08057724
-[5,]  0.16919900  0.51280697 -0.53524362 -0.066065161  0.02095888
-[6,] -0.20691246  0.62722895 -0.02695702  0.140587440 -0.06245062
-[7,]  0.21776278 -0.06171218  0.04479653 -0.262090863  0.05392528
-[8,]  0.02484825  0.99893273  0.13634856 -0.080107382  0.10400442</code></pre>
+<pre><code>             [,1]        [,2]        [,3]         [,4]        [,5]
+[1,] -0.006404917  0.14211674 -0.29378341 -0.958714261 -0.08894992
+[2,]  0.959822886  0.04720347  0.02181652  0.033018400  0.13311623
+[3,]  0.005166969 -0.14149613  0.01546565  0.014596487 -0.97532728
+[4,] -0.096405424 -0.43342066 -0.84242208 -0.005959746 -0.07766500
+[5,]  0.092310627  0.58869871 -0.46689443 -0.020494285 -0.01757615
+[6,] -0.252909450  0.52962997  0.11733945  0.158624607 -0.14734932
+[7,]  0.217642693 -0.06334023  0.03910414 -0.266095796  0.07119492
+[8,]  0.034049994  0.99829534  0.13855558 -0.078630570  0.11575408</code></pre>
 <pre class="r"><code>cor(fitev$F_hat, dat$F_mat)</code></pre>
 <pre><code>            [,1]        [,2]        [,3]         [,4]         [,5]
-[1,] -0.04551064 -0.99824107 -0.14864823  0.089895532 -0.154471429
-[2,] -0.06065079 -0.10994025 -0.01720328  0.012773159 -0.999584410
-[3,]  0.99931383  0.01675207  0.09402859 -0.008956096  0.064573181
-[4,] -0.04834907 -0.07718953  0.24606692  0.999701263  0.005086838
-[5,] -0.09964846 -0.15481632 -0.99799245 -0.233942310 -0.065682614</code></pre>
+[1,] -0.04491699 -0.99825999 -0.14839574  0.090422212 -0.153975185
+[2,] -0.06065194 -0.10998064 -0.01720513  0.012766083 -0.999584731
+[3,]  0.99931301  0.01683580  0.09398937 -0.008976059  0.064546224
+[4,] -0.04835877 -0.07718777  0.24607686  0.999701445  0.005076433
+[5,] -0.09971004 -0.15490175 -0.99798986 -0.233937926 -0.065703127</code></pre>
 <p>The eigenvector transsformation fit is clearly much better than the naive fit. This can also be seen in the RRMSE for estimated <span class="math inline">\(Z\)</span>.</p>
 <pre class="r"><code>B = with(dat, L_mat %*% t(F_mat) + theta)
 sqrt(sum((fitn$B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 130.8834</code></pre>
+<pre><code>[1] 130.8517</code></pre>
 <pre class="r"><code>sqrt(sum((fitev$B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 83.22996</code></pre>
+<pre><code>[1] 83.23399</code></pre>
 <p>Now fitting with fixed factors. We have found that the order of adding the fixed factors matters and whether you perform two back fits or one also matters. Also using <code>method = sequential</code> seems to work better than <code>extrapolate</code>.</p>
 <p>Backfitting only the fixed factors first gives the ridge regression solution since the fixed factors have a normal prior:</p>
 <pre class="r"><code>R &lt;- cov2cor(dat$Sigma)
@@ -925,11 +947,11 @@ fit2 &lt;- flash.init(Z, S =sqrt(lambda_min), var.type = 2) %&gt;%
 Wrapping up...
 Done.</code></pre>
 <pre class="r"><code>fit2$elbo</code></pre>
-<pre><code>[1] -241272.9</code></pre>
+<pre><code>[1] -241283.3</code></pre>
 <pre class="r"><code>F_hat &lt;- fit2$loadings.pm[[2]][,-(1:(ntrait-1))]
 cor(F_hat, dat$F_mat)</code></pre>
 <pre><code>            [,1]      [,2]       [,3]       [,4]        [,5]
-[1,] -0.01211156 0.1126366 -0.2524863 -0.9957512 -0.05749441</code></pre>
+[1,] -0.01168547 0.1122385 -0.2234192 -0.9944996 -0.07221044</code></pre>
 <p>However, if we add the greedy factors first and then the fixed factors, we get a better solution in terms of factor recovery. The elbo is slightly worse than the fit that came up with only one factor and which we started at the ridge solution. The RRMSE is slightly worse than the RRMSE from the eigenvector transformed solution but not as bad as the RRMSE from the naive solution.</p>
 <pre class="r"><code>set.seed(2)
 fit3 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
@@ -953,27 +975,75 @@ fit3 &lt;- fit3 %&gt;%
         flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
         flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
 fit3$elbo</code></pre>
-<pre><code>[1] -241767.1</code></pre>
+<pre><code>[1] -241606.3</code></pre>
 <pre class="r"><code>F_hat &lt;- fit3$loadings.pm[[2]][,1:n]
 plot_factors(F_hat, 1:20)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
+Past versions of unnamed-chunk-10-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/3339c4fce66e8ab236fbb58e41ca01b62fcd78ee/docs/figure/fixed_factors2.Rmd/unnamed-chunk-10-1.png" target="_blank">3339c4f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-10
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/4765a86cffae44ed9122d33d246cdc2d8cd08726/docs/figure/fixed_factors2.Rmd/unnamed-chunk-10-1.png" target="_blank">4765a86</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-09
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
 <pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
-<pre><code>             [,1]        [,2]        [,3]         [,4]        [,5]
- [1,]  0.01327836  0.07985570 -0.22672173 -0.998562054 -0.02495756
- [2,] -0.99878351 -0.03255963 -0.10003963  0.033418208 -0.06897625
- [3,] -0.02542984 -0.08634439 -0.03265362  0.004158651 -0.99722493
- [4,] -0.08514346 -0.26641049 -0.99101674 -0.219016147 -0.02772259
- [5,]  0.03082532  0.99119136  0.03049712 -0.131763066  0.16998646
- [6,]          NA          NA          NA           NA          NA
- [7,]  0.53927234 -0.25822636 -0.05571600 -0.253712129 -0.16020151
- [8,]          NA          NA          NA           NA          NA
- [9,]          NA          NA          NA           NA          NA
-[10,]          NA          NA          NA           NA          NA</code></pre>
+<pre><code>             [,1]        [,2]        [,3]        [,4]        [,5]
+ [1,]  0.01300060  0.07912539 -0.22665718 -0.99845893 -0.02496171
+ [2,] -0.99892528 -0.03360736 -0.09738068  0.03213683 -0.07269148
+ [3,] -0.02329237 -0.07640565 -0.02978487  0.01452282 -0.99643375
+ [4,] -0.08459288 -0.24670527 -0.99337521 -0.24008220 -0.03270478
+ [5,]  0.03828559  0.99257877  0.04221061 -0.13399502  0.15737582
+ [6,]          NA          NA          NA          NA          NA
+ [7,]  0.42253343  0.07952470  0.15690454 -0.17302509 -0.29472229
+ [8,]          NA          NA          NA          NA          NA
+ [9,]          NA          NA          NA          NA          NA
+[10,]          NA          NA          NA          NA          NA</code></pre>
 <pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
 B_hat &lt;- fitted(fit3) - with(fit3, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
 sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 97.28984</code></pre>
+<pre><code>[1] 97.08726</code></pre>
 <p>Trying a different seed</p>
 <pre class="r"><code>set.seed(2000)
 fit3 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
@@ -997,27 +1067,75 @@ fit3 &lt;- fit3 %&gt;%
         flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
         flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
 fit3$elbo</code></pre>
-<pre><code>[1] -241767.1</code></pre>
+<pre><code>[1] -241606.3</code></pre>
 <pre class="r"><code>F_hat &lt;- fit3$loadings.pm[[2]][,1:n]
 plot_factors(F_hat, 1:20)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/3339c4fce66e8ab236fbb58e41ca01b62fcd78ee/docs/figure/fixed_factors2.Rmd/unnamed-chunk-11-1.png" target="_blank">3339c4f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-10
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/4765a86cffae44ed9122d33d246cdc2d8cd08726/docs/figure/fixed_factors2.Rmd/unnamed-chunk-11-1.png" target="_blank">4765a86</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-09
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
 <pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
-<pre><code>             [,1]        [,2]        [,3]         [,4]        [,5]
- [1,]  0.01327836  0.07985570 -0.22672173 -0.998562054 -0.02495756
- [2,] -0.99878351 -0.03255963 -0.10003963  0.033418208 -0.06897625
- [3,] -0.02542984 -0.08634439 -0.03265362  0.004158651 -0.99722493
- [4,] -0.08514346 -0.26641049 -0.99101674 -0.219016147 -0.02772259
- [5,]  0.03082532  0.99119136  0.03049712 -0.131763066  0.16998646
- [6,]          NA          NA          NA           NA          NA
- [7,]  0.53927234 -0.25822636 -0.05571600 -0.253712129 -0.16020151
- [8,]          NA          NA          NA           NA          NA
- [9,]          NA          NA          NA           NA          NA
-[10,]          NA          NA          NA           NA          NA</code></pre>
+<pre><code>             [,1]        [,2]        [,3]        [,4]        [,5]
+ [1,]  0.01300060  0.07912539 -0.22665718 -0.99845893 -0.02496171
+ [2,] -0.99892528 -0.03360736 -0.09738068  0.03213683 -0.07269148
+ [3,] -0.02329237 -0.07640565 -0.02978487  0.01452282 -0.99643375
+ [4,] -0.08459288 -0.24670527 -0.99337521 -0.24008220 -0.03270478
+ [5,]  0.03828559  0.99257877  0.04221061 -0.13399502  0.15737582
+ [6,]          NA          NA          NA          NA          NA
+ [7,]  0.42253343  0.07952470  0.15690454 -0.17302509 -0.29472229
+ [8,]          NA          NA          NA          NA          NA
+ [9,]          NA          NA          NA          NA          NA
+[10,]          NA          NA          NA          NA          NA</code></pre>
 <pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
 B_hat &lt;- fitted(fit3) - with(fit3, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
 sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 97.28984</code></pre>
+<pre><code>[1] 97.08726</code></pre>
 <p>Adding only 5 (the correct number) of greedy factors:</p>
 <pre class="r"><code>set.seed(2)
 fit4 &lt;-  flash.init(Z, S = sqrt(lambda_min), var.type = 2) %&gt;%
@@ -1036,7 +1154,7 @@ fit4 &lt;- fit4 %&gt;%
         flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
         flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
 fit4$elbo</code></pre>
-<pre><code>[1] -241671.9</code></pre>
+<pre><code>[1] -241588.2</code></pre>
 <pre class="r"><code>F_hat &lt;- fit4$loadings.pm[[2]][,1:n]
 plot_factors(F_hat, 1:20)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -1064,13 +1182,24 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/jean997/sumstatFactors/blob/3339c4fce66e8ab236fbb58e41ca01b62fcd78ee/docs/figure/fixed_factors2.Rmd/unnamed-chunk-12-1.png" target="_blank">3339c4f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-10
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/jean997/sumstatFactors/blob/4765a86cffae44ed9122d33d246cdc2d8cd08726/docs/figure/fixed_factors2.Rmd/unnamed-chunk-12-1.png" target="_blank">4765a86</a>
 </td>
 <td>
 Jean Morrison
 </td>
 <td>
-2020-06-08
+2020-06-09
 </td>
 </tr>
 </tbody>
@@ -1078,16 +1207,16 @@ Jean Morrison
 </div>
 </div>
 <pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
-<pre><code>            [,1]        [,2]        [,3]         [,4]        [,5]
-[1,]  0.01850519  0.07883172 -0.22917167 -0.999003742 -0.02167474
-[2,] -0.99987884 -0.02390771 -0.09077861  0.038495335 -0.05978359
-[3,] -0.02243445 -0.05229457 -0.02085770  0.001647753 -0.99612115
-[4,] -0.08601906 -0.26337511 -0.99150005 -0.222693491 -0.02803516
-[5,]  0.03202068  0.99086146  0.03152872 -0.137075886  0.17319838</code></pre>
+<pre><code>            [,1]        [,2]        [,3]        [,4]        [,5]
+[1,]  0.01742355  0.07828689 -0.22968567 -0.99888492 -0.02196612
+[2,] -0.99948307 -0.03027476 -0.09441884  0.03294204 -0.06805084
+[3,] -0.02958757 -0.05394374 -0.01900753 -0.01687851 -0.99679851
+[4,] -0.08265304 -0.25192249 -0.99271180 -0.24182158 -0.03258861
+[5,]  0.03906790  0.99212446  0.04134450 -0.13552377  0.16187462</code></pre>
 <pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
 B_hat &lt;- fitted(fit4) - with(fit4, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
 sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 97.04889</code></pre>
+<pre><code>[1] 97.39313</code></pre>
 </div>
 <div id="missing-data" class="section level2">
 <h2>Missing Data</h2>
@@ -1123,26 +1252,26 @@ fit &lt;- fit %&gt;%
         flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
         flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
 fit$elbo</code></pre>
-<pre><code>[1] -203874.1</code></pre>
+<pre><code>[1] -203967.5</code></pre>
 <pre class="r"><code>F_hat &lt;- fit$loadings.pm[[2]][,1:n]
 plot_factors(F_hat, 1:20)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
 <pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
-<pre><code>              [,1]        [,2]        [,3]         [,4]        [,5]
- [1,]  0.002288651  0.08169848 -0.22397424 -0.997788190 -0.02619421
- [2,] -0.998594407 -0.03264639 -0.10092409  0.031141566 -0.06899961
- [3,] -0.035713779 -0.09879542 -0.03051796  0.002525551 -0.99755850
- [4,] -0.048596818 -0.40638344 -0.95604296 -0.195784390 -0.05503888
- [5,]  0.032857370  0.98800473  0.01220983 -0.150489604  0.17353212
- [6,]           NA          NA          NA           NA          NA
- [7,]           NA          NA          NA           NA          NA
- [8,]           NA          NA          NA           NA          NA
- [9,]           NA          NA          NA           NA          NA</code></pre>
+<pre><code>              [,1]        [,2]        [,3]       [,4]        [,5]
+ [1,]  0.003978356  0.08191704 -0.22207358 -0.9977237 -0.02912517
+ [2,] -0.998575002 -0.03368600 -0.09965472  0.0296844 -0.07076464
+ [3,] -0.053732337 -0.09752454 -0.02628449 -0.0185642 -0.99814807
+ [4,] -0.054584728 -0.38812909 -0.96201228 -0.2000550 -0.05901132
+ [5,]  0.037263890  0.99071696  0.03524923 -0.1413714  0.16895033
+ [6,]           NA          NA          NA         NA          NA
+ [7,]           NA          NA          NA         NA          NA
+ [8,]           NA          NA          NA         NA          NA
+ [9,]           NA          NA          NA         NA          NA</code></pre>
 <pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
 B_hat &lt;- fitted(fit) - with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
 sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 91.26145</code></pre>
+<pre><code>[1] 91.63468</code></pre>
 <p>This is successful (was also successfull with 10% but only including 20% here).</p>
 <p>A big question is what happens if missingness is not random across traits and occurs in chunks. In this experiment different subsets of SNPs are missing in different blocks of traits. I will do two blocks of traits, evens and odds, so that they don’t align with the correlation structure.</p>
 <pre class="r"><code>set.seed(2)
@@ -1178,26 +1307,26 @@ fit &lt;- fit %&gt;%
         flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %&gt;%
         flash.backfit(method = &quot;sequential&quot;, verbose.lvl=0)
 fit$elbo</code></pre>
-<pre><code>[1] -202306.2</code></pre>
+<pre><code>[1] -202410.2</code></pre>
 <pre class="r"><code>F_hat &lt;- fit$loadings.pm[[2]][,1:n]
 plot_factors(F_hat, 1:20)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>cor(F_hat, dat$F_mat)</code></pre>
 <pre><code>Warning in cor(F_hat, dat$F_mat): the standard deviation is zero</code></pre>
-<pre><code>               [,1]        [,2]        [,3]        [,4]        [,5]
- [1,] -0.0002995277  0.11206915 -0.20639421 -0.99588452 -0.03720879
- [2,] -0.9987805471 -0.03265270 -0.09877767  0.03268550 -0.06969001
- [3,] -0.0452181496 -0.09622041 -0.02161278 -0.01640603 -0.99824121
- [4,]  0.0611082815  0.50531438  0.92228063  0.17907026  0.05643017
- [5,]  0.0184474422  0.97779939 -0.04160356 -0.17655326  0.18568472
- [6,]            NA          NA          NA          NA          NA
- [7,]            NA          NA          NA          NA          NA
- [8,]            NA          NA          NA          NA          NA
- [9,]            NA          NA          NA          NA          NA</code></pre>
+<pre><code>              [,1]        [,2]        [,3]        [,4]        [,5]
+ [1,]  0.007009822  0.08006615 -0.22314628 -0.99757835 -0.02964966
+ [2,] -0.998211827 -0.03726166 -0.10119926  0.02928357 -0.07651193
+ [3,] -0.046913763 -0.08161811 -0.02523668 -0.01749297 -0.99826222
+ [4,]  0.065583398  0.56061248  0.89547175  0.16783032  0.06256273
+ [5,] -0.002860520  0.97276883 -0.07461054 -0.18596879  0.15930693
+ [6,]           NA          NA          NA          NA          NA
+ [7,]           NA          NA          NA          NA          NA
+ [8,]           NA          NA          NA          NA          NA
+ [9,]           NA          NA          NA          NA          NA</code></pre>
 <pre class="r"><code>fixed_ix &lt;- n + (1:(ntrait-1))
 B_hat &lt;- fitted(fit) - with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
 sqrt(sum((B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 88.06466</code></pre>
+<pre><code>[1] 88.59002</code></pre>
 <p>We still seem to be getting a good fit. Comparing this to just setting the missing z-scores to zero and using the eigenvector transformation:</p>
 <pre class="r"><code>mask[is.na(mask)] &lt;- 0
 dat_mask &lt;- dat
@@ -1231,35 +1360,82 @@ Nullchecking 11 factors...
 Done.</code></pre>
 <pre class="r"><code>plot_factors(fit2$F_hat, 1:ntrait)</code></pre>
 <p><img src="figure/fixed_factors2.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-17-1">
+Past versions of unnamed-chunk-17-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-17-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/3339c4fce66e8ab236fbb58e41ca01b62fcd78ee/docs/figure/fixed_factors2.Rmd/unnamed-chunk-17-1.png" target="_blank">3339c4f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>cor(fit2$F_hat, F_hat)</code></pre>
 <pre><code>Warning in cor(fit2$F_hat, F_hat): the standard deviation is zero</code></pre>
-<pre><code>             [,1]        [,2]        [,3]        [,4]         [,5] [,6] [,7]
- [1,] -0.25656244 -0.10670080 -0.01102985  0.02879888 -0.111341882   NA   NA
- [2,]  0.02039508  0.32919797 -0.05204369 -0.09848295  0.110592310   NA   NA
- [3,] -0.21647015 -0.18502079  0.00285675  0.17227738  0.083894132   NA   NA
- [4,] -0.21493619  0.28204468 -0.00417329  0.14223438  0.201083265   NA   NA
- [5,] -0.12562773 -0.05636461  0.14660639 -0.03836643  0.005799910   NA   NA
- [6,]  0.16616256 -0.01684924 -0.10564930  0.49800082  0.977587124   NA   NA
- [7,]  0.01766138  0.07132215  0.99410516 -0.05300207 -0.173200766   NA   NA
- [8,]  0.02517450  0.99760803  0.02281372 -0.09074843 -0.015776471   NA   NA
- [9,]  0.99673479 -0.03311841  0.02236765 -0.17036275  0.173238394   NA   NA
-[10,]  0.05020945  0.11507315 -0.16863084 -0.02406781  0.128832396   NA   NA
-[11,]  0.22448517  0.16711001  0.04938297 -0.92815004 -0.001070803   NA   NA
-      [,8] [,9]
- [1,]   NA   NA
- [2,]   NA   NA
- [3,]   NA   NA
- [4,]   NA   NA
- [5,]   NA   NA
- [6,]   NA   NA
- [7,]   NA   NA
- [8,]   NA   NA
- [9,]   NA   NA
-[10,]   NA   NA
-[11,]   NA   NA</code></pre>
+<pre><code>              [,1]        [,2]         [,3]          [,4]         [,5]
+ [1,] -0.260586147 -0.19518202 -0.003049081  0.0344939364 -0.078946076
+ [2,]  0.042009041  0.32237796 -0.041804942 -0.0919941417  0.118112829
+ [3,] -0.238792798 -0.21629705 -0.019892236  0.1693180680  0.094063040
+ [4,] -0.188658192  0.30682603 -0.047359368  0.1061563342  0.222267582
+ [5,] -0.063965499 -0.13243982  0.168828138 -0.0428770465 -0.049450609
+ [6,]  0.124022926 -0.01632897 -0.086247200  0.5589043919  0.971933836
+ [7,]  0.007972337  0.07883279  0.994229540 -0.0563847810 -0.146956132
+ [8,]  0.998357885 -0.03329854  0.021212680 -0.1609865147  0.182979892
+ [9,]  0.013120357  0.99720703  0.025323228 -0.0939036031  0.002248526
+[10,]  0.091396036 -0.02468092 -0.109673289 -0.0009157385  0.118121197
+[11,]  0.242686014  0.16692339  0.045752747 -0.9051402868  0.030385688
+      [,6] [,7] [,8] [,9]
+ [1,]   NA   NA   NA   NA
+ [2,]   NA   NA   NA   NA
+ [3,]   NA   NA   NA   NA
+ [4,]   NA   NA   NA   NA
+ [5,]   NA   NA   NA   NA
+ [6,]   NA   NA   NA   NA
+ [7,]   NA   NA   NA   NA
+ [8,]   NA   NA   NA   NA
+ [9,]   NA   NA   NA   NA
+[10,]   NA   NA   NA   NA
+[11,]   NA   NA   NA   NA</code></pre>
 <pre class="r"><code>sqrt(sum((fit2$B_hat-B)^2)/sum(B^2))</code></pre>
-<pre><code>[1] 75.53056</code></pre>
+<pre><code>[1] 75.62648</code></pre>
 <p>This fit has many additional factors, although the RRMSE is lower. It is worth noting that the RRMSE of estimating <span class="math inline">\(B = 0\)</span> is 1 so perhaps this is not the best measure.</p>
+</div>
+<div id="non-fixed-dense-factors" class="section level2">
+<h2>Non-Fixed Dense factors</h2>
+<p>One issue is that it can be difficult to estimate <span class="math inline">\(R\)</span> which is the residual correlation <em>after</em> removing the sparse factors. Could we learn both the dense and sparse factors simultaneously? So far no, I have not been able to fit both dense and sparse non-fixed factors simultaneously, it doesn’t seem to matter what order I add them in or if I backfit in between. This is a similar idea to <span class="citation">@Gao2013</span>.</p>
+<pre class="r"><code>set.seed(2)
+fit5 &lt;-  flash.init(Z, var.type = 2) %&gt;%
+         flash.add.greedy(Kmax = 20, prior.family = prior.point.normal()) %&gt;%
+         flash.backfit() %&gt;%
+         flash.add.greedy(Kmax = 20, prior.family = prior.normal()) %&gt;%
+         flash.backfit()</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1269,40 +1445,49 @@ Done.</code></pre>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.6.3 (2020-02-29)
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
-Running under: macOS Catalina 10.15.4
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
 
 locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ggplot2_3.3.0             flashier_0.2.4           
-[3] sumstatFactors_0.0.0.9000 dplyr_0.8.5              
-[5] workflowr_1.6.2          
+[1] ggplot2_3.2.1             flashier_0.2.4           
+[3] sumstatFactors_0.0.0.9000 dplyr_0.8.3              
 
 loaded via a namespace (and not attached):
- [1] softImpute_1.4   tidyselect_1.0.0 xfun_0.12        ashr_2.2-50     
- [5] purrr_0.3.3      reshape2_1.4.3   lattice_0.20-38  colorspace_1.4-1
- [9] vctrs_0.2.4      htmltools_0.4.0  yaml_2.2.1       rlang_0.4.5     
-[13] mixsqp_0.3-43    later_1.1.0.1    pillar_1.4.3     withr_2.1.2     
-[17] glue_1.4.1       DBI_1.1.0        lifecycle_0.2.0  plyr_1.8.6      
-[21] stringr_1.4.0    munsell_0.5.0    gtable_0.3.0     evaluate_0.14   
-[25] labeling_0.3     knitr_1.28       httpuv_1.5.4     invgamma_1.1    
-[29] irlba_2.3.3      parallel_3.6.3   Rcpp_1.0.4.6     readr_1.3.1     
-[33] promises_1.1.0   backports_1.1.5  scales_1.1.0     truncnorm_1.0-8 
-[37] farver_2.0.3     fs_1.3.2         RMySQL_0.10.20   hms_0.5.3       
-[41] digest_0.6.25    stringi_1.4.6    ebnm_0.1-24      grid_3.6.3      
-[45] rprojroot_1.3-2  tools_3.6.3      magrittr_1.5     tibble_2.1.3    
-[49] crayon_1.3.4     whisker_0.4      pkgconfig_2.0.3  MASS_7.3-51.5   
-[53] Matrix_1.2-18    SQUAREM_2020.3   assertthat_0.2.1 rmarkdown_2.1   
-[57] R6_2.4.1         intervals_0.15.2 git2r_0.27.1     compiler_3.6.3  </code></pre>
+ [1] softImpute_1.4       tidyselect_0.2.5     xfun_0.9            
+ [4] ashr_2.2-47          purrr_0.3.3          reshape2_1.4.3      
+ [7] lattice_0.20-38      colorspace_1.4-1     vctrs_0.2.0         
+[10] htmltools_0.3.6      yaml_2.2.0           rlang_0.4.2         
+[13] mixsqp_0.3-43        pillar_1.4.2         withr_2.1.2         
+[16] glue_1.3.1           DBI_1.0.0            lifecycle_0.1.0     
+[19] plyr_1.8.5           stringr_1.4.0        munsell_0.5.0       
+[22] gtable_0.3.0         workflowr_1.4.0.9000 evaluate_0.14       
+[25] labeling_0.3         knitr_1.24           invgamma_1.1        
+[28] irlba_2.3.3          parallel_3.6.3       Rcpp_1.0.4.6        
+[31] readr_1.3.1          backports_1.1.5      scales_1.1.0        
+[34] truncnorm_1.0-8      farver_2.0.1         fs_1.3.1            
+[37] RMySQL_0.10.17       hms_0.5.2            digest_0.6.23       
+[40] stringi_1.4.3        ebnm_0.1-24          grid_3.6.3          
+[43] rprojroot_1.3-2      tools_3.6.3          magrittr_1.5        
+[46] lazyeval_0.2.2       tibble_2.1.3         crayon_1.3.4        
+[49] whisker_0.4          pkgconfig_2.0.3      zeallot_0.1.0       
+[52] MASS_7.3-51.4        Matrix_1.2-17        SQUAREM_2020.2      
+[55] assertthat_0.2.1     rmarkdown_1.15       R6_2.4.1            
+[58] intervals_0.15.1     git2r_0.26.1         compiler_3.6.3      </code></pre>
 </div>
 </div>
 
@@ -1318,6 +1503,8 @@ footer is added to webpages before the MathJax javascript. -->
     "HTML-CSS": { availableFonts: ["TeX"] }
   });
 </script>
+
+
 
 
 </div>
