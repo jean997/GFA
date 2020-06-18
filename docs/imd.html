@@ -499,10 +499,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree60fd564a786eb6c4d8843a6e88d2d6575f64b566targetblank60fd564a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/60fd564a786eb6c4d8843a6e88d2d6575f64b566" target="_blank">60fd564</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree1972eb05a51b6019c620d3c868047fba1c43839ftargetblank1972eb0a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/1972eb05a51b6019c620d3c868047fba1c43839f" target="_blank">1972eb0</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree60fd564a786eb6c4d8843a6e88d2d6575f64b566targetblank60fd564a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree1972eb05a51b6019c620d3c868047fba1c43839ftargetblank1972eb0a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -582,6 +582,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/1972eb05a51b6019c620d3c868047fba1c43839f/analysis/imd.Rmd" target="_blank">1972eb0</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+<td>
+wflow_publish(“analysis/imd.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/bca6b19c77de59e123c876848ed9229f53ab317c/docs/imd.html" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -782,14 +816,202 @@ Attaching package: &#39;gridExtra&#39;</code></pre>
 
     combine</code></pre>
 <p>Without correcting for sample overlap: <img src="figure/imd.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/bca6b19c77de59e123c876848ed9229f53ab317c/docs/figure/imd.Rmd/unnamed-chunk-2-1.png" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>A few interesting patterns: factors 1 and 2 capture IBD/UC/CD and ashthma/allergy clusters respectively. These are probably the strongest patterns in these data. Factor 5 captures differences between UC and CD plus some overlap of UC and PSC and RA which can be concommitant. Factor 6 is unique to childhood (not adult onset) asthma and is also shared with PBC, SLE, and RA.</p>
 <p>Correcting for sample overlap across all studies: <img src="figure/imd.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/bca6b19c77de59e123c876848ed9229f53ab317c/docs/figure/imd.Rmd/unnamed-chunk-3-1.png" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Results using the eigenvector transformation are “muddy” while the fixed factor estimator is more sparse and has similar patterns to the using <span class="math inline">\(R=I\)</span>. Factor 12 captures sharing between T1D and LADA which we would expect to see.</p>
 <p>Correcting for sample overlap in only some studies: <img src="figure/imd.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Here are two SVD decompositions. In the first we just take the SVD of the entire matrix of <span class="math inline">\(z\)</span>-scores. In the second, <span class="math inline">\(z\)</span>-scores corresponding to <span class="math inline">\(p\)</span>-values greater than 0.05 are set to zero. These are extremely similar. <img src="figure/imd.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/imd.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/bca6b19c77de59e123c876848ed9229f53ab317c/docs/figure/imd.Rmd/unnamed-chunk-4-1.png" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Here are two SVD decompositions. In the first we just take the SVD of the entire matrix of <span class="math inline">\(z\)</span>-scores. In the second, <span class="math inline">\(z\)</span>-scores corresponding to <span class="math inline">\(p\)</span>-values greater than 0.05 are set to zero. These are extremely similar. <img src="figure/imd.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/bca6b19c77de59e123c876848ed9229f53ab317c/docs/figure/imd.Rmd/unnamed-chunk-5-1.png" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/imd.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-2">
+Past versions of unnamed-chunk-5-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/bca6b19c77de59e123c876848ed9229f53ab317c/docs/figure/imd.Rmd/unnamed-chunk-5-2.png" target="_blank">bca6b19</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-06-19
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="variants-present-in-at-least-two-studies" class="section level2">
 <h2>Variants present in at least two studies</h2>
+<p>If we allow missing data we can use many more variants. This analysis has 168,142 variants rather than 3,991. We can no longer use the eigenvector transformation. Both with and without correction, these fits are “less neat” than the non-missing data fits. This may because the imuno chip traits have very high (90%) missingness. To explore further, I will analyze only the non-imunochip traits.</p>
+<p><img src="figure/imd.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/imd.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="non-missing-variants-non-immunochip-studies" class="section level2">
 <h2>Non-missing variants, non immunochip studies</h2>
