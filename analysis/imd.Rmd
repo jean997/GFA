@@ -112,4 +112,37 @@ p_ff1
 
 ```
 
-## Non-missing variants, non immunochip studies
+## Non immunochip studies
+
+```{r, echo=FALSE}
+res_none <- readRDS("analysis_data/2020-06-10_ai/ai_noichp_fit_Inf_100_naive2_TRUE_2.RDS")
+p1 <- with(res_none, plot_factors(F_hat, names)) + ggtitle("non-missing, R = I")
+
+res_ev2 <- readRDS("analysis_data/2020-06-10_ai/ai_noichp_fit_Inf_100_ev2_TRUE_2.RDS")
+p_ev2 <- with(res_ev2, plot_factors(t(t(F_hat)/sqrt(colSums(F_hat^2))), names)) + ggtitle("non-missing, R2 (overlap), ev")
+
+res_ff2 <- readRDS("analysis_data/2020-06-10_ai/ai_noichp_fit_Inf_100_ff2_TRUE_2.RDS")
+p_ff2 <- with(res_ff2, plot_factors(t(t(F_hat)/sqrt(colSums(F_hat^2))), names))+ ggtitle("non-missing, R2 (overlap), ff")
+
+grid.arrange(p1, p_ev2, p_ff2, ncol=2)
+```
+
+
+```{r, echo=FALSE}
+res_none <- readRDS("analysis_data/2020-06-10_ai/ai_noichp_fit_Inf_100_naive2_FALSE_2.RDS")
+p1 <- with(res_none, plot_factors(F_hat, names)) + ggtitle("allow missing, R = I")
+
+res_ff2 <- readRDS("analysis_data/2020-06-10_ai/ai_noichp_fit_Inf_100_ff2_FALSE_2.RDS")
+p_ff2 <- with(res_ff2, plot_factors(t(t(F_hat)/sqrt(colSums(F_hat^2))), names))+ ggtitle("allow missing, R2 (overlap), ff")
+
+grid.arrange(p1, p_ff2, ncol=2)
+```
+
+
+PLotting also local false sign rate
+```{r, echo=FALSE}
+x <- res_ff2$fit$loadings.lfsr[[2]][, 1:7] < 1e-6
+ x[x==FALSE] <- 0
+p_lfsr <- plot_factors(x, res_ff2$names) + ggtitle("lfsr < 1e-6")
+grid.arrange(p_ff2, p_lfsr, ncol=2)
+```
