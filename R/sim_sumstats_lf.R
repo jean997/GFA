@@ -8,18 +8,32 @@
 #'@param h_2_trait Heritability of each trait. Length M vector.
 #'@param omega Proportion of SNP heritability mediated by factors. Length M vector.
 #'@param h_2_factor Heritability of each factor. Length K vector.
-#'@param pi_L SNP sparsity of each factor. Length K factor
-#'@param pi_theta SNP sparsity of theta. Scalar.
+#'@param pi_L Proportion of non-zero elements in L_k. Length K factor
+#'@param pi_theta Proportion of non-zero elements in theta. Scalar.
 #'@param R_E Environmental trait correlation not mediated by factors. M by M pd matrix
 #'@param R_LD_list List of eigen decompositions of LD correlation matrices, may be missing.
+#'@param relative_pve
+#'@param g_F Function from which non-zero elements of F are generated
+#'@param pi_F Propotiono of non-zero elements of F
 #'@export
 sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_theta,
-                            R_E, R_LD){
+                            R_E, R_LD, relative_pve,
+                            g_F, pi_F,
+                            overlap_prop =1){
 
   #Check parameters
-  stopifnot("matrix" %in% class(F_mat))
-  M <- nrow(F_mat)
-  K <- ncol(F_mat)
+  if(!missing(F_mat)){
+    stopifnot("matrix" %in% class(F_mat))
+    M <- nrow(F_mat)
+    K <- ncol(F_mat)
+  }else{
+    if(missing(g_F) | missing(pi_F) | missing(relative_pve)){
+      stop("If F_mat is missing please supply relative_pve, g_F, and pi_F")
+    }
+    K <- length(relative_pve)
+    M <- length(h_2_trait)
+    cat("Will generate L and F with ", J, " markers, ", M, " traits, and ", K, "factors.\n")
+  }
   stopifnot(length(h_2_trait) == M)
   stopifnot(all(h_2_trait <= 1 & h_2_trait >= 0))
   stopifnot(length(h_2_factor) == K)
@@ -32,46 +46,50 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   stopifnot(pi_theta >=0 & pi_theta <=1)
   stopifnot(nrow(R_E) == M & ncol(R_E) == M)
   stopifnot(Matrix::isSymmetric(R_E))
+  if(!missing(relative_pve)) stopifnot(length(relative_pve)==K)
+  if(!missing(R_LD)) cat(R_LD, "\n")
   R_E_eig <- eigen(R_E)
   stopifnot(all(R_E_eig$values >= 0))
   if(any(omega < 1) & pi_theta == 0){stop("Theta contributes non-zero heritability so pi_theta must be greater than 0.")}
 
-  #if(!missing(R_LD)){
-  #  l <- sapply(R_LD, function(e){length(e$values)})
-  #  if(sum(l) != J){
-  #    stop("LD information supplied for ", sum(l), " snps, not ", J, ".")
-  #  }
-  #}
-
-  if(any(rowSums(F_mat == 0) == K & omega >0)){
-    stop("One row of F is all zero but corresponds to non-zero omega\n")
+  if(!missing(F_mat)){
+    if(any(rowSums(F_mat == 0) == K & omega >0)){
+      stop("One row of F is all zero but corresponds to non-zero omega\n")
+    }
   }
-
-
-  #Re-scale F
-  F_rowsums <- omega*h_2_trait
-  x <- rowSums(F_mat^2)
-  F_mat <- F_mat*sqrt(F_rowsums/x)
-
-  #Generate L
-  sigma_L <- (1/(pi_L*J))
-  L_mat <- purrr::map_dfc(pi_L, function(p){
-    l <- rbinom(n=J, size=1, prob = p)
-    n <- sum(l==1)
-    l[l==1] <- rnorm(n=n, mean=0, sd = sqrt(1/(p*J)))
-    return(l)
-  }) %>% as.matrix()
 
   #Generate theta
   sigma_theta <- sqrt( (1/(pi_theta*J))*(1-omega)*h_2_trait)
   sigma_theta[omega == 1] <- 0
 
-  theta <- purrr::map_dfc(sigma_theta, function(s){
+  theta <- purrr::map(sigma_theta, function(s){
     t <- rbinom(n=J, size=1, prob = pi_theta)
     n <- sum(t==1)
     t[t==1] <- rnorm(n=n, mean=0, sd = s)
     return(t)
-  }) %>% as.matrix()
+  }) %>% do.call(cbind, .)
+
+  #Re-scale F or generate it if it is missing
+  if(missing(F_mat)){
+    relative_pve <- relative_pve*sum(omega*h_2_trait)/sum(relative_pve)
+    F_mat <- generate_F(percent_zero = 1-pi_F, square_row_sums = omega*h_2_trait,
+                        square_col_sums = relative_pve, rfunc = g_F)
+  }else if(!missing(relative_pve)){
+    relative_pve <- relative_pve*sum(omega*h_2_trait)/sum(relative_pve)
+    F_mat <- scale_F(F_mat, omega*h_2_trait, relative_pve)
+  }else{
+    #Re scale rows of F
+    F_mat <- F_mat*sqrt(omega*h_2_trait/rowSums(F_mat^2))
+  }
+
+  #Generate L
+  sigma_L <- (1/(pi_L*J))
+  L_mat <- purrr::map(pi_L, function(p){
+    l <- rbinom(n=J, size=1, prob = p)
+    n <- sum(l==1)
+    l[l==1] <- rnorm(n=n, mean=0, sd = sqrt(1/(p*J)))
+    return(l)
+  }) %>% do.call(cbind, .)
 
   #Compute Beta
   beta = L_mat %*% t(F_mat) + theta
@@ -83,6 +101,8 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
   Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
   Sigma <- (1/N)*(Sigma_G + Sigma_FE  + Sigma_E)
+  Sigma_indep <- (1/N)*diag(rep(1, M))
+  Sigma <- overlap_prop*Sigma + (1-overlap_prop)*Sigma_indep
 
   #Generate sampling error
   E <- MASS::mvrnorm(n=J, mu = rep(0, M), Sigma = Sigma)
@@ -134,4 +154,52 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
               L_mat = L_mat, F_mat = F_mat, theta = theta,
               R_E = R_E, Sigma=Sigma)
   return(ret)
+}
+
+scale_F <- function(F_init, square_row_sums, square_col_sums, tol = 1e-5, max_rep = 100){
+  stopifnot(all(square_row_sums > 0))
+  stopifnot(all(square_col_sums > 0))
+  stopifnot(abs(sum(square_row_sums) - sum(square_col_sums)) < tol)
+  M <- length(square_row_sums)
+  K <- length(square_col_sums)
+  F_mat <- F_init
+  r2 <- rowSums(F_mat^2)
+  c2 <- colSums(F_mat^2)
+  test <- max(abs(c(r2-square_row_sums, c2 - square_col_sums)))
+  rep <- 1
+  while(test > tol & rep <= max_rep){
+    F_mat <- F_mat*sqrt(square_row_sums)/sqrt(r2)
+    c2 <- colSums(F_mat^2)
+    F_mat <- t(t(F_mat)*sqrt(square_col_sums)/sqrt(c2))
+    r2 <- rowSums(F_mat^2)
+    c2 <- colSums(F_mat^2)
+    test <- max(abs(c(r2-square_row_sums, c2 - square_col_sums)))
+    rep <- rep+1
+    cat(rep, ": ", test," ", test > tol & rep <= max_rep, "\n")
+  }
+  return(F_mat)
+}
+
+generate_F <- function(percent_zero, square_row_sums, square_col_sums, rfunc = function(n){runif(n, -1, 1)},
+                       tol = 1e-5, max_rep = 100){
+  f <- function(n){
+    x <- rbinom(n, 1, 1-percent_zero)
+    x[x==1] <- rfunc(sum(x))
+    return(x)
+  }
+  stopifnot(all(square_row_sums > 0))
+  stopifnot(all(square_col_sums > 0))
+  stopifnot(abs(sum(square_row_sums) - sum(square_col_sums)) < tol)
+  M <- length(square_row_sums)
+  K <- length(square_col_sums)
+
+  init <- FALSE
+  while(!init){
+    F_mat <- replicate(n=K, expr={f(M)})
+    if(all(colSums(F_mat !=0) > 0) & all(rowSums(F_mat !=0) > 0)){
+      init <- TRUE
+    }
+  }
+  F_mat <- scale_F(F_mat, square_row_sums, square_col_sums, tol, max_rep )
+
 }
