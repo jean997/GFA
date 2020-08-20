@@ -4,8 +4,13 @@
 \alias{mask_and_fit}
 \title{Mask data and Fit}
 \usage{
-mask_and_fit(mats, fit_function, mask_proportion = 0.05, n_times = 5,
-  seed = 100)
+mask_and_fit(
+  mats,
+  fit_function,
+  mask_proportion = 0.05,
+  n_times = 5,
+  seed = 100
+)
 }
 \arguments{
 \item{mats}{List containing beta_hat and se_hat matrices}

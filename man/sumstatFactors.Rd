@@ -3,7 +3,6 @@
 \docType{package}
 \name{sumstatFactors}
 \alias{sumstatFactors}
-\alias{sumstatFactors-package}
 \title{sumstatFactors}
 \description{
 Helper package for experimenting with factor decompostion of summary statistics.
