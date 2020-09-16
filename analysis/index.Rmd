@@ -23,7 +23,6 @@ The goal of this project is to identify genetic signatures of these shared facto
 
 The main idea of this project is to apply sparse matrix decomposition to matrices of summary statistics. So far I have only used FLASH and I think there are some good arguments to be made that FLASH is a good option. The general idea is that we imagine a set of $K$ unmeasured factors that have linear effects on $M$ traits. We have measured the marginal association of $J$ variants which each trait yielding a $J\times M$ matrix of effect estimates. If we assume variant effects on factors are linear and variants are independent, we can write the matrix of true marginal effects $B$ as $B = L F^\top + \Theta$ where $L$ is $J\times K$ and contains variant effects on factors and $F$ is $M \times K$ and contains factor effects on traits. $\Theta$ is a matrix of effects not mediated by the hidden factors. 
 
-## Related work
 
 
 ## Model in More Detail
@@ -47,3 +46,7 @@ In reverse chronological order
 In reverse chronological order
 
 1. [Immune Mediated Diseases](imd.html)
+
+## Related work
+
+See [here](literature.html)
