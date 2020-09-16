@@ -1,0 +1,164 @@
+---
+title: "Estimating $L$ and $F$"
+author: "Jean Morrison"
+date: "2020-09-15"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+We introduced the model [here](model.html). In this doc we will discuss methods of estimating the $L$ and $F$ matrices.
+
+## Independent GWAS, independent SNPs
+
+If all GWAS are conducted in different samples and all variants are independent, we can use FLASH out of the box. The only thing we have to worry about is if $\Theta$ is sparse rather than dense as assumed by FLASH. Some [early simulations](sample_cor_ld_sims.html) suggest this may not be much of an issue. We also need to standardize our effect estimates. In September 2020, The basic code for applying FLASH to this problem is 
+
+```{r, eval=FALSE}
+fit <- flash.init(data=B_hat, S = S,  var.type=2) %>%
+          flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%
+          flash.backfit() %>%
+          flash.nullcheck()
+```
+
+Here `var.type=2` indicates that we want to estimate a different variance for every column of $\Theta$. `B_hat` is the matrix of effect estimates and `S` is the matrix of standard errors.
+
+Other variations of this are to use $z$-scores or standardized versions of $\hat{B}$. For simplicity, we assume that $\hat{s}_{j,m}$ is measured without error and that $s^2_{j,m} = \frac{\sigma^2_{Y,m}}{N_m \sigma^2_{G,j}}$ where $\sigma^2_{G,j}$ is the variance of variant $j$ and is constant across studies and $\sigma^2_{Y,m}$ is the variance of trait $m$. 
+
+In this case $s_{j,m}$ factors into a variant component $a_j$ and trait component $b_m$. Dividing by $s_{j,m}$ will divide rows or $L$ by $a_j$ and rows of $F$ by $b_m$. Every element of $\Theta$ gets divided by $a_j b_m$ and the elements of $E$ are now IID $N(0,1)$. Using FLASH this means we have changed our assumption about the distribution of $L$ and $F$. Rather than assuming that effects of variants on factors are IID from some distribution (in the case above a spike and slab distribution), we are assuming that effects scaled by SNP variance are IID and that factor effects scaled by sample size over trait variance are IID. Except for the scaling by sample size these assumptions are fairly reasonable, or at least as reasonable as the assumptions they are replacing. Therefore, we might consider a "standardized" effect of $\hat{\beta}_{j,m} \sigma_{G,j}/\sigma_{Y,m}$ or more computable using our data, $\frac{\hat{\beta}_{j,m}}{\hat{s}_{j,m}\sqrt{N_m}} = \frac{\hat{z}_{j,m}}{\sqrt{N_m}}$. In this document, I will refer to standardized effect etsimates as $\tilde{\beta}_{j,m}$. 
+
+To fit with standardized effects, assuming `N` is a length $M$ vector of sample sizes:
+
+```{r, eval=FALSE}
+B_tilde = t( (1/sqrt(N)) *t(B_hat/S))
+S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
+fit <- flash.init(data=B_tilde, S = S_tilde,  var.type=2) %>%
+          flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%
+          flash.backfit() %>%
+          flash.nullcheck()
+```
+
+
+## Overlapping samples, independent SNPs
+
+To data with overlapping samples between traits we need to correct for it. There are two elements of this problem: 1) estimating the correlation of rows of $E$ and 2) correcting for it in the fit. 
+
+I will address the second part first. I have considered two alternative methods for correcting for a known covariance in the rows of $E$. Both work fairly well in simulations and have different drawbacks in real data. 
+
+### Eigenvector transformation
+
+The pros of this method are that it is (of the two I will talk about) easier to fit and seems to perform better in simulations. The cons are that it can only be used with complete data. It also applies sparsity assumptions to the wrong matrix. First suppose that every element of $E$ has the same variance. In this section we will assume we are working with standardized effect esimtates $\tilde{\beta}_{j,m}$. This also works with $z$-scores but not with unstandardized effects (with unstandardized effects we would need to transform effects for each SNP separately). Our model is
+
+$$
+\tilde{B} = LF^\top + \Theta + E
+$$
+where the covariance of each row of $E$ is $\Sigma = SRS$ where $S$ is $M\times M$ diagonal with diagonal elements $1/\sqrt{N_m}$ and $R$ is a known correlation matrix. Let $R = VDV^\top $ be the eigendecomposition of $R$. Then
+
+$$
+\tilde{B}V = L (V^\top F)^\top + \Theta V + E_2 
+$$
+where the elements of $E_2$ are independent with $Var((E_2)_{j,m}) = d_{m}/N_m$ where $d_m$ is the $m$th diagonal element of $D$. We can infer $L$ and $F$ by first transforming $\tilde{B}$ and then back transforming the estimated factors. Unfortunately we are now assuming that $V^\top F$ is sparse rather than assuming that $F$ is sparse. In simulations this doesn't seem to make a huge difference. However, the inability to use incomplete SNPs may significantly impact real data analysis. To fit in FLASH we use
+
+```{r, eval=FALSE}
+fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
+  
+    n_var <- nrow(B_hat)
+    n_trait <- ncol(B_hat)
+    stopifnot(nrow(S_hat) == n_var & ncol(S_hat) == n_trait)
+    stopifnot(length(N) == n_trait)
+    
+    R_eig <- eigen(R)
+    d <- R_eig$values
+    V <- R_eig$vectors
+    
+    R_eig$values[abs(v) < zero_thresh] <- 0
+    if(any(R_eig$values < 0))stop("R is not psd")
+    
+    B_tilde = t( (1/sqrt(N)) *t(B_hat/S))
+    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
+    
+    B_tilde_tilde <- B_tilde %*% V
+    S_tilde_tilde <- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+    
+    fit <- flash.init(data=B_tilde_tilde, S = S_tilde_tilde,  var.type=2) %>%
+                      flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%
+                      flash.backfit() %>%
+                      flash.nullcheck();
+    
+    if(fit$n.factors > 0){
+      F_hat <- V %*% fit$loadings.pm[[2]]
+      L_hat <- fit$loadings.pm[[1]]
+      B_hat <- fitted(fit) %*% t(V)
+    }else{
+      B_hat <- F_hat  <- L_hat <- NULL;
+    }
+  ret <- list(fit=fit, B_hat = B_hat, L_hat = L_hat, F_hat = F_hat)
+  return(ret)
+}
+```
+
+### Addition of fixed factors
+
+This method is harder to fit but can make use of variants that are only present in a subset of studies. It also maintains the same sparsity assumptions as the original problem. This strategy was explored previously by Matthew and Jason [here](https://willwerscheid.github.io/FLASHvestigations/arbitraryV.html). 
+
+Let $\lambda_{min}$ be the smallest eigenvalue of $\Sigma$ and let $\Sigma - \lambda_{min}I = V DV^\top$ (note that I have re-used $V$ and $D$ to mean something different than they meant in the previous section). Then
+
+$$
+E = AW^\top + E_1
+$$
+
+where elements of $E_1$ are iid N$(0, \lambda_{min})$, the elements of $A$ are iid $N(0, 1)$ and $W = V D^{1/2}$. So theoretically, we should be able to fit the model by adding in the known fixed factors $W$ and fixing the prior for the columns of $A$. In practice this is a bit hard. My first attempts failed and I found that the order of fitting each part mattered quite a bit. The function below works pretty well in simulations:
+
+```{r, eval=FALSE}
+fit_ff <- function(B_hat, S_hat, N, R, kmax=100){
+  
+  n_var <- nrow(B_hat)
+  n_trait <- ncol(B_hat)
+  stopifnot(nrow(S_hat) == n_var & ncol(S_hat) == n_trait)
+  stopifnot(length(N) == n_trait)
+  
+  Sigma <- diag(sqrt(N)) %*% R %*% diag(sqrt(N))  
+  lambda_min <- eigen(Sigma) %>% 
+                with(., min(values))
+  Sig_new <- Sigma - lambda_min*diag(rep(1, ntrait))
+  
+  B_tilde = t( (1/sqrt(N)) *t(B_hat/S))
+  S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
+  
+  if(all(Sig_new ==0)){
+    fit <- NULL
+    B_hat <- NULL
+    F_hat <- NULL
+  }else{
+    Z <- with(dat, beta_hat/se_beta_hat)
+    Sig_eig <- eigen(Sig_new)
+    V <- Sig_eig$vectors[, -n_trait]
+    W <- V %*% sqrt(Sig_eig$values[-n_trait])
+    
+    # randomly initialize A
+    A_rand <- matrix(rnorm(n=nvar*(ntrait-1)), nrow=nvar, ncol=(ntrait-1))
+
+    #First add some greedy factors but don't backfit
+    fit <-  flash.init(B_tilde, S = sqrt(lambda_min), var.type = 2) %>%
+            flash.add.greedy(Kmax = ntrait, init.fn = init.fn.default )
+    #Next add in fixed factorsl. Use sequential mode for backfit
+    n <- fit$n.factors;
+    fit <- fit %>%
+           flash.init.factors(., EF = list(A_rand, W), prior.family = prior.normal(scale= 1)) %>%
+           flash.fix.loadings(., kset = n + 1:(ntrait-1), mode=2) %>%
+           flash.backfit(method = "sequential")
+    
+    F_hat <- fit$loadings.pm[[2]][,1:n]
+    fixed_ix <- n + (1:(ntrait-1))
+    B_hat <- fitted(fit) - with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+  }  
+}
+```
+
+
+### Estimating $\Sigma$
+
+So far I have only used a straight forward approach of estimating $R$, the correlation of rows of $E$ empirically with $\hat{R}_{m, m\prime} = Cor(\hat{\beta}_{\bullet, m}, \hat{\beta}_{\bullet, m^\prime}) $. In real data I estimate each element of $R$ using slightly different variants due to missingness. I found that limiting only to variants non-missing yields too few variants to accurately estimate the correlations. Theoretically, this no longer guarantees that the the resulting matrix is positive semi-definite but in practice it has not been a problem. 
+
+I did some experiments limiting the variants used to estimate $R$ based on a $p$-value threshold. Ideally, if we knew a subset of variants that were associated with zero rows of $L$, it would be best to use these variants. If $\Theta$ is sparse, these variants should be those with zero marginal effect so we can try to approximate such a set by setting a $p$-value threshold and only taking variants above that threshold for all traits (or both traits if estimating pair-wise). In simulations, this always performed worse than using all variants. What is best in real data is an open question.

@@ -1,0 +1,26 @@
+---
+title: "Home"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+In this project I am studying the potential utility of factor analysis applied to GWAS summary statistics for understanding relationships between traits. 
+
+0. [Summaries of my first experiments](basic_flash_analysis.html)
+1. [A more careful look at ways to use EBMF](metabo_flash_experiments.html)
+1. [Jason ran `flash` and `flashr` on our data using many parameters](https://willwerscheid.github.io/FLASHvestigations/jean.html)
+1. [More flashier comparisons with slightly different data](metabo_flash_experiments_order1.html)
+1. [Experimenting with fixed factors and loadings](fixed_factors.html)
+1. [Fixing loadings to represent GO IDs](pathway_factors.html)
+1. [Computing SNP-based genetic correlation](genetic_correlation.html)
+1. [First Simulations](simulations.html)
+1. [Blood cell traits](blood_cell.html)
+1. [Correcting for sample overlap](simulations2.html)
+1. [A sumary of early April Simulations](sample_cor_ld_sims.html)
+1. [How to simulate summary statistics](simulating_data.html)
+1. [Revisiting Fixed Factor Sample Correlation Correction](fixed_factors2.html)
+1. [Immune Mediated Diseases](imd.html)

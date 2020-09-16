@@ -43,7 +43,7 @@ Each GWAS produces $\beta_{j, m}$, the association of variant $j$ with trait $m$
 $$
 \beta_{j,m} = \sum_{k=1}^{K}l_{jk}f_{mk} + \theta_{j,m}
 $$
-If each variant explains a small proportion of the overall trait variance, then the variance of $\hat{\beta}_{j,m}$, the OLS estimate of $\beta_{j,m}$ is approximately $\frac{\sigma^2_{Ym}}{N_m \sigma^2_{Gj}}$ where $\sigma^2_{Ym}$ is the variance of trait $m$ and $\sigma^2_{Gj}$ os the variance of variant $j$, or $2 f_j (1-f_j)$ where $f_j$ is the allele frequency of variant $j$. It will be convenient later to assume that both the traits and the variants have been standardized so that the variance of $\hat{\beta}_{j,m}$ is about $1/N_m$. We will refer to these as "standardized" effect estimates. 
+If each variant explains a small proportion of the overall trait variance, then the variance of $\hat{\beta}_{j,m}$, the OLS estimate of $\beta_{j,m}$ is approximately $\frac{\sigma^2_{Ym}}{N_m \sigma^2_{Gj}}$ where $\sigma^2_{Ym}$ is the variance of trait $m$ and $\sigma^2_{Gj}$ os the variance of variant $j$, or $2 f_j (1-f_j)$ where $f_j$ is the allele frequency of variant $j$. It will be convenient later to assume that both the traits and the variants have been standardized so that the variance of $\hat{\beta}_{j,m}$ is about $1/N_m$. 
 
 Let $\hat{B}$ be the $J \times M$ matrix of marginal effect estimates and $B$ be the $J \times M$ matrix of true marginl associations. Then
 
@@ -52,9 +52,9 @@ $$
  = L F^\top + \Theta + E
 $$
 where $L$ is the $J\times K$ matrix of SNP effects, $F$ is the $M \times K$ matrix of factor effects on traits and $\Theta$ is the $J\times M$ matrix of vairant effects not mediated by factors. 
-Because all studies are independent and all variants are independent, the elements of $E$ are independent. If effects are standardized, we can assume that $E_{j,m} \sim N(0, \frac{1}{N_m})$, so each column of $E$ is iid. 
+Because all studies are independent and all variants are independent, the elements of $E$ are independent.
 
-This is precisely the problem that FLASH is designed to solve, with additional assumptions that $L$ and $F$ are sparse and that $\Theta$ is dense. FLASH can estimate a different distribution for each collumn of $L$ and $F$ and each column of $\Theta$. 
+This is precisely the problem that FLASH is designed to solve, with additional assumptions that $L$ and $F$ are sparse and that $\Theta$ is dense. FLASH can estimate a different distribution for each column of $L$ and $F$ and each column of $\Theta$. 
 
 ## Fully overlapping samples
 
