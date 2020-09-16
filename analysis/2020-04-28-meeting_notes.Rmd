@@ -1,0 +1,63 @@
+---
+title: "2020-04-29 Meeting Notes"
+author: "Jean Morrison"
+date: "2020-04-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## State of the project and various issues
+
+Model reminder
+
+$$
+\hat{B} = L F^\top + \Theta + E
+$$
+
+
+1. Correcting for sample overlap: 
+    a. Eigenvector correction vs fixed factors, why doesn't fixed factors work? (Look at some simulation results, if needed)
+    b. Estimating R -- best method may be to just use all variants without threshold. Probably estimate $R$ element-wise and project to make it psd if necessary.
+    c. Non-independence of $\Theta U$ using eigenvector method. In simulations this hasn't had a big effect, why? (no final simulation results to show yet)
+    
+2. Estimating using $z$-scores. 
+    a. If $\sigma_{mj} = a_m b_j$, Using $z$-scores we are estimating a transformation of $F$ where the rows are scaled by $a_m$. The sign and sparsity are the same but the relative values will change. We should be able to recover $a_m$ approximately and recover $F$ -- is there an existing method for doing this?
+
+3. More simulation issues
+     a. In sims it seems to be easy to recover $F$ even when studies are under-powered and $\Theta$ contributes to a large fraction of heritability. This seems surprising to me. Perhaps simulations are unrealistic in a critical way.
+
+4. Applying to real data:
+    a. I think I will try using all or a large subset of variants (minimum missingness threshold?) rather than thresholding based on results of simulations.
+    b. I will try pairwise estimation of $R$ for computtaional reasons. 
+  
+5. What am I doing now:
+    a. In progress simulations with a variety of $\Theta$ and environmental covariance structures. These don't have LD
+    b. Re-run the blood cell/immune mediated disease example with all variants and correcting for sample overlap.
+  
+6. What next?
+    a. A bigger more compelling application
+    b. Either solve the issue with the fixed factor method or justify why non-independent $\Theta U$ is not a problem. 
+    c. Write paper?
+
+
+Eigenvector correction
+
+$$
+\hat{Z}U = LF^\top U + \Theta U + E U
+$$
+
+Fixed factor correction
+
+This strategy is based on ideas from Matthew and Jason [here](https://willwerscheid.github.io/FLASHvestigations/arbitraryV.html). Briefly, 
+ let $\lambda_{min}$ be the smallest eigenvalue of $R$ and let $W = R - \lambda_{min}I$. Let $v_1, \dots, v_M$ be eigenvectors of $W$ and $a_1, \dots, a_M$ eigenvalues of $W$. 
+Then we can decompose $E$ as
+
+$$
+E = \sum_{k=1}^n v_k t_k^T + E^{\prime}
+$$
+where the elements of $E^{\prime}$ are iid $E^{\prime}_{ij} \sim N(0, \lambda_{min})$ ant $t_k$ are $J\times 1$ vectors with iid elements $t_ki \sim N(0, a_k)$.
+This means that we can fit the model by including $M$ fixed factors $v_1, \dots, v_M$ and specifying the prior for the associated loadings. 
+
+
+
