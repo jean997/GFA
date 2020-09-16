@@ -14,7 +14,7 @@
 #'@param R_LD_list List of eigen decompositions of LD correlation matrices, may be missing.
 #'@param relative_pve
 #'@param g_F Function from which non-zero elements of F are generated
-#'@param pi_F Propotiono of non-zero elements of F
+#'@param pi_F Propotion of non-zero elements of F
 #'@export
 sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_theta,
                             R_E, R_LD, relative_pve,
@@ -157,8 +157,8 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 }
 
 scale_F <- function(F_init, square_row_sums, square_col_sums, tol = 1e-5, max_rep = 100){
-  stopifnot(all(square_row_sums > 0))
-  stopifnot(all(square_col_sums > 0))
+  stopifnot(all(square_row_sums >= 0))
+  stopifnot(all(square_col_sums >= 0))
   stopifnot(abs(sum(square_row_sums) - sum(square_col_sums)) < tol)
   M <- length(square_row_sums)
   K <- length(square_col_sums)
