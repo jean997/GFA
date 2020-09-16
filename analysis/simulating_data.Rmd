@@ -74,7 +74,7 @@ Simulation procedure:
 4. Compute row covariance of error, $\frac{1}{N}\Sigma$.
 5. For each $j$, sample $E_{j,\bullet}$ from a $N_{M}(0, \frac{1}{N}\Sigma)$ distribution
 6. Compute $\hat{\beta}_{j,\bullet} = \beta_{j,\bullet} + E_{j, \bullet}$
-7. The standard error of $\hat{\beta}_{j, \bullet}$ is $\sqrt{(sqrt(\Sigma)/N}$
+7. The standard error of $\hat{\beta}_{j, \bullet}$ is $\sqrt{diag(\Sigma)/N}$
 
 Without constraining the model, we can set $\sigma_{l,k} = 1/J$ for all $k$ making $f_{m,k}^2$ interpretable as the proportion of variance contributed to trait $m$ by the heritable component of factor $k$. This requires re-scaling rows of $F$ so that
 
