@@ -1,0 +1,49 @@
+---
+title: "Introduction"
+author: "Jean Morrison"
+date: "2020-08-26"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Motivation/background
+
+Over the past several decades, the sicentific community has ammassed results from thousands of genome-wide association studies. One of the things we have learned comparing results across many traits is that pleiotropy (when a single variant affects multiple traits) is extremely common. Pleiotropy has been studied through many lenses including at a single variant level (co-localization or multi-trait GWAS) and at a genome-wide level (genetic correlation). 
+
+A small subset of the pleiotropy that has been observed is due to causal effects. If changes in trait A causally alter trait B, then variants that affect A will also be associated with B. This is the motivation for Mendelian randomization. However, it has become clear that there are many pleiotropic effects that cannot be explained by causal effects. 
+There is evidence that at least some of this pleiotropy can be explained by effects mediated by unmeasured shared fctors, such as metabolite or gene expression levels. 
+
+The goal of this project is to identify genetic signatures of these shared factors. These "signatures" have two uses. First we can identify which sets of traits are sharing a particular inferred factor. Ideally this allows us to make statements about what proportion of heritability of a particular trait is explained by each factor. More broadly, it allows us to understand which sets of traits have the largest proportions of sharing and in what directions those effects go. Second, we can use the variants associated with each signature and to some extent the traits to try to characterize the biological role of each inferred factor. This application is slightly more speculative as there are several potential difficulties that will be discussed later in more detailed portions of this overview.
+
+
+
+## Idea/method overview
+
+
+The main idea of this project is to apply sparse matrix decomposition to matrices of summary statistics. So far I have only used FLASH and I think there are some good arguments to be made that FLASH is a good option. The general idea is that we imagine a set of $K$ unmeasured factors that have linear effects on $M$ traits. We have measured the marginal association of $J$ variants which each trait yielding a $J\times M$ matrix of effect estimates. If we assume variant effects on factors are linear and variants are independent, we can write the matrix of true marginal effects $B$ as $B = L F^\top + \Theta$ where $L$ is $J\times K$ and contains variant effects on factors and $F$ is $M \times K$ and contains factor effects on traits. $\Theta$ is a matrix of effects not mediated by the hidden factors. 
+
+## Related work
+
+
+## Model in More Detail
+
+See [here](model.html)
+
+## Estimation 
+
+See [here](estimation.html)
+
+## Simulations
+
+In reverse chronological order 
+
+1. [Revisiting Fixed Factor Sample Correlation Correction](fixed_factors2.html)
+1. [A sumary of early April Simulations](sample_cor_ld_sims.html)
+
+
+
+## Analyses of data
+In reverse chronological order
+
+1. [Immune Mediated Diseases](imd.html)
