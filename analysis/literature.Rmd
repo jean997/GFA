@@ -1,0 +1,52 @@
+---
+title: "Summary of Relevant Literature"
+author: "Jean Morrison"
+date: "2020-05-14"
+bibliography: sumstat_factors.bib
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Background
+
++ FLASH
+
++ penalized SVD
+
++ @Watanabe2019 A global overview of pleiotropy and genetic architecture in complex traits
+
+## Related work
+
++ @Urbut2018 MASH
+
++ @Tanigawa2019  Components of genetic associations across 2,138 phenotypes in the UK Biobank highlight adipocyte biology
+
+Truncated SVD via DeGAs. Separate analysis on different variant sets (1) all vairants, (2) coding vairants (3) protein truncating variants. Retained z-scores for variant-trait pairs with $p < 0.001$ and standard error below a threshold. I believe other z-scores were set to zero. I don't think there is any correction for sample overlap. 
+
+
++ @Argelaguet2018 Multi-Omics Factor Analysis (MOFA)
+
+Intended for integrating different (high dimensioanal) data modalities (e.g. expression, methylation etc), uses individual level data. Loadings can be sparse. Based on group factor analysis (a long list of references! Virtanen et al 2012, Khan et al 2014, Klami et al 2015, Bunte et al 2016, Zhao et al 2016, Leppaaho and Kaski 2017). "(i) fast inference based on a varia- tional approximation, (ii) inference of sparse solutions facilitating interpretation, (iii) efficient handling of missing values and (iv) flex- ible combination of different likelihood models for each data modality, which enables integrating diverse data types such as binary-, count- and continuous-valued data."
+
+
++ @Burren2020 Characterisation of the genetic architecture of immune mediated disease through informed dimension reduction. Uses PCA
+
++ @Grotzinger2019 Genomic SEM Provides Insights into the Multivariate Genetic Architecture of Complex Traits
+
++ @Runcie2013 Dissecting high-dimensional phenotypes with Bayesian sparse factor analysis of genetic covariance matrices
+
++ @Chasman2020 Pleiotropy based deocomposition of genomic risk scores.
+
++ @Gao2013 A latent factor model with a mixture of sparse and dense factors to model gene expression data with confounding effects
+
+Based on SVD
+
+## Data Applications
+
++ @Astle2016 Blood cells data set
+
++ @Khramtsova2019
+Review article about sex differences in common diseases and common disease genetics.
+
+## References
