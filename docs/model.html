@@ -416,7 +416,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-15
+<strong>Last updated:</strong> 2020-09-16
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -447,16 +447,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreea4f0dce2d90b54e19357858ed1c83f337bb5def3targetblanka4f0dcea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/a4f0dce2d90b54e19357858ed1c83f337bb5def3" target="_blank">a4f0dce</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree2b876239da50fb8326d9c924376693344b9388e1targetblank2b87623a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/2b876239da50fb8326d9c924376693344b9388e1" target="_blank">2b87623</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreea4f0dce2d90b54e19357858ed1c83f337bb5def3targetblanka4f0dcea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree2b876239da50fb8326d9c924376693344b9388e1targetblank2b87623a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jean997/sumstatFactors/tree/a4f0dce2d90b54e19357858ed1c83f337bb5def3" target="_blank">a4f0dce</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jean997/sumstatFactors/tree/2b876239da50fb8326d9c924376693344b9388e1" target="_blank">2b87623</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -475,13 +475,9 @@ Ignored files:
 
 Untracked files:
     Untracked:  R/est_R_pairwise.R
-    Untracked:  analysis/2020-04-28-meeting_notes.Rmd
-    Untracked:  analysis/2020-08-10-meeting_notes.Rmd
     Untracked:  analysis/k_greater_than_n.Rmd
-    Untracked:  analysis/literature.Rmd
     Untracked:  analysis/sample_corr2.Rmd
     Untracked:  analysis/simple_patterns_simulations.Rmd
-    Untracked:  analysis/sumstat_factors.bib
     Untracked:  buttons.css
     Untracked:  bw_factors2.png
     Untracked:  code/hide_output.js
@@ -491,7 +487,6 @@ Untracked files:
 
 Unstaged changes:
     Modified:   R/sim_sumstats_lf.R
-    Modified:   analysis/simulating_data.Rmd
 
 </code></pre>
 <p>
@@ -530,6 +525,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/jean997/sumstatFactors/blob/284f75b7cf150993cb08439e8087c89ed3713505/analysis/model.Rmd" target="_blank">284f75b</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-16
+</td>
+<td>
+rename and move stuff around for new structure
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jean997/sumstatFactors/7a2b85f3ea3443a2538c35f74960c5220b95fdd0/docs/model.html" target="_blank">7a2b85f</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -581,13 +610,13 @@ Y_{m,i} = \sum_{k=1}^{K}f_{mk}F_{k,i} + \sum_{j=1}^{J} \theta_{j,m}G^{(m)}_{j,i}
 <p>Each GWAS produces <span class="math inline">\(\beta_{j, m}\)</span>, the association of variant <span class="math inline">\(j\)</span> with trait <span class="math inline">\(m\)</span>. Using our assumption that all effect variants are independent,</p>
 <p><span class="math display">\[
 \beta_{j,m} = \sum_{k=1}^{K}l_{jk}f_{mk} + \theta_{j,m}
-\]</span> If each variant explains a small proportion of the overall trait variance, then the variance of <span class="math inline">\(\hat{\beta}_{j,m}\)</span>, the OLS estimate of <span class="math inline">\(\beta_{j,m}\)</span> is approximately <span class="math inline">\(\frac{\sigma^2_{Ym}}{N_m \sigma^2_{Gj}}\)</span> where <span class="math inline">\(\sigma^2_{Ym}\)</span> is the variance of trait <span class="math inline">\(m\)</span> and <span class="math inline">\(\sigma^2_{Gj}\)</span> os the variance of variant <span class="math inline">\(j\)</span>, or <span class="math inline">\(2 f_j (1-f_j)\)</span> where <span class="math inline">\(f_j\)</span> is the allele frequency of variant <span class="math inline">\(j\)</span>. It will be convenient later to assume that both the traits and the variants have been standardized so that the variance of <span class="math inline">\(\hat{\beta}_{j,m}\)</span> is about <span class="math inline">\(1/N_m\)</span>. We will refer to these as “standardized” effect estimates.</p>
+\]</span> If each variant explains a small proportion of the overall trait variance, then the variance of <span class="math inline">\(\hat{\beta}_{j,m}\)</span>, the OLS estimate of <span class="math inline">\(\beta_{j,m}\)</span> is approximately <span class="math inline">\(\frac{\sigma^2_{Ym}}{N_m \sigma^2_{Gj}}\)</span> where <span class="math inline">\(\sigma^2_{Ym}\)</span> is the variance of trait <span class="math inline">\(m\)</span> and <span class="math inline">\(\sigma^2_{Gj}\)</span> os the variance of variant <span class="math inline">\(j\)</span>, or <span class="math inline">\(2 f_j (1-f_j)\)</span> where <span class="math inline">\(f_j\)</span> is the allele frequency of variant <span class="math inline">\(j\)</span>. It will be convenient later to assume that both the traits and the variants have been standardized so that the variance of <span class="math inline">\(\hat{\beta}_{j,m}\)</span> is about <span class="math inline">\(1/N_m\)</span>.</p>
 <p>Let <span class="math inline">\(\hat{B}\)</span> be the <span class="math inline">\(J \times M\)</span> matrix of marginal effect estimates and <span class="math inline">\(B\)</span> be the <span class="math inline">\(J \times M\)</span> matrix of true marginl associations. Then</p>
 <p><span class="math display">\[
 \hat{B} = B + E \\
  = L F^\top + \Theta + E
-\]</span> where <span class="math inline">\(L\)</span> is the <span class="math inline">\(J\times K\)</span> matrix of SNP effects, <span class="math inline">\(F\)</span> is the <span class="math inline">\(M \times K\)</span> matrix of factor effects on traits and <span class="math inline">\(\Theta\)</span> is the <span class="math inline">\(J\times M\)</span> matrix of vairant effects not mediated by factors. Because all studies are independent and all variants are independent, the elements of <span class="math inline">\(E\)</span> are independent. If effects are standardized, we can assume that <span class="math inline">\(E_{j,m} \sim N(0, \frac{1}{N_m})\)</span>, so each column of <span class="math inline">\(E\)</span> is iid.</p>
-<p>This is precisely the problem that FLASH is designed to solve, with additional assumptions that <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> are sparse and that <span class="math inline">\(\Theta\)</span> is dense. FLASH can estimate a different distribution for each collumn of <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> and each column of <span class="math inline">\(\Theta\)</span>.</p>
+\]</span> where <span class="math inline">\(L\)</span> is the <span class="math inline">\(J\times K\)</span> matrix of SNP effects, <span class="math inline">\(F\)</span> is the <span class="math inline">\(M \times K\)</span> matrix of factor effects on traits and <span class="math inline">\(\Theta\)</span> is the <span class="math inline">\(J\times M\)</span> matrix of vairant effects not mediated by factors. Because all studies are independent and all variants are independent, the elements of <span class="math inline">\(E\)</span> are independent.</p>
+<p>This is precisely the problem that FLASH is designed to solve, with additional assumptions that <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> are sparse and that <span class="math inline">\(\Theta\)</span> is dense. FLASH can estimate a different distribution for each column of <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> and each column of <span class="math inline">\(\Theta\)</span>.</p>
 </div>
 <div id="fully-overlapping-samples" class="section level2">
 <h2>Fully overlapping samples</h2>
