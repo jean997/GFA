@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Jean Morrison" />
 
+<meta name="date" content="2020-08-26" />
 
-<title>Home</title>
+<title>Introduction</title>
 
 <script src="site_libs/header-attrs-2.3/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -20,6 +22,9 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -261,6 +266,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -268,6 +336,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -311,7 +389,9 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Introduction</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-08-26</h4>
 
 </div>
 
@@ -426,7 +506,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML (<code>docs/index.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/intro.Rmd</code>) and HTML (<code>docs/intro.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -455,7 +535,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/a4f0dce2d90b54e19357858ed1c83f337bb5def3/analysis/index.Rmd" target="_blank">a4f0dce</a>
+<a href="https://github.com/jean997/sumstatFactors/blob/a4f0dce2d90b54e19357858ed1c83f337bb5def3/analysis/intro.Rmd" target="_blank">a4f0dce</a>
 </td>
 <td>
 Jean Morrison
@@ -467,448 +547,6 @@ Jean Morrison
 wflow_publish(c(“analysis/model.Rmd”, “analysis/intro.Rmd”, “analysis/index.Rmd”))
 </td>
 </tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/066b89c2a2d634cee02d4a5600d7ff595a641674/docs/index.html" target="_blank">066b89c</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-06-18
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d5383719d57fe639df99dc75cbbedeeb86da96f1/analysis/index.Rmd" target="_blank">d538371</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-06-18
-</td>
-<td>
-wflow_publish(“analysis/index.Rmd”)
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/d640421bc09d1876379e7275e909aed4d6b47836/docs/index.html" target="_blank">d640421</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-05-11
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b/analysis/index.Rmd" target="_blank">dd5b4ea</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-05-11
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/simulating_data.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/783f78f0799cd14c9cc24e47c73dfcea83e4c421/docs/index.html" target="_blank">783f78f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/63c504a415dfa16202df578e97b46beb14feb841/docs/index.html" target="_blank">63c504a</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8e84469759f64234d157b987604429bddb1465bf/analysis/index.Rmd" target="_blank">8e84469</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/aecaabea2bb027624d969100679933c6f13a4f26/docs/index.html" target="_blank">aecaabe</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cdb088f75e763f3368618a91350056750f019324/analysis/index.Rmd" target="_blank">cdb088f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”, “analysis/sample_cor_ld_sims.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/98e4a16666ff6a6085b6e304a0d51f9b5ebf4f7b/docs/index.html" target="_blank">98e4a16</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-02-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/e6a93b6873ef4fb2e6655cf18ce71820f828fd94/analysis/index.Rmd" target="_blank">e6a93b6</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-02-28
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5a0e1261efdc5cef3769a8ec34f36a1800e66239/docs/index.html" target="_blank">5a0e126</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-11-21
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/1133e2f124c80a4844c2734eb9d6a691af3d1f28/analysis/index.Rmd" target="_blank">1133e2f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-11-21
-</td>
-<td>
-wflow_publish(c(“analysis/blood_cell.Rmd”, “analysis/simulations.Rmd”, “analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/12603790393f72446e82730a6b0cae6b216c886b/docs/index.html" target="_blank">1260379</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-06
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/index.Rmd" target="_blank">f1d6d49</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-06
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”,
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/08ca7a4c97a73ff19ed9484550c1131b7a3a54b4/docs/index.html" target="_blank">08ca7a4</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8ea9d83def68b2f3096cc21d93e16b6caf0284e7/analysis/index.Rmd" target="_blank">8ea9d83</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/b8a43046fade012a290c95a6b80b27461e96a3d3/docs/index.html" target="_blank">b8a4304</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/eadc4020cf894c7bc9421f81c92afaa3dbda9f9b/analysis/index.Rmd" target="_blank">eadc402</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/index.html" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d51bfe15bc7d399268fd89158d03c57b72d05157/analysis/index.Rmd" target="_blank">d51bfe1</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_order1.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/fce679d244e406c8c6c80b48c6062c779b612945/docs/index.html" target="_blank">fce679d</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/index.Rmd" target="_blank">ba80a6a</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-26
-</td>
-<td>
-wflow_publish(files = c(“analysis/index.Rmd”, “analysis/basic_flash_analysis.Rmd”))
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5af52bd9424029838c6b5a7938c256d0cf793de0/docs/index.html" target="_blank">5af52bd</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/4d40fba9780a880e0e1f160f0616791544a71ecf/analysis/index.Rmd" target="_blank">4d40fba</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Project Start
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/jean997/sumstatFactors/blob/0070d00d849da0212059abc7bd065a5199e1e681/analysis/index.Rmd" target="_blank">0070d00</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Start workflowr project.
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -916,23 +554,42 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<p>In this project I am studying the potential utility of factor analysis applied to GWAS summary statistics for understanding relationships between traits.</p>
-<ol start="0" style="list-style-type: decimal">
-<li><a href="basic_flash_analysis.html">Summaries of my first experiments</a></li>
-<li><a href="metabo_flash_experiments.html">A more careful look at ways to use EBMF</a></li>
-<li><a href="https://willwerscheid.github.io/FLASHvestigations/jean.html">Jason ran <code>flash</code> and <code>flashr</code> on our data using many parameters</a></li>
-<li><a href="metabo_flash_experiments_order1.html">More flashier comparisons with slightly different data</a></li>
-<li><a href="fixed_factors.html">Experimenting with fixed factors and loadings</a></li>
-<li><a href="pathway_factors.html">Fixing loadings to represent GO IDs</a></li>
-<li><a href="genetic_correlation.html">Computing SNP-based genetic correlation</a></li>
-<li><a href="simulations.html">First Simulations</a></li>
-<li><a href="blood_cell.html">Blood cell traits</a></li>
-<li><a href="simulations2.html">Correcting for sample overlap</a></li>
-<li><a href="sample_cor_ld_sims.html">A sumary of early April Simulations</a></li>
-<li><a href="simulating_data.html">How to simulate summary statistics</a></li>
+<div id="motivationbackground" class="section level2">
+<h2>Motivation/background</h2>
+<p>Over the past several decades, the sicentific community has ammassed results from thousands of genome-wide association studies. One of the things we have learned comparing results across many traits is that pleiotropy (when a single variant affects multiple traits) is extremely common. Pleiotropy has been studied through many lenses including at a single variant level (co-localization or multi-trait GWAS) and at a genome-wide level (genetic correlation).</p>
+<p>A small subset of the pleiotropy that has been observed is due to causal effects. If changes in trait A causally alter trait B, then variants that affect A will also be associated with B. This is the motivation for Mendelian randomization. However, it has become clear that there are many pleiotropic effects that cannot be explained by causal effects. There is evidence that at least some of this pleiotropy can be explained by effects mediated by unmeasured shared fctors, such as metabolite or gene expression levels.</p>
+<p>The goal of this project is to identify genetic signatures of these shared factors. These “signatures” have two uses. First we can identify which sets of traits are sharing a particular inferred factor. Ideally this allows us to make statements about what proportion of heritability of a particular trait is explained by each factor. More broadly, it allows us to understand which sets of traits have the largest proportions of sharing and in what directions those effects go. Second, we can use the variants associated with each signature and to some extent the traits to try to characterize the biological role of each inferred factor. This application is slightly more speculative as there are several potential difficulties that will be discussed later in more detailed portions of this overview.</p>
+</div>
+<div id="ideamethod-overview" class="section level2">
+<h2>Idea/method overview</h2>
+<p>The main idea of this project is to apply sparse matrix decomposition to matrices of summary statistics. So far I have only used FLASH and I think there are some good arguments to be made that FLASH is a good option. The general idea is that we imagine a set of <span class="math inline">\(K\)</span> unmeasured factors that have linear effects on <span class="math inline">\(M\)</span> traits. We have measured the marginal association of <span class="math inline">\(J\)</span> variants which each trait yielding a <span class="math inline">\(J\times M\)</span> matrix of effect estimates. If we assume variant effects on factors are linear and variants are independent, we can write the matrix of true marginal effects <span class="math inline">\(B\)</span> as <span class="math inline">\(B = L F^\top + \Theta\)</span> where <span class="math inline">\(L\)</span> is <span class="math inline">\(J\times K\)</span> and contains variant effects on factors and <span class="math inline">\(F\)</span> is <span class="math inline">\(M \times K\)</span> and contains factor effects on traits. <span class="math inline">\(\Theta\)</span> is a matrix of effects not mediated by the hidden factors.</p>
+</div>
+<div id="related-work" class="section level2">
+<h2>Related work</h2>
+</div>
+<div id="model-in-more-detail" class="section level2">
+<h2>Model in More Detail</h2>
+<p>See <a href="model.html">here</a></p>
+</div>
+<div id="estimation" class="section level2">
+<h2>Estimation</h2>
+<p>See <a href="estimation.html">here</a></p>
+</div>
+<div id="simulations" class="section level2">
+<h2>Simulations</h2>
+<p>In reverse chronological order</p>
+<ol style="list-style-type: decimal">
 <li><a href="fixed_factors2.html">Revisiting Fixed Factor Sample Correlation Correction</a></li>
+<li><a href="sample_cor_ld_sims.html">A sumary of early April Simulations</a></li>
+</ol>
+</div>
+<div id="analyses-of-data" class="section level2">
+<h2>Analyses of data</h2>
+<p>In reverse chronological order</p>
+<ol style="list-style-type: decimal">
 <li><a href="imd.html">Immune Mediated Diseases</a></li>
 </ol>
+</div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
@@ -950,6 +607,8 @@ footer is added to webpages before the MathJax javascript. -->
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -982,6 +641,32 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
