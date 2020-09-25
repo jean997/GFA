@@ -46,6 +46,7 @@ In reverse chronological order
 In reverse chronological order
 
 1. [Immune Mediated Diseases](imd.html)
+1. [Blood Cell Traits](blood_cell.html)
 
 ## Related work
 
