@@ -1,5 +1,5 @@
 name: gwas_factors
-output_dir: ../docs
+output_dir: ../public
 navbar:
   title: gwas_factors
   left:
@@ -10,9 +10,9 @@ navbar:
   - text: License
     href: license.html
   right:
-  - icon: fa-github
+  - icon: fa-gitlab
     text: Source code
-    href: https://github.com/jean997/ss_factors
+    href: https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization
 output:
   workflowr::wflow_html:
     toc: yes
