@@ -374,8 +374,8 @@ div.tocify {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jean997/ss_factors">
-    <span class="fa fa-github"></span>
+  <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization">
+    <span class="fa fa-gitlab"></span>
      
     Source code
   </a>
@@ -416,7 +416,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-16
+<strong>Last updated:</strong> 2020-09-25
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -447,16 +447,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreeccc99550d77fe756e049a345b595302a5b67fd96targetblankccc9955a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/ccc99550d77fe756e049a345b595302a5b67fd96" target="_blank">ccc9955</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef1b0a5a9fedeb914c0a3a0cd58b2684a51a052c8targetblankf1b0a5aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f1b0a5a9fedeb914c0a3a0cd58b2684a51a052c8" target="_blank">f1b0a5a</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstreeccc99550d77fe756e049a345b595302a5b67fd96targetblankccc9955a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef1b0a5a9fedeb914c0a3a0cd58b2684a51a052c8targetblankf1b0a5aa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jean997/sumstatFactors/tree/ccc99550d77fe756e049a345b595302a5b67fd96" target="_blank">ccc9955</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f1b0a5a9fedeb914c0a3a0cd58b2684a51a052c8" target="_blank">f1b0a5a</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -465,6 +465,7 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/figure/
     Ignored:    analysis/fixed_factors2_cache/
     Ignored:    analysis/fixed_factors_cache/
     Ignored:    analysis/metabo_flash_experiments_cache/
@@ -485,9 +486,6 @@ Untracked files:
     Untracked:  k99_fit.RDS
     Untracked:  matrix_20.png
 
-Unstaged changes:
-    Modified:   R/sim_sumstats_lf.R
-
 </code></pre>
 <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
@@ -501,7 +499,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML (<code>docs/index.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML (<code>public/index.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -530,7 +528,41 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/ccc99550d77fe756e049a345b595302a5b67fd96/analysis/index.Rmd" target="_blank">ccc9955</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/f1b0a5a9fedeb914c0a3a0cd58b2684a51a052c8/analysis/index.Rmd" target="_blank">f1b0a5a</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-25
+</td>
+<td>
+wflow_publish(c(“analysis/index.Rmd”, “analysis/model.Rmd”, “analysis/estimation.Rmd”))
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://glcdn.githack.com/jean_morrison/gwas-summay-statistic-factorization/raw/f3643cebf98fa0fb754c5751a21447db21367701/public/index.html" target="_blank">f3643ce</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-25
+</td>
+<td>
+Host with GitLab.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/ccc99550d77fe756e049a345b595302a5b67fd96/analysis/index.Rmd" target="_blank">ccc9955</a>
 </td>
 <td>
 Jean Morrison
@@ -544,27 +576,10 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/literature.Rmd”))
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/e1cf6c31e6ab6368d6f67e141a9f151da6e9e5ae/docs/index.html" target="_blank">e1cf6c3</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-09-16
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/284f75b7cf150993cb08439e8087c89ed3713505/analysis/index.Rmd" target="_blank">284f75b</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/284f75b7cf150993cb08439e8087c89ed3713505/analysis/index.Rmd" target="_blank">284f75b</a>
 </td>
 <td>
 Jean Morrison
@@ -578,27 +593,10 @@ rename and move stuff around for new structure
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/7a2b85f3ea3443a2538c35f74960c5220b95fdd0/docs/index.html" target="_blank">7a2b85f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-09-15
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/a4f0dce2d90b54e19357858ed1c83f337bb5def3/analysis/index.Rmd" target="_blank">a4f0dce</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/a4f0dce2d90b54e19357858ed1c83f337bb5def3/analysis/index.Rmd" target="_blank">a4f0dce</a>
 </td>
 <td>
 Jean Morrison
@@ -612,27 +610,10 @@ wflow_publish(c(“analysis/model.Rmd”, “analysis/intro.Rmd”, “analysis/
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/066b89c2a2d634cee02d4a5600d7ff595a641674/docs/index.html" target="_blank">066b89c</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-06-18
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d5383719d57fe639df99dc75cbbedeeb86da96f1/analysis/index.Rmd" target="_blank">d538371</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/d5383719d57fe639df99dc75cbbedeeb86da96f1/analysis/index.Rmd" target="_blank">d538371</a>
 </td>
 <td>
 Jean Morrison
@@ -646,27 +627,10 @@ wflow_publish(“analysis/index.Rmd”)
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/d640421bc09d1876379e7275e909aed4d6b47836/docs/index.html" target="_blank">d640421</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-05-11
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b/analysis/index.Rmd" target="_blank">dd5b4ea</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/dd5b4eaf5f7ddf793d8c95992748c49c49fd864b/analysis/index.Rmd" target="_blank">dd5b4ea</a>
 </td>
 <td>
 Jean Morrison
@@ -680,44 +644,10 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/simulating_data.Rmd”))
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/783f78f0799cd14c9cc24e47c73dfcea83e4c421/docs/index.html" target="_blank">783f78f</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/63c504a415dfa16202df578e97b46beb14feb841/docs/index.html" target="_blank">63c504a</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8e84469759f64234d157b987604429bddb1465bf/analysis/index.Rmd" target="_blank">8e84469</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/8e84469759f64234d157b987604429bddb1465bf/analysis/index.Rmd" target="_blank">8e84469</a>
 </td>
 <td>
 Jean Morrison
@@ -731,27 +661,10 @@ wflow_publish(files = c(“analysis/index.Rmd”))
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/aecaabea2bb027624d969100679933c6f13a4f26/docs/index.html" target="_blank">aecaabe</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-04-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/cdb088f75e763f3368618a91350056750f019324/analysis/index.Rmd" target="_blank">cdb088f</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/cdb088f75e763f3368618a91350056750f019324/analysis/index.Rmd" target="_blank">cdb088f</a>
 </td>
 <td>
 Jean Morrison
@@ -765,27 +678,10 @@ wflow_publish(files = c(“analysis/index.Rmd”, “analysis/sample_cor_ld_sims
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/98e4a16666ff6a6085b6e304a0d51f9b5ebf4f7b/docs/index.html" target="_blank">98e4a16</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2020-02-28
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/e6a93b6873ef4fb2e6655cf18ce71820f828fd94/analysis/index.Rmd" target="_blank">e6a93b6</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/e6a93b6873ef4fb2e6655cf18ce71820f828fd94/analysis/index.Rmd" target="_blank">e6a93b6</a>
 </td>
 <td>
 Jean Morrison
@@ -799,27 +695,10 @@ wflow_publish(files = c(“analysis/index.Rmd”))
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5a0e1261efdc5cef3769a8ec34f36a1800e66239/docs/index.html" target="_blank">5a0e126</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-11-21
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/1133e2f124c80a4844c2734eb9d6a691af3d1f28/analysis/index.Rmd" target="_blank">1133e2f</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/1133e2f124c80a4844c2734eb9d6a691af3d1f28/analysis/index.Rmd" target="_blank">1133e2f</a>
 </td>
 <td>
 Jean Morrison
@@ -833,27 +712,10 @@ wflow_publish(c(“analysis/blood_cell.Rmd”, “analysis/simulations.Rmd”, �
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/12603790393f72446e82730a6b0cae6b216c886b/docs/index.html" target="_blank">1260379</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-06
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/index.Rmd" target="_blank">f1d6d49</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/f1d6d49dfabeccf432838cac57993cd2041f8467/analysis/index.Rmd" target="_blank">f1d6d49</a>
 </td>
 <td>
 Jean Morrison
@@ -867,27 +729,10 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_o
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/08ca7a4c97a73ff19ed9484550c1131b7a3a54b4/docs/index.html" target="_blank">08ca7a4</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/8ea9d83def68b2f3096cc21d93e16b6caf0284e7/analysis/index.Rmd" target="_blank">8ea9d83</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/8ea9d83def68b2f3096cc21d93e16b6caf0284e7/analysis/index.Rmd" target="_blank">8ea9d83</a>
 </td>
 <td>
 Jean Morrison
@@ -901,27 +746,10 @@ wflow_publish(c(“analysis/index.Rmd”))
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/b8a43046fade012a290c95a6b80b27461e96a3d3/docs/index.html" target="_blank">b8a4304</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/eadc4020cf894c7bc9421f81c92afaa3dbda9f9b/analysis/index.Rmd" target="_blank">eadc402</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/eadc4020cf894c7bc9421f81c92afaa3dbda9f9b/analysis/index.Rmd" target="_blank">eadc402</a>
 </td>
 <td>
 Jean Morrison
@@ -935,27 +763,10 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments.R
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/cc9418863113b55c1f5a945e6bc21b8d78291539/docs/index.html" target="_blank">cc94188</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-09-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/d51bfe15bc7d399268fd89158d03c57b72d05157/analysis/index.Rmd" target="_blank">d51bfe1</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/d51bfe15bc7d399268fd89158d03c57b72d05157/analysis/index.Rmd" target="_blank">d51bfe1</a>
 </td>
 <td>
 Jean Morrison
@@ -969,27 +780,10 @@ wflow_publish(c(“analysis/index.Rmd”, “analysis/metabo_flash_experiments_o
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/fce679d244e406c8c6c80b48c6062c779b612945/docs/index.html" target="_blank">fce679d</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-26
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/index.Rmd" target="_blank">ba80a6a</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/ba80a6a018d552eba8d3f754c0ad95a4ac7f7c61/analysis/index.Rmd" target="_blank">ba80a6a</a>
 </td>
 <td>
 Jean Morrison
@@ -1003,27 +797,10 @@ wflow_publish(files = c(“analysis/index.Rmd”, “analysis/basic_flash_analys
 </tr>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/jean997/sumstatFactors/5af52bd9424029838c6b5a7938c256d0cf793de0/docs/index.html" target="_blank">5af52bd</a>
-</td>
-<td>
-Jean Morrison
-</td>
-<td>
-2019-08-19
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/4d40fba9780a880e0e1f160f0616791544a71ecf/analysis/index.Rmd" target="_blank">4d40fba</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/4d40fba9780a880e0e1f160f0616791544a71ecf/analysis/index.Rmd" target="_blank">4d40fba</a>
 </td>
 <td>
 Jean Morrison
@@ -1040,7 +817,7 @@ Project Start
 Rmd
 </td>
 <td>
-<a href="https://github.com/jean997/sumstatFactors/blob/0070d00d849da0212059abc7bd065a5199e1e681/analysis/index.Rmd" target="_blank">0070d00</a>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/0070d00d849da0212059abc7bd065a5199e1e681/analysis/index.Rmd" target="_blank">0070d00</a>
 </td>
 <td>
 Jean Morrison
@@ -1090,6 +867,7 @@ Start workflowr project.
 <p>In reverse chronological order</p>
 <ol style="list-style-type: decimal">
 <li><a href="imd.html">Immune Mediated Diseases</a></li>
+<li><a href="blood_cell.html">Blood Cell Traits</a></li>
 </ol>
 </div>
 <div id="related-work" class="section level2">
