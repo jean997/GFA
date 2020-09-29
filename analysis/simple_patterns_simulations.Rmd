@@ -1,0 +1,305 @@
+---
+title: "Simulating some very simple patterns"
+author: "Jean Morrison"
+date: "2020-08-25"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+We are interested in investigating "opposite sign factors". Often when we have a clump of closely related traits we see a factor that is shared between all three and a factor that has opposite sign effects on two of the traits. We want to know if this pattern reflects a real pattern or is an artifact. Also investigating here using `S = 1` vs using `S = NULL`. 
+
+
+## Simulation 1: Nested
+
+The first pattern is five traits and two factors. The factors look like this:
+
+```{r}
+library(sumstatFactors)
+library(flashier)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r}
+F1 <- cbind(c(1,1,1), 
+            c(1, 1, 0),
+            c(0, 0, 1)) 
+plot_factors(F1)
+```
+
+We'll set the following parameters:
+
++ Trait heritability: 0.35 for all traits
++ Proportion of heritability from factors: 100%
++ Heritability of each factor: 1 (irrelevant since we will use non-overlapping sample)
++ Proportion of non-zero elements in L_k: 0.1 for all factors
++ Proportion of non-zero elements in theta: 1
++ Environmental trait correlation not mediated by factors: I (also irrelevant)
++ No LD
++ relative_pve: 
++ Proportion of samples overlapping: 0
+
+
+### N = 10,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 10000
+dat <- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+```
+
+SVD of z-scores for comparison
+```{r}
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1, p2, p3, ncol=2)
+```
+
+### N = 100,000
+We will try increasing sample size:
+```{r}
+set.seed(5)
+N <- 100000
+dat <- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+
+```
+
+SVD of z-scores for comparison
+```{r}
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p4 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1, p2, p3, ncol=2)
+```
+
+
+## Simulation 2: Difference
+
+```{r}
+F2 <- cbind(c(1, 1, 1), c(1, -1, 0), c(0, 0, 1)) 
+plot_factors(F2)
+```
+
+
+### N = 10,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 10000
+dat <- sim_sumstats_lf(F_mat = F2, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1,p3, ncol=3)
+```
+
+### N = 5,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 5000
+dat <- sim_sumstats_lf(F_mat = F2, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1, p3, ncol=3)
+```
+
+
+## Simulation 3: Checkers I
+
+```{r}
+F3 <- cbind(c(1, 1, 1), 
+            c(1, 1, 0 ), 
+            c(0, 1, 1))
+plot_factors(F3)
+```
+
+### N = 10,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 10000
+dat <- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1,p2, p3, ncol=2)
+```
+
+
+### N = 100,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 100000
+dat <- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1,p2, p3, ncol=2)
+```
+
+
+## Simulation 4: Checkers II
+
+```{r}
+F4 <- cbind(c(1, 0, 1), 
+            c(1, 1, 0 ), 
+            c(0, 1, 1))
+plot_factors(F4)
+```
+
+### N = 10,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 10000
+dat <- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1,p2, p3, ncol=2)
+```
+
+### N = 100,000
+```{r}
+set.seed(5)
+ntrait <- 3
+nfactor <- 3
+nvar <- 10000
+N <- 100000
+dat <- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
+                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)
+
+```
+
+```{r}
+f1 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
+
+f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
+
+xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
+p3 <- plot_factors(xx$v)  + ggtitle("SVD")
+p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+grid.arrange(p0, p1,p2, p3, ncol=2)
+```
