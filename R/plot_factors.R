@@ -16,6 +16,8 @@ plot_factors_flashier <- function(flashier_fit, names){
 #'@title Plot Factors from a matrix
 #'@export
 plot_factors <- function(x, names, factor_names, trait_order){
+  if(is.null(x)) return(NULL)
+  if(missing(names)) names <- trait_order <-  seq(nrow(x))
   if(missing(factor_names)) factor_names <- seq(ncol(x))
   meltx <- melt(x) %>%
     rename(Trait = Var1, Factor = Var2) %>%
