@@ -10,12 +10,15 @@ editor_options:
 ## Introduction
 We are interested in investigating "opposite sign factors". Often when we have a clump of closely related traits we see a factor that is shared between all three and a factor that has opposite sign effects on two of the traits. We want to know if this pattern reflects a real pattern or is an artifact. Also investigating here using `S = 1` vs using `S = NULL`. 
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(results="hide")
+```
 
 ## Simulation 1: Nested
 
 The first pattern is five traits and two factors. The factors look like this:
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(sumstatFactors)
 library(flashier)
 library(dplyr)
@@ -44,6 +47,8 @@ We'll set the following parameters:
 
 
 ### N = 10,000
+
+We will compare FLASH fits with point normal and non-negative priors with SVD results. 
 ```{r}
 set.seed(5)
 ntrait <- 3
@@ -65,13 +70,13 @@ p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
 
 f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
 p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
-```
 
-SVD of z-scores for comparison
-```{r}
 xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
 p3 <- plot_factors(xx$v)  + ggtitle("SVD")
 p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+```
+
+```{r}
 grid.arrange(p0, p1, p2, p3, ncol=2)
 ```
 
@@ -96,13 +101,12 @@ p1 <- plot_factors(f1$F_hat) + ggtitle("FLASH point-normal")
 f2 <- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
 p2 <- plot_factors(f2$F_hat) + ggtitle("FLASH non-negative")
 
-```
-
-SVD of z-scores for comparison
-```{r}
 xx <- with(dat, beta_hat/se_beta_hat) %>% svd()
 p4 <- plot_factors(xx$v)  + ggtitle("SVD")
 p0 <- plot_factors(dat$F_mat, 1:5) + ggtitle("Truth")
+```
+
+```{r}
 grid.arrange(p0, p1, p2, p3, ncol=2)
 ```
 
