@@ -14,7 +14,7 @@ generate_F_simple <- function(nblocks, type=c("nested", "difference",
     m <- cbind(c(1, 1, 1),
                c(1, 1, 0 ),
                c(0, 1, 1))
-  }else if(type = "checkers2"){
+  }else if(type == "checkers2"){
     m <-  cbind(c(1, 0, 1),
                 c(1, 1, 0 ),
                 c(0, 1, 1))

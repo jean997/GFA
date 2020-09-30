@@ -4,7 +4,14 @@
 \alias{fit_plain}
 \title{Fit plain vanilla FLASH to standardized effects}
 \usage{
-fit_plain(B_hat, S_hat, N, kmax = 100)
+fit_plain(
+  B_hat,
+  S_hat,
+  N,
+  kmax = 100,
+  init_fn = init.fn.softImpute,
+  prior_family = prior.point.normal()
+)
 }
 \arguments{
 \item{B_hat}{Matrix of (non-standardized) effect estimates SNPs by traits}
@@ -14,6 +21,10 @@ fit_plain(B_hat, S_hat, N, kmax = 100)
 \item{N}{Vector of sample sizes length equal to number of traits}
 
 \item{kmax}{Maximum number of factors}
+
+\item{init_fn}{init.fn argument for flashier}
+
+\item{prior_family}{prior.family argument for flashier}
 }
 \value{
 A list with elements fit, B_hat, L_hat, F_hat
