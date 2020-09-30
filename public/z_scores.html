@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2020-04-28" />
+
+<title>Estimating L and F using z-scores</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jean997/ss_factors">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Estimating L and F using z-scores</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-04-28</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-04-28
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 2
+</p>
+<p>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.4.0.9000). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongdetected"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Cache:</strong> detected </a>
+</p>
+</div>
+<div id="strongCachestrongdetected" class="panel-collapse collapse">
+<div class="panel-body">
+The following chunks had caches available:
+<ul>
+<li>
+unnamed-chunk-2
+</li>
+<li>
+unnamed-chunk-3
+</li>
+<li>
+unnamed-chunk-4
+</li>
+</ul>
+<p>To ensure reproducibility of the results, delete the cache directory <code>z_scores_cache</code> and re-run the analysis. To have workflowr automatically delete the cache directory prior to building the file, set <code>delete_cache = TRUE</code> when running <code>wflow_build()</code> or <code>wflow_publish()</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree783f78f0799cd14c9cc24e47c73dfcea83e4c421targetblank783f78fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jean997/sumstatFactors/tree/783f78f0799cd14c9cc24e47c73dfcea83e4c421" target="_blank">783f78f</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjean997sumstatFactorstree783f78f0799cd14c9cc24e47c73dfcea83e4c421targetblank783f78fa" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors_cache/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
+    Ignored:    analysis/simulations_cache/
+    Ignored:    analysis/z_scores_cache/
+
+Untracked files:
+    Untracked:  R/sim_ind_data.R
+    Untracked:  analysis/genetic_correlation.Rmd
+    Untracked:  analysis/ld_etc.Rmd
+    Untracked:  analysis/sample_corr2.Rmd
+    Untracked:  analysis/variant_selection.Rmd
+    Untracked:  analysis/z_scores.Rmd
+    Untracked:  buttons.css
+    Untracked:  code/flashier_compare.R
+    Untracked:  code/flashier_compare_jason.R
+    Untracked:  code/hide_output.js
+    Untracked:  code/mask_flashier.R
+    Untracked:  code/mask_flashr.R
+    Untracked:  docs/figure/ld_etc.Rmd/
+    Untracked:  docs/figure/sample_corr2.Rmd/
+    Untracked:  k99_analysis.R
+    Untracked:  k99_fit.RDS
+    Untracked:  man/sim_bh3.Rd
+
+Unstaged changes:
+    Modified:   R/simulations.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>We should be able to estimate a modified version of <span class="math inline">\(F\)</span> if standard errors decompose, however, I seem to be having issues with this so I am writing it out to hopefully help with that.</p>
+<p>Suppose <span class="math display">\[
+B = LF^\top + \theta
+\]</span> Suppose for now that <span class="math inline">\(s_{jm} = a_{m}\)</span> (i.e. standard error is the same for every variant but different across traits). Then we have</p>
+<p><span class="math display">\[
+B_{jm}/s_{jm} = \sum_{k} l_{jk} \frac{f_{mk}}{a_m} + \frac{\theta_{jm}}{a_m}
+\]</span> So if we estimate the structutre of <span class="math inline">\(z\)</span>-scores, we should obtain an estimate of <span class="math inline">\(\tilde{F}\)</span> equal to <span class="math inline">\(F\)</span> with rows scaled by <span class="math inline">\(a_m\)</span>.</p>
+<p>Generating summary statistics directly from the model:</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+✓ tibble  2.1.3     ✓ dplyr   0.8.3
+✓ tidyr   1.0.0     ✓ stringr 1.4.0
+✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(sumstatFactors)</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39;
+when loading &#39;sumstatFactors&#39;</code></pre>
+<pre class="r"><code>library(flashier)
+knitr::opts_chunk$set(autodep = TRUE)</code></pre>
+<pre class="r"><code>set.seed(1)
+F_mat &lt;- readRDS(&quot;analysis_data/factors2.RDS&quot;)
+nvar &lt;- 10000
+ntrait &lt;- nrow(F_mat)
+nfactor &lt;- ncol(F_mat)
+pi_L &lt;- 0.3
+sigma_L &lt;- 1.3
+L_dist &lt;- ashr::normalmix(pi=c(1-pi_L, pi_L), mean=rep(0, 2), sd=c(0, sigma_L^2));
+L_mat &lt;- replicate(n=nfactor, causeSims::rnormalmix(n=nvar, L_dist))
+theta &lt;- matrix(0, nrow=nvar, ncol=ntrait)
+R &lt;- diag(rep(1, ntrait))
+s &lt;- runif(n = ntrait, min=0.5, max = 1.5)
+S = matrix(rep(s, each = nvar), nrow=nvar, byrow=F)
+dat &lt;- sim_bh2(L_mat, F_mat, theta, S, R)</code></pre>
+<p>This problem is pretty easy so we are retriving almost all the factors pretty well, we miss one</p>
+<pre class="r"><code>fit_bh &lt;- flash.init(dat$beta_hat, S = dat$se_hat, var.type = 2) %&gt;%
+              flash.add.greedy(., Kmax = 100, init.fn = init.fn.softImpute) %&gt;%
+              flash.backfit(.)</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 4 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>cor(fit_bh$loadings.pm[[2]], F_mat)</code></pre>
+<pre><code>            [,1]        [,2]        [,3]        [,4]        [,5]
+[1,] -0.99955271 -0.04409129 -0.08280495 -0.10446979 -0.03331988
+[2,]  0.11536339 -0.03314397  0.64085791  0.98707882  0.06021225
+[3,] -0.03418436 -0.40819966 -0.08434225 -0.05189291 -0.99939643
+[4,]  0.04248210  0.97879955  0.48299596 -0.06215933  0.27322975</code></pre>
+<p>Now fitting with <span class="math inline">\(z\)</span>-scores</p>
+<pre class="r"><code>fit_z &lt;- flash.init(with(dat, beta_hat/se_hat), S = matrix(1, nrow=nvar, ncol=ntrait), var.type = 2) %&gt;%
+              flash.add.greedy(., Kmax = 100, init.fn = init.fn.softImpute) %&gt;%
+              flash.backfit(.)</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 5 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+  Difference between iterations is within 1.0e-03...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>F_z &lt;- F_mat/s
+cor(fit_z$loadings.pm[[2]], F_z)</code></pre>
+<pre><code>            [,1]          [,2]        [,3]         [,4]         [,5]
+[1,]  0.15632732 -0.6719438486 -0.05293197  0.008654506 -0.999662064
+[2,] -0.99964314 -0.0193264202 -0.14927587 -0.149205744  0.156091849
+[3,]  0.16737406 -0.0009095814  0.64665948  0.996765192 -0.002198563
+[4,]  0.03849612  0.9825797494  0.38063742 -0.019391004  0.540570217
+[5,] -0.08694334 -0.2002319541 -0.88762322 -0.215875408  0.010980630</code></pre>
+<pre class="r"><code>cor(fit_z$loadings.pm[[2]], F_mat)</code></pre>
+<pre><code>            [,1]        [,2]       [,3]        [,4]         [,5]
+[1,]  0.05991454 -0.49216463 -0.0775098 -0.04800996 -0.945932571
+[2,] -0.91168188 -0.05508256 -0.1222066 -0.14172361  0.084584919
+[3,]  0.09701282 -0.01232913  0.5577783  0.93142002 -0.002470661
+[4,]  0.02218645  0.97432321  0.3674421 -0.06136958  0.420118960
+[5,] -0.05681716 -0.32499064 -0.9122165 -0.18884235 -0.044687225</code></pre>
+<p>What is confusing to me is that the <span class="math inline">\(z\)</span>-score version fits the untransformed <span class="math inline">\(F\)</span> better than it fits the transformed <span class="math inline">\(F\)</span> so something must be wrong.</p>
+<pre class="r"><code>set.seed(1)
+theta_z &lt;- t(t(theta)/s)
+dat2 &lt;- sim_bh2(L_mat, F_z, theta_z, S = matrix(1, nrow=nvar, ncol=ntrait), R)
+fit_2 &lt;- flash.init(with(dat2, beta_hat), S = matrix(1, nrow=nvar, ncol=ntrait), var.type = 2) %&gt;%
+              flash.add.greedy(., Kmax = 100, init.fn = init.fn.softImpute) %&gt;%
+              flash.backfit(.)</code></pre>
+<pre><code>Adding factor 1 to flash object...
+Adding factor 2 to flash object...
+Adding factor 3 to flash object...
+Adding factor 4 to flash object...
+Adding factor 5 to flash object...
+Adding factor 6 to flash object...
+Factor doesn&#39;t significantly increase objective and won&#39;t be added.
+Wrapping up...
+Done.
+Backfitting 5 factors (tolerance: 2.98e-03)...
+  Difference between iterations is within 1.0e+02...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.</code></pre>
+<pre class="r"><code>cor(fit_2$loadings.pm[[2]], F_z)</code></pre>
+<pre><code>            [,1]         [,2]        [,3]         [,4]         [,5]
+[1,] -0.15113698  0.672742907  0.05287551 -0.008629339  0.999626561
+[2,] -0.99979733 -0.018949365 -0.14912231 -0.153794811  0.155001380
+[3,] -0.16970653  0.008202547 -0.63914707 -0.997783148  0.004446320
+[4,]  0.05076452  0.981157609  0.37384434  0.012172855  0.536641492
+[5,]  0.07525863  0.203109757  0.90350759  0.243360905 -0.003571936</code></pre>
+<pre class="r"><code>cor(fit_2$loadings.pm[[2]], F_mat)</code></pre>
+<pre><code>            [,1]        [,2]        [,3]        [,4]        [,5]
+[1,] -0.05623359  0.49257785  0.07742967  0.04797851 0.946700736
+[2,] -0.91597751 -0.05420680 -0.12157378 -0.14683700 0.084726014
+[3,] -0.09764636  0.02164268 -0.54584798 -0.92445239 0.005011348
+[4,]  0.02731999  0.97223532  0.34716848 -0.04732385 0.412470681
+[5,]  0.03301562  0.31104562  0.92229576  0.21673283 0.026062001</code></pre>
+<p>When the data are actually generated this way we do a better job of recovering <span class="math inline">\(F_z\)</span> than <span class="math inline">\(F\)</span> so my proposition that the models are the same must be wrong.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] flashier_0.2.4            sumstatFactors_0.0.0.9000
+ [3] forcats_0.4.0             stringr_1.4.0            
+ [5] dplyr_0.8.3               purrr_0.3.3              
+ [7] readr_1.3.1               tidyr_1.0.0              
+ [9] tibble_2.1.3              ggplot2_3.2.1            
+[11] tidyverse_1.2.1          
+
+loaded via a namespace (and not attached):
+  [1] nlme_3.1-141                 matrixStats_0.55.0          
+  [3] fs_1.3.1                     gsmr_1.0.9                  
+  [5] lubridate_1.7.4              doParallel_1.0.15           
+  [7] httr_1.4.1                   cause_0.3.0.0240            
+  [9] rprojroot_1.3-2              numDeriv_2016.8-1.1         
+ [11] tools_3.6.2                  backports_1.1.5             
+ [13] R6_2.4.1                     DBI_1.0.0                   
+ [15] lazyeval_0.2.2               colorspace_1.4-1            
+ [17] withr_2.1.2                  gridExtra_2.3               
+ [19] tidyselect_0.2.5             RMySQL_0.10.17              
+ [21] arrangements_1.1.5           compiler_3.6.2              
+ [23] git2r_0.26.1                 cli_2.0.0                   
+ [25] rvest_0.3.4                  xml2_1.2.2                  
+ [27] plotly_4.9.0                 scales_1.1.0                
+ [29] DEoptimR_1.0-8               SQUAREM_2017.10-1           
+ [31] robustbase_0.93-5            mixsqp_0.3-6                
+ [33] digest_0.6.23                rmarkdown_1.15              
+ [35] pscl_1.5.2                   pkgconfig_2.0.3             
+ [37] htmltools_0.3.6              htmlwidgets_1.3             
+ [39] rlang_0.4.2                  readxl_1.3.1                
+ [41] rstudioapi_0.10              generics_0.0.2              
+ [43] jsonlite_1.6                 magrittr_1.5                
+ [45] loo_2.1.0                    Matrix_1.2-17               
+ [47] Rcpp_1.0.3                   munsell_0.5.0               
+ [49] fansi_0.4.0                  furrr_0.1.0                 
+ [51] RcppZiggurat_0.1.5           lifecycle_0.1.0             
+ [53] stringi_1.4.3                yaml_2.2.0                  
+ [55] MASS_7.3-51.4                MendelianRandomization_0.4.1
+ [57] plyr_1.8.5                   MRPRESSO_1.0                
+ [59] grid_3.6.2                   listenv_0.7.0               
+ [61] parallel_3.6.2               crayon_1.3.4                
+ [63] causeSims_0.1.0              lattice_0.20-38             
+ [65] splines_3.6.2                haven_2.1.1                 
+ [67] hms_0.5.2                    zeallot_0.1.0               
+ [69] knitr_1.24                   pillar_1.4.2                
+ [71] rjson_0.2.20                 softImpute_1.4              
+ [73] reshape2_1.4.3               codetools_0.2-16            
+ [75] iterpc_0.4.1                 glue_1.3.1                  
+ [77] evaluate_0.14                mitools_2.4                 
+ [79] RcppParallel_4.4.4           data.table_1.12.2           
+ [81] modelr_0.1.5                 vctrs_0.2.0                 
+ [83] foreach_1.4.7                cellranger_1.1.0            
+ [85] gtable_0.3.0                 ebnm_0.1-24                 
+ [87] future_1.14.0                assertthat_0.2.1            
+ [89] ashr_2.2-39                  xfun_0.9                    
+ [91] broom_0.5.2                  survey_3.36                 
+ [93] survival_2.44-1.1            viridisLite_0.3.0           
+ [95] truncnorm_1.0-8              intervals_0.15.1            
+ [97] iterators_1.0.12             workflowr_1.4.0.9000        
+ [99] globals_0.12.4               gmp_0.5-13.5                </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
