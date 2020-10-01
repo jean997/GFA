@@ -416,7 +416,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-29
+<strong>Last updated:</strong> 2020-09-30
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -507,16 +507,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreeec1e6ac4bf2b11f2c5757a77618bbc67a9c38160targetblankec1e6aca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/ec1e6ac4bf2b11f2c5757a77618bbc67a9c38160" target="_blank">ec1e6ac</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef6a98eafc9d3b6f0a3955abaf14093c3350923d6targetblankf6a98eaa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f6a98eafc9d3b6f0a3955abaf14093c3350923d6" target="_blank">f6a98ea</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreeec1e6ac4bf2b11f2c5757a77618bbc67a9c38160targetblankec1e6aca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef6a98eafc9d3b6f0a3955abaf14093c3350923d6targetblankf6a98eaa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/ec1e6ac4bf2b11f2c5757a77618bbc67a9c38160" target="_blank">ec1e6ac</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f6a98eafc9d3b6f0a3955abaf14093c3350923d6" target="_blank">f6a98ea</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -532,6 +532,7 @@ Ignored files:
     Ignored:    analysis/simulations_cache/
     Ignored:    analysis/z_scores_cache/
     Ignored:    analysis_data/2020-06-10_ai/
+    Ignored:    analysis_data/simple_patterns/
 
 Untracked files:
     Untracked:  R/est_R_pairwise.R
@@ -544,10 +545,6 @@ Untracked files:
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
     Untracked:  matrix_20.png
-
-Unstaged changes:
-    Modified:   analysis/estimation.Rmd
-    Modified:   analysis/index.Rmd
 
 </code></pre>
 <p>
@@ -591,6 +588,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/f6a98eafc9d3b6f0a3955abaf14093c3350923d6/analysis/simple_patterns_simulations.Rmd" target="_blank">f6a98ea</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-30
+</td>
+<td>
+wflow_publish(c(“analysis/index.Rmd”, “analysis/simple_patterns_simulations.Rmd”,
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://glcdn.githack.com/jean_morrison/gwas-summay-statistic-factorization/raw/7468d70add87ef6545ef8872f0186409bf25e9bb/public/simple_patterns_simulations.html" target="_blank">7468d70</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/ec1e6ac4bf2b11f2c5757a77618bbc67a9c38160/analysis/simple_patterns_simulations.Rmd" target="_blank">ec1e6ac</a>
 </td>
 <td>
@@ -629,31 +660,29 @@ add simple sims
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>We are interested in investigating “opposite sign factors”. Often when we have a clump of closely related traits we see a factor that is shared between all three and a factor that has opposite sign effects on two of the traits. We want to know if this pattern reflects a real pattern or is an artifact. Also investigating here using <code>S = 1</code> vs using <code>S = NULL</code>.</p>
-</div>
-<div id="simulation-1-nested" class="section level2">
-<h2>Simulation 1: Nested</h2>
-<p>The first pattern is five traits and two factors. The factors look like this:</p>
+<p>This is an investigation of how FLASH fits some simple patterns. In particular, I am interested in some patterns that I have seen in real data where one factor is shared among a set of traits and another factor has opposite effects on multiple traits. This occurs in particular with inflammatory bowel disease (IBD), Chron’s disease (CD), and ulcerative colitis (UC). In some fits we see one factor that affects all three and a second factor that has opposite effects on UC and and CD. An important fact is that IBD in these data is just defined as CD or UC. One guess is that in reality there is one shared factor, a set of variants that contribute to both UC and CD and then UC and CD specific variants and that the opposite sign factor is an artifact. In these simulations we explore several simple three trait patterns to see how FLASH behaves.</p>
 <pre class="r"><code>library(sumstatFactors)
 library(flashier)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)</code></pre>
-<pre class="r"><code>F1 &lt;- cbind(c(1,1,1), 
+</div>
+<div id="simulation-1-one-shared-factor" class="section level2">
+<h2>Simulation 1: One shared factor</h2>
+<p>This first pattern is a simple guess about what the IBD-CD-UC pattern might look like:</p>
+<pre class="r"><code>F0 &lt;- cbind(c(1,1,1), 
             c(1, 1, 0),
-            c(0, 0, 1)) 
-plot_factors(F1)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>We’ll set the following parameters:</p>
+            c(0, 1, 1)) 
+plot_factors(F0)</code></pre>
+<p>I set the following parameters:</p>
 <ul>
-<li>Trait heritability: 0.35 for all traits</li>
-<li>Proportion of heritability from factors: 100%</li>
+<li>Trait heritability: 0.5 for all traits</li>
+<li>Proportion of heritability from factors: 0.7</li>
 <li>Heritability of each factor: 1 (irrelevant since we will use non-overlapping sample)</li>
-<li>Proportion of non-zero elements in L_k: 0.1 for all factors</li>
-<li>Proportion of non-zero elements in theta: 1</li>
+<li>Proportion of non-zero elements in L_k: 0.1 for all factors (gives 1k causal variants with J = 10000)</li>
+<li>Proportion of non-zero elements in theta: 0.1</li>
 <li>Environmental trait correlation not mediated by factors: I (also irrelevant)</li>
 <li>No LD</li>
-<li>relative_pve:</li>
 <li>Proportion of samples overlapping: 0</li>
 </ul>
 <div id="n-10000" class="section level3">
@@ -664,63 +693,142 @@ ntrait &lt;- 3
 nfactor &lt;- 3
 nvar &lt;- 10000
 N &lt;- 10000
-dat &lt;- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+dat &lt;- sim_sumstats_lf(F_mat = F0, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.1,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
 f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
-p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
-
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)</code></pre>
 <pre class="r"><code>grid.arrange(p0, p1, p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="n-100000" class="section level3">
-<h3>N = 100,000</h3>
-<p>We will try increasing sample size:</p>
+<p>Note that the SVD does show the opposite sign pattern that we saw in real data. FLASH finds one of the two 2-trait factors and has a small negative effect for the third trait.</p>
+<p>I will try modifying so the effects are weaker and there is more noise. I will change the proportion of heritabiltity that comes from factors to 0.2 (so overall the factors explain 10% of the heritability of each trait.) I will also change the proportion of non-zero elements of <span class="math inline">\(\Theta\)</span> to 0.267 so that those effects have the same size as in the previous example.</p>
 <pre class="r"><code>set.seed(5)
-N &lt;- 100000
-dat &lt;- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+dat &lt;- sim_sumstats_lf(F_mat = F0, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.2, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.27,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
-f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())</code></pre>
-<pre><code>Warning in mixsqp::mixsqp(A, w, pi_init, control = control): Failed to converge within iterations limit. If &quot;maxiter.sqp&quot; is small,
-consider increasing it. Otherwise, convergence failure is typically a
-numerical issue remedied by increasing &quot;eps&quot; slightly, at the cost of
-slightly less accurate solution; see help(mixsqp). An issue report may
-also be submitted to https://github.com/stephenslab/mixsqp/issues,
-accompanied by an .rds or .RData file containing the mixsqp inputs. If
-these inputs are not accessible, an .RData file containing the inputs
-can be generated by setting options(mixsqp.debug.mode = TRUE) before
-running mixsqp.</code></pre>
-<pre class="r"><code>p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
+p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
+p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)</code></pre>
+<pre class="r"><code>grid.arrange(p0, p1, p2, p3, ncol=2)</code></pre>
+<p>In this case we do a poor job of finding the shared factor but we don’t get an opposite signs artifact. Next I will check with very strong signal but turning up the sample size.</p>
+</div>
+<div id="n-100000" class="section level3">
+<h3>N = 100,000</h3>
+<pre class="r"><code>set.seed(5)
+N = 100000
+dat &lt;- sim_sumstats_lf(F_mat = F0, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 0.1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)</code></pre>
+<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+
+xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
+p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
+p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)</code></pre>
+<pre class="r"><code>grid.arrange(p0, p1, p2, p3, ncol=2)</code></pre>
+<p>FLASH gets close to the right answer.</p>
+</div>
+</div>
+<div id="simulation-2-nested" class="section level2">
+<h2>Simulation 2: Nested</h2>
+<pre class="r"><code>F1 &lt;- cbind(c(1,1,1), 
+            c(1, 1, 0),
+            c(0, 0, 1)) 
+plot_factors(F1)</code></pre>
+<div id="n-10000-1" class="section level3">
+<h3>N = 10,000</h3>
+<p>We will compare FLASH fits with point normal and non-negative priors with SVD results.</p>
+<pre class="r"><code>set.seed(5)
+ntrait &lt;- 3
+nfactor &lt;- 3
+nvar &lt;- 10000
+N &lt;- 10000
+dat &lt;- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 0.1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)</code></pre>
+<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
+
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+
+xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
+p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
+p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)</code></pre>
+<pre class="r"><code>grid.arrange(p0, p1, p2, p3, ncol=2)</code></pre>
+</div>
+<div id="n-100000-1" class="section level3">
+<h3>N = 100,000</h3>
+<p>We will try increasing sample size:</p>
+<pre class="r"><code>set.seed(5)
+N &lt;- 100000
+dat &lt;- sim_sumstats_lf(F_mat = F1, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 0.1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)</code></pre>
+<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
+
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p4 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)</code></pre>
 <pre class="r"><code>grid.arrange(p0, p1, p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="simulation-2-difference" class="section level2">
 <h2>Simulation 2: Difference</h2>
 <pre class="r"><code>F2 &lt;- cbind(c(1, 1, 1), c(1, -1, 0), c(0, 0, 1)) 
 plot_factors(F2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div id="n-10000-1" class="section level3">
+<div id="n-10000-2" class="section level3">
 <h3>N = 10,000</h3>
 <pre class="r"><code>set.seed(5)
 ntrait &lt;- 3
@@ -728,19 +836,25 @@ nfactor &lt;- 3
 nvar &lt;- 10000
 N &lt;- 10000
 dat &lt;- sim_sumstats_lf(F_mat = F2, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.1,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
 grid.arrange(p0, p1,p3, ncol=3)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="n-5000" class="section level3">
 <h3>N = 5,000</h3>
@@ -750,19 +864,25 @@ nfactor &lt;- 3
 nvar &lt;- 10000
 N &lt;- 5000
 dat &lt;- sim_sumstats_lf(F_mat = F2, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.1,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
 grid.arrange(p0, p1, p3, ncol=3)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="simulation-3-checkers-i" class="section level2">
@@ -771,65 +891,6 @@ grid.arrange(p0, p1, p3, ncol=3)</code></pre>
             c(1, 1, 0 ), 
             c(0, 1, 1))
 plot_factors(F3)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div id="n-10000-2" class="section level3">
-<h3>N = 10,000</h3>
-<pre class="r"><code>set.seed(5)
-ntrait &lt;- 3
-nfactor &lt;- 3
-nvar &lt;- 10000
-N &lt;- 10000
-dat &lt;- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
-                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
-                       R_E = diag(rep(1, ntrait)), 
-                       overlap_prop =0)</code></pre>
-<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
-p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
-
-f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
-p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
-
-xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
-p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
-p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
-grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="n-100000-1" class="section level3">
-<h3>N = 100,000</h3>
-<pre class="r"><code>set.seed(5)
-ntrait &lt;- 3
-nfactor &lt;- 3
-nvar &lt;- 10000
-N &lt;- 100000
-dat &lt;- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
-                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
-                       R_E = diag(rep(1, ntrait)), 
-                       overlap_prop =0)</code></pre>
-<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
-p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
-
-f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
-p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
-
-xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
-p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
-p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
-grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-</div>
-<div id="simulation-4-checkers-ii" class="section level2">
-<h2>Simulation 4: Checkers II</h2>
-<pre class="r"><code>F4 &lt;- cbind(c(1, 0, 1), 
-            c(1, 1, 0 ), 
-            c(0, 1, 1))
-plot_factors(F4)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div id="n-10000-3" class="section level3">
 <h3>N = 10,000</h3>
 <pre class="r"><code>set.seed(5)
@@ -837,23 +898,26 @@ ntrait &lt;- 3
 nfactor &lt;- 3
 nvar &lt;- 10000
 N &lt;- 10000
-dat &lt;- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+dat &lt;- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.1,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
 f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
-p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
 
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
 grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="n-100000-2" class="section level3">
 <h3>N = 100,000</h3>
@@ -862,23 +926,106 @@ ntrait &lt;- 3
 nfactor &lt;- 3
 nvar &lt;- 10000
 N &lt;- 100000
-dat &lt;- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
-                       h_2_trait = rep(0.35, ntrait), omega = rep(1, ntrait), 
+dat &lt;- sim_sumstats_lf(F_mat = F3, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
                        h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
-                       pi_theta = 1,
+                       pi_theta = 0.1,
                        R_E = diag(rep(1, ntrait)), 
                        overlap_prop =0)</code></pre>
 <pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
 p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
 
 f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
-p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
-
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
 xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
 p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
 p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
 grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
-<p><img src="figure/simple_patterns_simulations.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="simulation-4-checkers-ii" class="section level2">
+<h2>Simulation 4: Checkers II</h2>
+<pre class="r"><code>F4 &lt;- cbind(c(1, 0, 1), 
+            c(1, 1, 0 ), 
+            c(0, 1, 1))
+plot_factors(F4)</code></pre>
+<div id="n-10000-4" class="section level3">
+<h3>N = 10,000</h3>
+<pre class="r"><code>set.seed(5)
+ntrait &lt;- 3
+nfactor &lt;- 3
+nvar &lt;- 10000
+N &lt;- 10000
+dat &lt;- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 0.1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)</code></pre>
+<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
+
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
+p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
+p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
+grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
+</div>
+<div id="n-100000-3" class="section level3">
+<h3>N = 100,000</h3>
+<pre class="r"><code>set.seed(5)
+ntrait &lt;- 3
+nfactor &lt;- 3
+nvar &lt;- 10000
+N &lt;- 100000
+dat &lt;- sim_sumstats_lf(F_mat = F4, N = N, J = nvar, 
+                       h_2_trait = rep(0.5, ntrait), omega = rep(0.7, ntrait), 
+                       h_2_factor = rep(1, nfactor), pi_L = rep(0.1, nfactor), 
+                       pi_theta = 0.1,
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop =0)</code></pre>
+<pre class="r"><code>f1 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait))
+p1 &lt;- plot_factors(f1$F_hat) + ggtitle(&quot;FLASH point-normal&quot;)
+
+f2 &lt;- fit_plain(dat$beta_hat, dat$se_beta_hat, rep(N, ntrait), prior_family = prior.nonnegative())
+if(!is.null(f2$F_hat)){
+  p2 &lt;- plot_factors(f2$F_hat) + ggtitle(&quot;FLASH non-negative&quot;)
+}else{
+  p2 &lt;- plot_factors(matrix(rep(0, 3), ncol=1)) + ggtitle(&quot;FLASH NN - no factors&quot;)
+}
+xx &lt;- with(dat, beta_hat/se_beta_hat) %&gt;% svd()
+p3 &lt;- plot_factors(xx$v)  + ggtitle(&quot;SVD&quot;)
+p0 &lt;- plot_factors(dat$F_mat, 1:5) + ggtitle(&quot;Truth&quot;)
+grid.arrange(p0, p1,p2, p3, ncol=2)</code></pre>
+</div>
+</div>
+<div id="bigger-data" class="section level2">
+<h2>Bigger data</h2>
+<p>In order to see how FLASH performed when these patterns occur in a larger matrix, I constructed factor matrices for 30 traits by replicating one pattern 10 times in a block diagonal matrix. Data are simulated using the same parameters as above. For each pattern, I generated 10 different data sets. However, results were largely the same so I am only showing some example fits.</p>
+<div id="nested-checckers1-checkers2" class="section level3">
+<h3>Nested, Checckers1, Checkers2</h3>
+<p>For nested, checkers1 and checkers 2, FLASH recovers only fully shared factors. In the case of checkers2 this is interesting because in the true pattern, each factor only affects two traits.</p>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/simple_patterns/nested_1.RDS&quot;)
+plot_factors(res$fit$F_hat) + ggtitle(&quot;Nested Pattern, N=10k, omega = 0.7&quot;)</code></pre>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/simple_patterns/checkers1_1.RDS&quot;)
+plot_factors(res$fit$F_hat) + ggtitle(&quot;Checkers1 Pattern, N=10k, omega = 0.7&quot;)</code></pre>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/simple_patterns/checkers2_1.RDS&quot;)
+plot_factors(res$fit$F_hat) + ggtitle(&quot;Checkers2 Pattern, N=10k, omega = 0.7&quot;)</code></pre>
+</div>
+<div id="difference" class="section level3">
+<h3>Difference</h3>
+<p>With the original parameter settings, FLASH is able to perfectly recover the factors:</p>
+<pre class="r"><code>res &lt;- readRDS(&quot;analysis_data/simple_patterns/difference_1.RDS&quot;)
+plot_factors(res$fit$F_hat) + ggtitle(&quot;Difference Pattern, N=10k, omega = 0.7&quot;)</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
