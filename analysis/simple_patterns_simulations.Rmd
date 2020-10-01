@@ -11,7 +11,7 @@ editor_options:
 This is an investigation of how FLASH fits some simple patterns. In particular, I am interested in some patterns that I have seen in real data where one factor is shared among a set of traits and another factor has opposite effects on multiple traits. This occurs in particular with inflammatory bowel disease (IBD), Chron's disease (CD), and ulcerative colitis (UC). In some fits we see one factor that affects all three and a second factor that has opposite effects on UC and and CD. An important fact is that IBD in these data is just defined as CD or UC. One guess is that in reality there is one shared factor, a set of variants that contribute to both UC and CD and then UC and CD specific variants and that the opposite sign factor is an artifact. In these simulations we explore several simple three trait patterns to see how FLASH behaves. 
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(results="hide", eval=FALSE)
+knitr::opts_chunk$set(results="hide")
 ```
 
 
