@@ -72,7 +72,7 @@ fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
     d <- R_eig$values
     V <- R_eig$vectors
     
-    R_eig$values[abs(v) < zero_thresh] <- 0
+    R_eig$values[abs(d) < zero_thresh] <- 0
     if(any(R_eig$values < 0))stop("R is not psd")
     
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S))

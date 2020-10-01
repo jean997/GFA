@@ -3,6 +3,7 @@ title: "Introduction"
 author: "Jean Morrison"
 date: "2020-08-26"
 output: workflowr::wflow_html
+site: workflowr::wflow_site
 editor_options:
   chunk_output_type: console
 ---
@@ -37,6 +38,7 @@ See [here](estimation.html)
 
 In reverse chronological order 
 
+1. [Simple Patterns](simple_patterns_simulations.html)
 1. [Revisiting Fixed Factor Sample Correlation Correction](fixed_factors2.html)
 1. [A sumary of early April Simulations](sample_cor_ld_sims.html)
 
