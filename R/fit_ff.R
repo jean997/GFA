@@ -38,7 +38,7 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
     W <- V %*% diag(sqrt(Sig_eig$values[-n_trait]))
 
     # randomly initialize A
-    A_rand <- matrix(rnorm(n=n_var*(n_trait-1)), nrow=n_var, ncol=(ntrait-1))
+    A_rand <- matrix(rnorm(n=n_var*(n_trait-1)), nrow=n_var, ncol=(n_trait-1))
 
     #First add some greedy factors but don't backfit
     fit <-  flash.init(B_tilde, S = sqrt(lambda_min), var.type = 2) %>%
