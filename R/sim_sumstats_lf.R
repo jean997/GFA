@@ -120,11 +120,11 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   #Compute row covariance
   Sigma_G <- F_mat %*% t(F_mat) + J*diag(pi_theta*sigma_theta^2)
   sigma_2_F <- (1-h_2_factor)/(h_2_factor)
-  Sigma_FE <- F_mat %*% diag(sigma_2_F^2) %*% t(F_mat)
+  Sigma_FE <- F_mat %*% diag(sigma_2_F) %*% t(F_mat)
   sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
   Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
   Sigma <- (1/N)*(Sigma_G + Sigma_FE  + Sigma_E)
-  Sigma_indep <- (1/N)*diag(rep(1, M))
+  Sigma_indep <- (1/N)*diag(M)
   Sigma <- overlap_prop*Sigma + (1-overlap_prop)*Sigma_indep
 
   #Generate sampling error
