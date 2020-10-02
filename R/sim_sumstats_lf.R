@@ -251,6 +251,7 @@ generate_F2 <- function(non_zero_by_factor,
     F_add <- sapply(missing_ix, function(i){
                 x <- rep(0, M)
                 x[i] <- 1
+                return(x)
     })
     F_mat <- cbind(F_mat, F_add)
   }
