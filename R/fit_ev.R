@@ -22,7 +22,7 @@ fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
   V <- R_eig$vectors
 
   B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-  S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
+  S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
 
   B_tilde_tilde <- B_tilde %*% V
   S_tilde_tilde <- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
