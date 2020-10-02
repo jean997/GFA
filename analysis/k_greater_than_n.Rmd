@@ -90,10 +90,10 @@ discovered_svdsparse
 set.seed(1)
 ntrait <- 21
 nvar <- 10000
-nfactor <- 10
+nfactor <- 3
 
 g_F <- function(n){runif(n, -1, 1)}
-nz_factor <- pmin( rpois(nfactor, 4)+1, ntrait)
+nz_factor <- pmin( rpois(nfactor, 3)+1, ntrait)
 
 h_2_trait <- runif(n=ntrait, 0.1, 0.6)
 omega <- runif(n=ntrait, 0.5, 1)
