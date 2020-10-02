@@ -1,0 +1,173 @@
+---
+title: "k_greater_than_n"
+author: "Jean Morrison"
+date: "2020-07-14"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r}
+library(flashier)
+library(sumstatFactors)
+library(dplyr)
+```
+
+## No overlap one experiment
+```{r}
+set.seed(1)
+ntrait <- 20
+nvar <- 10000
+nfactor <- 40
+
+g_F <- function(n){runif(n, -1, 1)}
+nz_factor <- pmin(c(rep(ntrait, 3), rpois(nfactor-3, 4)+1), ntrait)
+
+h_2_trait <- runif(n=ntrait, 0.1, 0.6)
+omega <- runif(n=ntrait, 0.5, 1)
+h_2_factor <- runif(n=nfactor, 0.5, 1)
+N <- 100000
+
+dat <- sim_sumstats_lf( N=N, J=nvar, h_2_trait = h_2_trait, 
+                       omega = omega, h_2_factor = h_2_factor, 
+                       pi_L = rep(0.2, nfactor), pi_theta = 1, 
+                       R_E = diag(rep(1, ntrait)), 
+                       overlap_prop = 0, 
+                       g_F = g_F, nz_factor = nz_factor)
+dat$N <- rep(N, ntrait)
+plot_factors(dat$F_mat)
+```
+
+```{r}
+sparse_svd <- function(dat, z_score_thresh){
+  Z <- with(dat, beta_hat/se_beta_hat)
+  Z[abs(Z) < z_score_thresh] <- 0
+  svd(Z)
+}
+```
+
+
+```{r}
+f_n <- with(dat, fit_plain(beta_hat, se_beta_hat, N))
+f_svd <- with(dat, svd(beta_hat/se_beta_hat))
+f_svd_sparse <- sparse_svd(dat, 4)
+```
+
+```{r}
+best_cor_n_2 <- apply(cor(f_n$F_hat, dat$F_mat), 2, function(x){max(abs(x))})
+best_cor_svd <- apply(cor(f_svd$v, dat$F_mat), 2, function(x){max(abs(x))})
+best_cor_svdsparse <- apply(cor(f_svd_sparse$v, dat$F_mat), 2, function(x){max(abs(x))})
+```
+
+
+```{r}
+best_cor_n_1 <- apply(cor(f_n$F_hat, dat$F_mat), 1, function(x){which.max(abs(x))})
+best_cor_n_1v <- apply(cor(f_n$F_hat, dat$F_mat), 1, function(x){max(abs(x))})
+discovered_n <- best_cor_n_1[best_cor_n_1v > 0.9]
+discovered_n
+```
+
+
+```{r}
+best_cor_svd_1 <- apply(cor(f_svd$v, dat$F_mat), 1, function(x){which.max(abs(x))})
+best_cor_svd_1v <- apply(cor(f_svd$v, dat$F_mat), 1, function(x){max(abs(x))})
+discovered_svd <- best_cor_n_1[best_cor_svd_1v > 0.9]
+discovered_svd
+```
+
+```{r}
+best_cor_svdsparse_1 <- apply(cor(f_svd_sparse$v, dat$F_mat), 1, function(x){which.max(abs(x))})
+best_cor_svdsparse_1v <- apply(cor(f_svd_sparse$v, dat$F_mat), 1, function(x){max(abs(x))})
+discovered_svdsparse <- best_cor_n_1[best_cor_svdsparse_1v > 0.9]
+discovered_svdsparse
+```
+
+## Full sample overlap
+
+```{r}
+set.seed(1)
+ntrait <- 21
+nvar <- 10000
+nfactor <- 10
+
+g_F <- function(n){runif(n, -1, 1)}
+nz_factor <- pmin( rpois(nfactor, 4)+1, ntrait)
+
+h_2_trait <- runif(n=ntrait, 0.1, 0.6)
+omega <- runif(n=ntrait, 0.5, 1)
+h_2_factor <- runif(n=nfactor, 0.5, 1)
+N <- 10000
+
+Rs <- matrix(0.7, nrow=3, ncol=3)
+diag(Rs) <- 1
+R <- kronecker(diag(7), Rs)
+
+dat <- sim_sumstats_lf( N=N, J=nvar, h_2_trait = h_2_trait, 
+                       omega = omega, h_2_factor = h_2_factor, 
+                       pi_L = rep(0.2, nfactor), pi_theta = 1, 
+                       R_E = R, 
+                       overlap_prop = 1, 
+                       g_F = g_F, nz_factor = nz_factor)
+dat$N <- rep(N, ntrait)
+plot_factors(dat$F_mat)
+```
+
+
+```{r}
+f_n <- with(dat, fit_plain(beta_hat, se_beta_hat, N))
+f_svd <- with(dat, svd(beta_hat/se_beta_hat))
+f_svd_sparse <- sparse_svd(dat, 4)
+plot_factors(f_n$F_hat)
+```
+
+```{r}
+disc <- function(F_hat, F_true, lambda=0.9){
+  b_est <- apply(cor(F_hat, F_true), 1, function(x){which.max(abs(x))})
+  b_true <- apply(cor(F_hat, F_true), 2, function(x){which.max(abs(x))})
+  b_est_v <-apply(cor(F_hat, F_true), 1, function(x){max(abs(x))})
+  b_true_v <- apply(cor(F_hat, F_true), 2, function(x){max(abs(x))})
+  
+  matches <- which(b_true[b_est] == seq(length(b_est)))
+  M <- data.frame(est_ix = matches, true_ix = b_est[matches], value = b_est_v[matches]) %>%
+       filter(value >= lambda)
+  unmatched_est_factors <- which(!seq_along(b_est) %in% M$est_ix)
+  unmatched_true_factors <- which(!seq_along(b_true) %in% M$true_ix)
+  R <- list("M"=M, u_est = unmatched_est_factors, u_true = unmatched_true_factors)
+  return(R)
+}
+```
+
+```{r}
+disc(f_n$F_hat, dat$F_mat, 0.9)
+disc(f_svd_sparse$v, dat$F_mat, 0.9)
+```
+
+
+
+
+```{r}
+A <- with(dat, t( (1/sqrt(N)) *t(beta_hat/se_beta_hat)))
+R_oracle <- cov2cor(dat$Sigma)
+R_est_all <- cor(A)
+R_est_shrink <- cor.shrink(A)
+R_est_t2 <- with(dat, est_R_pairwise(beta_hat, se_beta_hat, N))
+```
+
+```{r}
+f_ff_oracle <- with(dat, fit_ff(beta_hat, se_beta_hat, N, R_oracle))
+disc(f_ff_oracle$F_hat, dat$F_mat, 0.9)
+
+f_ev_oracle <- with(dat, fit_ev(beta_hat, se_beta_hat, N, R_oracle))
+disc(f_ev_oracle$F_hat, dat$F_mat, 0.9)
+```
+
+```{r}
+f_ff_all
+
+
+f_ff_shrink
+
+
+```
