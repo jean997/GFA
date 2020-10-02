@@ -15,9 +15,9 @@ sim_sumstats_lf(
   pi_theta,
   R_E,
   R_LD,
-  relative_pve,
   g_F,
-  pi_F,
+  nz_factor,
+  scale_factor,
   overlap_prop = 1
 )
 }
@@ -40,28 +40,30 @@ sim_sumstats_lf(
 
 \item{R_E}{Environmental trait correlation not mediated by factors. M by M pd matrix}
 
-\item{relative_pve}{Relative pve contributed by each factor. Length K.}
-
 \item{g_F}{Function from which non-zero elements of F are generated}
 
-\item{pi_F}{Propotion of non-zero elements of F.}
-
 \item{R_LD_list}{List of eigen decompositions of LD correlation matrices, may be missing.}
+
+\item{relative_pve}{Relative pve contributed by each factor. Length K.}
+
+\item{pi_F}{Propotion of non-zero elements of F.}
 }
 \description{
 Simulate summary statistcs for fully overlapping GWAS with no LD
 }
 \details{
+note: have removed relative_pve so below is not correct. will update,
 omega, h2_trait, and relative_pve constrain the rows and columns of F. The sum of squared elements in row m must equal
 omega[m]*h2_trait[m]. relative_pve is normalized to sum to sum(omega*h2_trait). After this normalization the sum of
 squared elements in column k must equal relative_pve[k]. The function `scale_F` iteratively rescales rows and columns
 until they have the desired sums. This allows us to preserve the input sparsity structure and approximate distribution
-magnitudes and still achieve the desired row and collumn squared sums.
+magnitudes and still achieve the desired row and column squared sums.
 
-If F_mat is proivided it is rescaled as described. In this case relative_pve is optional.
+If F_mat is provided it is rescaled as described. In this case relative_pve is optional.
 
-If F_mat is not provided, it will be generated using the `generate_F` function.
-In this case relative_pve, g_F, and pi_F must be provided. All of the elements
+If F_mat is not provided, it will be generated using the `generate_F2` function.
+In this case g_F and nz_factor must be provided. scale_factor is an optional argument that can
+be use to adjust the relative scalings of the factors. All of the elements
 in F are generated iid from a mixture of a point mass at 0 and g_F. The matrix is then
 rescaled according to the constraints.
 }
