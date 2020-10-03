@@ -59,7 +59,7 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
     if(any(c==0)){
       i <- which(c==0)
       F_hat <- F_hat[,-i]
-      L_hat <- L_hat[,-1]
+      L_hat <- L_hat[,-i]
     }
   }
   ret <- list(fit=fit, B_hat = B_hat, L_hat = L_hat, F_hat = F_hat)
