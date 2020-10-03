@@ -66,4 +66,9 @@ In this case g_F and nz_factor must be provided. scale_factor is an optional arg
 be use to adjust the relative scalings of the factors. All of the elements
 in F are generated iid from a mixture of a point mass at 0 and g_F. The matrix is then
 rescaled according to the constraints.
+
+
+With this setup it is possible to specify a setting that is impossible. Usually this occurs if the heritability
+of the factors is low but the heritability of the traits is high leading to a contradiction. Right now the function
+will just return an error if that happens.
 }

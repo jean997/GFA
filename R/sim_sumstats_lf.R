@@ -31,10 +31,17 @@
 #'be use to adjust the relative scalings of the factors. All of the elements
 #'in F are generated iid from a mixture of a point mass at 0 and g_F. The matrix is then
 #'rescaled according to the constraints.
+#'
+#'
+#'With this setup it is possible to specify a setting that is impossible. Usually this occurs if the heritability
+#'of the factors is low but the heritability of the traits is high leading to a contradiction. Right now the function
+#'will just return an error if that happens.
+#'
+#'
 #'@export
 sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_theta,
                             R_E, R_LD,
-                            g_F, nz_factor, scale_factor,
+                            g_F, nz_factor, scale_factor, add=FALSE,
                             overlap_prop =1){
 
   #Check parameters
@@ -74,6 +81,29 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
       stop("One row of F is all zero but corresponds to non-zero omega\n")
     }
   }
+  #Re-scale F or generate it if it is missing
+  if(missing(F_mat)){
+    #relative_pve <- relative_pve*sum(omega*h_2_trait)/sum(relative_pve)
+    #F_mat <- generate_F(percent_zero = 1-pi_F, square_row_sums = omega*h_2_trait,
+    #                    square_col_sums = relative_pve, rfunc = g_F)
+    F_mat <- generate_F2(non_zero_by_factor = nz_factor,
+                         square_row_sums = omega*h_2_trait,
+                         scale_by_factor = scale_factor,
+                         rfunc = g_F, add=add)
+    if(ncol(F_mat) > K){
+      nextra <- ncol(F_mat)-K
+      h_2_factor <- c(h_2_factor, rep(1, nextra))
+      pi_L <- c(pi_L, rep(pi_theta, nextra))
+    }
+    if(any(rowSums(F_mat^2) == 0)){
+      ix <- which(rowSums(F_mat^2)==0)
+      omega[ix] <- 0
+    }
+  }else{
+    #Re scale rows of F
+    F_mat <- F_mat*sqrt(omega*h_2_trait/rowSums(F_mat^2))
+  }
+
 
   #Generate theta
   sigma_theta <- sqrt( (1/(pi_theta*J))*(1-omega)*h_2_trait)
@@ -86,24 +116,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     return(t)
   }) %>% do.call(cbind, .)
 
-  #Re-scale F or generate it if it is missing
-  if(missing(F_mat)){
-    #relative_pve <- relative_pve*sum(omega*h_2_trait)/sum(relative_pve)
-    #F_mat <- generate_F(percent_zero = 1-pi_F, square_row_sums = omega*h_2_trait,
-    #                    square_col_sums = relative_pve, rfunc = g_F)
-    F_mat <- generate_F2(non_zero_by_factor = nz_factor,
-                         square_row_sums = omega*h_2_trait,
-                         scale_by_factor = scale_factor,
-                         rfunc = g_F)
-    if(ncol(F_mat) > K){
-      nextra <- ncol(F_mat)-K
-      h_2_factor <- c(h_2_factor, rep(1, nextra))
-      pi_L <- c(pi_L, rep(pi_theta, nextra))
-    }
-  }else{
-    #Re scale rows of F
-    F_mat <- F_mat*sqrt(omega*h_2_trait/rowSums(F_mat^2))
-  }
+
 
   #Generate L
   sigma_L <- (1/(pi_L*J))
@@ -226,11 +239,12 @@ generate_F <- function(percent_zero, square_row_sums, square_col_sums, rfunc = f
 
 }
 
-
+#'@export
 generate_F2 <- function(non_zero_by_factor,
                         square_row_sums,
                         scale_by_factor,
-                        rfunc = function(n){runif(n, -1, 1)}){
+                        rfunc = function(n){runif(n, -1, 1)},
+                        add=FALSE){
   f <- function(n, nz){
     stopifnot(nz >= 1)
     x <- rep(0, n)
@@ -246,16 +260,25 @@ generate_F2 <- function(non_zero_by_factor,
 
   F_mat <- sapply(seq(K), function(k){f(M, non_zero_by_factor[k])})
   F_mat <- t(t(F_mat)*scale_by_factor) # Multiply each column by scale factor
-  if(any(rowSums(F_mat !=0)==0)){ # Add any missing traits
+  if(any(rowSums(F_mat !=0)==0)){
     missing_ix <- which(rowSums(F_mat !=0)==0)
-    F_add <- sapply(missing_ix, function(i){
-                x <- rep(0, M)
-                x[i] <- 1
-                return(x)
-    })
-    F_mat <- cbind(F_mat, F_add)
+    if(add){
+      # Add any missing traits
+      F_add <- sapply(missing_ix, function(i){
+                  x <- rep(0, M)
+                  x[i] <- 1
+                  return(x)
+      })
+      F_mat <- cbind(F_mat, F_add)
+    }else{
+      r2 <- rowSums(F_mat^2)
+      F_mat <- F_mat*sqrt(square_row_sums)/sqrt(r2)
+      F_mat[missing_ix,] <- 0
+      return(F_mat)
+    }
   }
-  F_mat <- F_mat*sqrt(omega*h_2_trait/rowSums(F_mat^2)) #scale each row to have correct squared sum
+  r2 <- rowSums(F_mat^2)
+  F_mat <- F_mat*sqrt(square_row_sums)/sqrt(r2)
   return(F_mat)
 
 }
