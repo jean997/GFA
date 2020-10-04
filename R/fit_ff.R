@@ -56,8 +56,8 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
       flash.fix.loadings(., kset = n + 1:(n_trait-1), mode=2) %>%
       flash.backfit(method = "sequential")
 
-    F_hat <- fit$loadings.pm[[2]][,1:n]
-    L_hat <- fit$loadings.pm[[1]][, 1:n]
+    F_hat <- fit$loadings.pm[[2]][,1:n, drop=FALSE]
+    L_hat <- fit$loadings.pm[[1]][, 1:n, drop=FALSE]
     fixed_ix <- n + (1:(n_trait-1))
     B_hat <- fitted(fit) -
       with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
