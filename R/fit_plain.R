@@ -9,16 +9,25 @@
 #'@export
 fit_plain <- function(B_hat, S_hat, N, kmax=100,
                       init_fn =init.fn.softImpute,
-                      prior_family = prior.point.normal()){
+                      prior_family = prior.point.normal(),
+                      adjust=TRUE){
 
   n_var <- nrow(B_hat)
   n_trait <- ncol(B_hat)
   stopifnot(nrow(S_hat) == n_var & ncol(S_hat) == n_trait)
-  stopifnot(length(N) == n_trait)
+
+  if(!missing(N)) stopifnot(length(N) == n_trait)
+  if(adjust & missing(N)) stop("To adjust please supply N.")
 
 
-  B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-  S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+
+  if(adjust){
+    B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
+    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+  }else{
+    B_tilde = B_hat
+    S_tilde = S_hat
+  }
 
 
   fit <- flash.init(data=B_tilde, S = S_tilde,  var.type=2) %>%

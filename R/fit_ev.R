@@ -8,12 +8,13 @@
 #'@param zero_thresh Threshold for setting eigenvalues of R to zero
 #'@return A list with elements fit, B_hat, L_hat, F_hat
 #'@export
-fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
+fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRUE){
 
   n_var <- nrow(B_hat)
   n_trait <- ncol(B_hat)
   stopifnot(nrow(S_hat) == n_var & ncol(S_hat) == n_trait)
-  stopifnot(length(N) == n_trait)
+  if(!missing(N)) stopifnot(length(N) == n_trait)
+  if(adjust & missing(N)) stop("To adjust please supply N.")
 
   R_eig <- eigen(R)
   R_eig$values[abs(R_eig$values) < zero_thresh] <- 0
@@ -21,11 +22,15 @@ fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
   d <- R_eig$values
   V <- R_eig$vectors
 
-  B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-  S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
-
+  if(adjust){
+    B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
+    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+  }else{
+    B_tilde = B_hat
+    S_tilde = S_hat
+  }
   B_tilde_tilde <- B_tilde %*% V
-  S_tilde_tilde <- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+  S_tilde_tilde <- t( sqrt(d) * t(S_tilde))
 
   fit <- flash.init(data=B_tilde_tilde, S = S_tilde_tilde,  var.type=2) %>%
     flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%
