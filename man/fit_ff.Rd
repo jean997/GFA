@@ -4,7 +4,7 @@
 \alias{fit_ff}
 \title{Fit with fixed factors}
 \usage{
-fit_ff(B_hat, S_hat, N, R, kmax = 100, zero_thresh = 1e-15)
+fit_ff(B_hat, S_hat, N, R, kmax = 100, zero_thresh = 1e-15, adjust = TRUE)
 }
 \arguments{
 \item{B_hat}{Matrix of (non-standardized) effect estimates SNPs by traits}

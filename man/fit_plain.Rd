@@ -10,7 +10,8 @@ fit_plain(
   N,
   kmax = 100,
   init_fn = init.fn.softImpute,
-  prior_family = prior.point.normal()
+  prior_family = prior.point.normal(),
+  adjust = TRUE
 )
 }
 \arguments{

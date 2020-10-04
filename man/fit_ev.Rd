@@ -4,7 +4,7 @@
 \alias{fit_ev}
 \title{Fit with eigenvector transformation}
 \usage{
-fit_ev(B_hat, S_hat, N, R, kmax = 100, zero_thresh = 1e-15)
+fit_ev(B_hat, S_hat, N, R, kmax = 100, zero_thresh = 1e-15, adjust = TRUE)
 }
 \arguments{
 \item{B_hat}{Matrix of (non-standardized) effect estimates SNPs by traits}

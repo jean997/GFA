@@ -18,6 +18,7 @@ sim_sumstats_lf(
   g_F,
   nz_factor,
   scale_factor,
+  add = FALSE,
   overlap_prop = 1
 )
 }
