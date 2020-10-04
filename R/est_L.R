@@ -15,7 +15,7 @@ est_L <- function(B_hat, S_hat, N, adjust=TRUE, fit, ignore_tau =TRUE){
   H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
   L_est <- H %*% t(B_hat) %>% t()
   if(ignore_tau){
-    L_est_var <- map(seq(nvar), function(i){
+    L_est_var <- map(seq(n_var), function(i){
                           V <- H%*% diag(S_hat[i,]) %*% t(H)
                           sqrt(diag(V))
                         }) %>%
