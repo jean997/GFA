@@ -16,7 +16,7 @@ est_L <- function(B_hat, S_hat, N, adjust=TRUE, fit, ignore_tau =TRUE){
   L_est <- H %*% t(B_hat) %>% t()
   if(ignore_tau){
     L_est_se <- map(seq(n_var), function(i){
-                          V <- H%*% diag(S_hat[i,]) %*% t(H)
+                          V <- H%*% diag(S2_tilde[i,]) %*% t(H)
                           sqrt(diag(V))
                         }) %>%
                   do.call(rbind, .)
