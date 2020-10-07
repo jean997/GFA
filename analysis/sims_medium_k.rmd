@@ -1,0 +1,190 @@
+---
+title: "Simulations October 2, 2020"
+author: "Jean Morrison"
+date: "2020-10-06"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+This is a summary of simulations I ran doing basic comparisons of different methods for estimationg R, different methods for correcting for sample overlap and comparing to some simple SVD based methods. 
+
+## Simulation set up
+
+The simulations have these features:
+
++ No missing data.
++ There are always 30 traits, 12 factors, and 10,000 variants.
++ For each simulated data set $L$ and $F$ are generated randomly (details below). There are two modes of generating $F$ one of which has more dense factors than the other. I will call these "denser" and "less dense" later.  
++ We also randomly generate 
+    + heritability of each trait ($h^2_{trait}$)
+    + proportion of each traits heritability that comes from $LF^\top$ ($\omega$)
+    + heritability of each factor ($h^2_{factor}$)
++ GWAS samples are either entirely overlapping or entirely non-overlapping.
++ If the GWAS are overlapping, the envrionmental correlation is either the identity or block diagonal with 10 3 by 3 blocks that are 0.7 on the off diagonal on 1 on the diagonal. 
++ $\Theta$ is sparse (counter to FLASH assumptions) with a proportion 0.1 of elements non-zero.
++ $L$ is also sparse and has 0.2 of its elements non-zero.
++ Sample size is 10,000.
+
+### Generating $F$
+
+$F$ is generated using the following procedure. We first generated the number of non-zero elements in each factor. In the "less dense" mode this is generated as `pmin(rpois(nfactor, 2) + 2), ntrait)`. In the "denser" mode, the first three factors are dense (all 30 traits are non-zero) and the rest are drawn from the same poisson distribution plus 2 as used in the less dense mode. Then the non-zero elements of each column are selected at random and their value is sampled from a $U(-1, 1)$ distribution. 
+Later the rows of $F$ are scaled to yield the desired heritability. 
+
+Note that all factors here affect at least two traits. This is because a single trait factor is not that interesting. Since $\Theta$ is sparse, these effects represent single trait factors for all traits. 
+
+It is possible using this scheme that some trait may not have any factor effects. In this case, the element of $\omega$ corresponding to that trait is set to zero. 
+
+### Generating other paramters
+
+$h^2_{trait}$ is sampled from a $U(0.1, 0.6)$ distribution. $\omega$ is sampled from a $U(0.5, 1)$ distribution, $h^2_{factor}$ is sampled from a $U(0.5, 1)$ distribution. On occaision we may sample an impossible combination. 
+
+### Simulating data
+Data are simulated using the `sim_sumstats_lf` function in this package which is now able to randomly generate $F$ if it is not provided. Occaisionally we generate an $F$ that is impossible with the given parameters and then we just throw it out and try again. This happens if the heritability of a trait is high but the heritability of the factor(s) contributing to it is low. 
+
+## Estimation strategies
+
+I examined the following estimation strategies:
+
++ `flashier` with no adjustement for sample overlap (`fit_plain` in this package)
++ `flashier` with fixed factors (`fit_ff`)
++ `flashier` with eigenvector transformation (`fit_ev`)
++  SVD on z-scores
++ "sparse SVD" in which z-scores less than 4 are set to zero and then SVD is run
+
+For the two methods accounting for sample overlap I considered three strategies to estimated $R$ (correlation of rows of $E$): 
+
++ Oracle: Use exactly the matrix that was used to generate the data
++ All: Estimate $R$ as the correlation of effect estimates ver all variants.
++ $p$-threshold: Estimate $R$ only using variants with $p > 0.2$. This is done element-wise and different variants may be used to estimate different elements of $R$.
++ Shrinkage: Using `cor.shrink` from the `corpcor` package which tries to adaptively shrink the correlation towards $I$. 
+
+## Evaluation Metrics
+We evaluate (see below for details):
+
++ Number of factors accurately recovered. 
++ Average correlation between estimated factors and best matching factors.
++ Number of extra factors estimated. 
++ RRMSE estimating the true effects. 
+
+### Factor discovery
+
+I defined factor $j$ in the true matrix $F$  as "discovered" by factor $i$ in an estimated matrix $\hat{F}$ if: 
+
++ $cor(F_j, \hat{F}_i)  > cor(F_{j^\prime}), \hat{F}_i)\ \forall j^\prime \neq j$
++ $cor(F_j, \hat{F}_i)  > cor(F_{j}), \hat{F}_{i^\prime})\ \forall i^\prime \neq i$
++  $cor(F_j, \hat{F}_i) > \lambda$ (in results shown $\lambda = 0.9$)
+
+
+I say that a true factor and an estimated factor match if they satisfy the first two conditions. An estimated factor is "extra" if 1) it doesn't satisfy the above criteria for any $j$ and 2) it doesn't have correlation greater than $\tilde{\lambda} = 0.95$) with any single trait factors. This means we don't penalize methods that discover single trait factors. 
+
+The RRMSE for an estimate $\hat{B}$ is defined as $$\sqrt{ \frac{\sum_{ij}(\hat{B}_{ij}-B_{ij})^2}{\sum_{ij}B_{ij}^2}}$$
+
+## Results 
+
+In the following plots, methods are listed as <method>-<R estimation strategy>. plain = flashier no correction, ff = fixed factor correction, ev = eigenvector transformation. So, for example, `ff-pthresh` indicates the fixed factor method with R estimated by $p$-value thresholding. 
+
+### Factor Discovery
+
+```{r, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+
+res <- readRDS("analysis_data/sims_medium_k/2020-10-04_one.RDS")
+
+
+res <- res %>% mutate( method = stringr::str_replace(method, "fit_", ""),
+                       rest = stringr::str_replace(rest, "R_", "") ,
+              method2 = paste0(method, "-", rest), 
+              setting = case_when(simulate.R_type == "blocks" ~ "Blocks", 
+                                  simulate.overlap_prop == 1 ~ "Identity", 
+                                  simulate.overlap_prop == 0 ~ "No Overlap"), 
+              dense = case_when(simulate.ndense == 0 ~ "Less Dense", 
+                                TRUE ~ "More Dense"))
+
+p1 <- res %>%
+      ggplot() +
+        geom_boxplot(aes(x=method2, y=discovery.n_disc,
+                     fill=method)) +
+        ylab("Number of Factors Discovered") + xlab("Method") +
+        theme_bw() +
+        theme(axis.text.x  = element_text(angle = 90)) +
+        facet_wrap(~dense*setting, ncol=3)
+
+p1
+
+```
+
+
+Things to notice: 
+
++ plain svd and sparse svd perform worse than `flashier`. Plain SVD does terribly. 
++ Among methods correcting for sample overlap (`fit_ev` and `fit_ff`) the $p$-threshold $R$ estimate is the best non-oracle estimate of $R$ and sometimes outperforms the oracle. 
++ The fixed factor correction using the $p$-thresholded $R$ estimate is always one of the best methods and doesn't seem to be a sacrifice compared to `fit_plain` even when there is no sample overlap. 
+
+### Extra factors
+
+I am leaving out the SVD methods since I didn't implement any strategy for selecting the top vectors. 
+
+```{r, echo=FALSE}
+
+p2 <- res %>%
+      filter(!method2 %in% c("svd-none", "svdsparse-none")) %>%
+      ggplot() +
+        geom_boxplot(aes(x=method2, y=discovery.n_extra,
+                     fill=method)) +
+        ylab("Number of Extra Factors") + xlab("Method") +
+        theme_bw() +
+        theme(axis.text.x  = element_text(angle = 90)) +
+        facet_wrap(~dense*setting, ncol=3)
+
+p2
+
+```
+
+Note that the unadjusted method generates a lot of extra factors when there is sample overlap. In the more dense settings the fixed factor method generates more extra factors than the eigenvector method. 
+
+
+### Correlation of matching factors
+
+
+
+```{r, echo=FALSE}
+
+p3 <- res %>%
+      ggplot() +
+        geom_boxplot(aes(x=method2, y=discovery.avg_match_cor,
+                     fill=method)) +
+        ylab("Average Correlation of Matching Factors") + xlab("Method") +
+        theme_bw() +
+        theme(axis.text.x  = element_text(angle = 90)) +
+        facet_wrap(~dense*setting, ncol=3)
+
+p3
+
+```
+
+The fixed factor method does better than the eigenvector method in the less dense setting and worse in the more dense setting. Both beat the unadjusted method in the Blocks scenario. Everything beats the svdsparse method. Data for svd is missing because it doesn't match the true factors often enough. 
+
+### RRMSE
+I only computed RRMSE for the `flashier` based methods. 
+
+```{r, echo=FALSE}
+
+p4 <- res %>%
+      filter(!method2 %in% c("svd-none", "svdsparse-none")) %>%
+      ggplot() +
+        geom_boxplot(aes(x=method2, y=rrmse.value,
+                     fill=method)) +
+        ylab("RRMSE") + xlab("Method") +
+        theme_bw() +
+        theme(axis.text.x  = element_text(angle = 90)) +
+        facet_wrap(~dense*setting, ncol=3)
+
+p4
+
+```
+
+The eigenvector methods generally always have the best RRMSE with the $p$-thresholding correlation matrix giving the best results. 

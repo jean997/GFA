@@ -38,6 +38,7 @@ See [here](estimation.html)
 
 In reverse chronological order 
 
+1. [Comparison of R estimation strategies October 2020](sims_medium_k.html)
 1. [Simple Patterns](simple_patterns_simulations.html)
 1. [Revisiting Fixed Factor Sample Correlation Correction](fixed_factors2.html)
 1. [A sumary of early April Simulations](sample_cor_ld_sims.html)
