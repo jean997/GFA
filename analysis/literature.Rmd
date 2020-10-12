@@ -36,13 +36,15 @@ Intended for integrating different (high dimensioanal) data modalities (e.g. exp
 
 + @Runcie2013 Dissecting high-dimensional phenotypes with Bayesian sparse factor analysis of genetic covariance matrices
 
-+ @Chasman2020 Pleiotropy based deocomposition of genomic risk scores.
++ @Chasman2020 Pleiotropy based decomposition of genomic risk scores.
 
 + @Gao2013 A latent factor model with a mixture of sparse and dense factors to model gene expression data with confounding effects
 
 Based on SVD
 
 ## Data Applications
+
++ @Kettunen2016 Metabolites
 
 + @Astle2016 Blood cells data set
 
