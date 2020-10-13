@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jean Morrison" />
+
+<meta name="date" content="2020-10-12" />
+
+<title>First analysis of metobolite data</title>
+
+<script src="site_libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gwas_factors</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization">
+    <span class="fa fa-gitlab"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">First analysis of metobolite data</h1>
+<h4 class="author">Jean Morrison</h4>
+<h4 class="date">2020-10-12</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-10-13
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>sumstatFactors/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190819code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190819)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190819code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190819)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec18d9ee85e45f97d658667a7997e4c670c97cd6btargetblankc18d9eea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c18d9ee85e45f97d658667a7997e4c670c97cd6b" target="_blank">c18d9ee</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec18d9ee85e45f97d658667a7997e4c670c97cd6btargetblankc18d9eea" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c18d9ee85e45f97d658667a7997e4c670c97cd6b" target="_blank">c18d9ee</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/fixed_factors2_cache/
+    Ignored:    analysis/fixed_factors_cache/
+    Ignored:    analysis/metabo_flash_experiments_cache/
+    Ignored:    analysis/pathway_factors_cache/
+    Ignored:    analysis/simulations_cache/
+    Ignored:    analysis/z_scores_cache/
+    Ignored:    analysis_data/2020-06-10_ai/
+    Ignored:    analysis_data/2020-10-02_metabolites/
+    Ignored:    analysis_data/simple_patterns/
+    Ignored:    analysis_data/sims_medium_k/
+
+Untracked files:
+    Untracked:  analysis/sample_corr2.Rmd
+    Untracked:  buttons.css
+    Untracked:  bw_factors2.png
+    Untracked:  code/hide_output.js
+    Untracked:  k99_analysis.R
+    Untracked:  k99_fit.RDS
+    Untracked:  matrix_20.png
+
+Unstaged changes:
+    Modified:   analysis/k_greater_than_n.Rmd
+    Modified:   analysis/sumstat_factors.bib
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/2020-10-02_metabolites.Rmd</code>) and HTML (<code>public/2020-10-02_metabolites.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c18d9ee85e45f97d658667a7997e4c670c97cd6b/analysis/2020-10-02_metabolites.Rmd" target="_blank">c18d9ee</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+<td>
+wflow_publish(c(“analysis/index.Rmd”, “analysis/2020-10-02_metabolites.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p><span class="citation">Kettunen et al. (2016)</span> describe GWAS results for 123 metabolites. These data are an appealing target for our method because we expect many of these metabolites to be co-regulated. A good number are different sizes and types of lipid particles which likely share a lot of biology. In this document I will use the abbreviations used in the paper. The full names of all the metabolites are in the supplement of <span class="citation">Kettunen et al. (2016)</span> on page 161.</p>
+</div>
+<div id="data-features" class="section level2">
+<h2>Data features</h2>
+<p>These data are from am meta-analysis of 14 primarily European ancestry cohorts with a maximum sample size of 24,925 individual. Although there are a large number of variants present for all traits (about 12 million) the sample size differs across SNPs within traits. The sample size difference is sometimes large because a particular SNP may be missing for an entire study. This poses a challenge if we are using normalized effect sizes (z-score divided by square root of sample size) because it means the covariance of rows of <span class="math inline">\(E\)</span> (see other pages for notation and review of model) will differ across SNPs. This is a problem for the eigenvector and fixed factor methods of accounting for sample overlap. This data set is also challenging because it is large. One of the things I learned trying to fit this data set is that fitting the fixed factor method for larger number of traits can take prohibitively long.</p>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<div id="normalized-effect-size" class="section level3">
+<h3>Normalized Effect Size</h3>
+<p>I fit the data using three methods – without correction for sample overlap (“plain”), using the eigenvector transformation (“ev”), and using fixed factors (“ff”). This document describes only results for SNPs with no missing data.</p>
+<div id="running-ev-and-ff-methods" class="section level4">
+<h4>Running ev and ff methods</h4>
+<p>As noted above, we can’t simply apply either the eigenvector method or the fixed factor method because the sample size differs across SNPs but within traits. In order to apply these methods, I tried to identify a set of SNPs with close to similar sample size within trait and which were present in other studies.</p>
+<p>For each trait I identified all SNPs with sample size withing 2,000 of the largest sample size for that trait. Effect estimates for all other SNPs were set to zero. For retained SNPs, I artificially assigned the sample size to be the average of the sample size for retained SNPs. I then kept only SNPs that were non-missing after this procedure across all traits.</p>
+<p>I arrived at this procedure after some trial and error. At first I tried keeping only SNPs within a sample size window of the mode sample size for each trait, however this yielded a smaller set of SNPs after keeping only those non-missing across traits.</p>
+<p>I ran both the ev and ff methods using an estimate of <span class="math inline">\(R\)</span> based on the <span class="math inline">\(p\)</span>-thresholding method described in <a href="medium_k.html">simulations</a> using a threshold of <span class="math inline">\(p &gt; 0.2\)</span>.</p>
+</div>
+</div>
+<div id="comparing-results" class="section level3">
+<h3>Comparing Results</h3>
+<p>Eight analyses are described in the table below. The <span class="math inline">\(p\)</span>-threshold column indicates another way of filtering SNPs. When <span class="math inline">\(p\)</span>-threshold is less than 1, FLASH is run only on SNPs that have a <span class="math inline">\(p\)</span>-value less than the specified threshold for at least one trait. This is another way to reduce the number of SNPs used in the analysis. All three methods were run with both a <span class="math inline">\(p\)</span>-threshold of 1 and 0.01.</p>
+<p>I ran the “plain” method in two ways. In analyses A1 and A5, the method is run using all available SNPs (after LD pruning). In analyses A4 and A8, the method is run using only the SNPs that were available to the ev and ff methods. This can help us evaluate how much the difference in results is attributable to different methods vs different SNP sets.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Number</th>
+<th>Method</th>
+<th>Number of traits non-missing</th>
+<th><span class="math inline">\(p\)</span>-threshold</th>
+<th>total SNPs</th>
+<th>factors</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A1</td>
+<td>plain</td>
+<td>123</td>
+<td>1</td>
+<td>352,752</td>
+<td>13</td>
+</tr>
+<tr class="even">
+<td>A2</td>
+<td>ff</td>
+<td>123</td>
+<td>1</td>
+<td>7,662</td>
+<td>9</td>
+</tr>
+<tr class="odd">
+<td>A3</td>
+<td>ev</td>
+<td>123</td>
+<td>1</td>
+<td>7,662</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>A4</td>
+<td>plain</td>
+<td>123</td>
+<td>1</td>
+<td>7,662</td>
+<td>12</td>
+</tr>
+<tr class="odd">
+<td>A5</td>
+<td>plain</td>
+<td>123</td>
+<td>0.01</td>
+<td>124,652</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td>A6</td>
+<td>ff</td>
+<td>123</td>
+<td>0.01</td>
+<td>2,912</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td>A7</td>
+<td>ev</td>
+<td>123</td>
+<td>0.01</td>
+<td>2,912</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>A8</td>
+<td>plain</td>
+<td>123</td>
+<td>0.01</td>
+<td>2,912</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plain-method-on-large-vs-small-snp-sets" class="section level3">
+<h3>Plain method on large vs small SNP sets</h3>
+<p>Comparing anlaysis 1 and analysis 4, most of the factors recovered by analysis A4 have a strong correlation with a factor recovered by analysis 1. Eight of the twelve factors discovered by A4 match a factor discovered by A1 according to the definition givin <a href="medium_k.html">here</a>. Three additional factors match with correlations between 0.7 and 0.9 and one factor does not match.</p>
+<p>I observed similar results comparing A5 and A8 with 9 factors discovered in A8 matching factors discovered in A5 at a threshold of 0.9 and the remaining three matching with correlations of 0.65, 0.68, and 0.81.</p>
+<p>From this I conclude that the significantly smaller SNP set used by ff and ev nevertheless contains similar information about patterns of pleiotropy to the larger SNP set.</p>
+<p>I also saw very strong matching between analyses using different <span class="math inline">\(p\)</span>-thresholds. Factors discovered by A1 and A5 match nearly entirely as do those discovered by A4 and A8.</p>
+<p>For the remainder I will focus on comparing the ev and ff methods with different SNP sets.</p>
+</div>
+<div id="comparing-a2-a3-a6-a7" class="section level3">
+<h3>Comparing A2, A3, A6, A7</h3>
+<p>One clear observation is that the ff method yields more factors than the ev methods. One question is if some of these are singel trait factors, since we observed in simulations that the ff method tends to produce more single trait factors than the ev method.</p>
+<p>Comparing A2 and A6: Here I plot the correlation between A6 factors and A2 factors.</p>
+<pre class="r"><code>library(sumstatFactors)</code></pre>
+<pre><code>Warning: replacing previous import &#39;intervals::reduce&#39; by &#39;purrr::reduce&#39; when
+loading &#39;sumstatFactors&#39;</code></pre>
+<pre class="r"><code>library(ggplot2)
+A2 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A2.RDS&quot;)
+A6 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A6.RDS&quot;)
+plot_factors(cor(A2$F_hat, A6$F_hat)) + xlab(&quot;A6 Factors&quot;) + ylab(&quot;A2 factors&quot;) + ggtitle(&quot;Correlation A2 v A6&quot;)</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc(F_hat = A6$F_hat, F_true = A2$F_hat, lambda=0)</code></pre>
+<pre><code>$M
+  est_ix true_ix     value
+1      1       1 0.9975677
+2      2       2 0.9963093
+3      3       3 0.9952395
+4      5       9 0.8788961
+5      6       4 0.9438391
+6      7       6 0.5951068
+7      8       7 0.3313569
+8      9       8 0.9785538
+
+$u_est
+[1]  4 10
+
+$u_true
+[1] 5
+
+$single_trait_est
+[1] 7</code></pre>
+<p>Five factors match with a correlation &gt; 0.9 and an additional factor matches with correlation 0.88. Three factors estimated by A2 and four factors estimated by A6 don’t match factors estimated by the other. Here I am making use of the <code>disc</code> function written for evaluating simulation results. The only single trait factor identified by <code>disc</code> is A6 factor 7.</p>
+<p>Comparing A3 and A7:</p>
+<pre class="r"><code>A3 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A3.RDS&quot;)
+A7 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A7.RDS&quot;)
+plot_factors(cor(A3$F_hat, A7$F_hat)) + xlab(&quot;A7 Factors&quot;) + ylab(&quot;A3 factors&quot;) + ggtitle(&quot;Correlation A3 v A7&quot;)</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc(F_hat = A7$F_hat, F_true = A3$F_hat, lambda=0)</code></pre>
+<pre><code>$M
+  est_ix true_ix     value
+1      1       1 0.8629873
+2      2       3 0.9981892
+3      3       2 0.7576515
+4      5       4 0.8723440
+
+$u_est
+[1] 4
+
+$u_true
+integer(0)
+
+$single_trait_est
+integer(0)</code></pre>
+<p>A3 and A7 only match moderately well. Factor 2 of A7 matches factor 3 of A3 nearly exactly. The other factors all have matches with correlations between 0.75 and 0.9.</p>
+<p>Comparing ff and ev methods A2 vs A3:</p>
+<pre class="r"><code>plot_factors(cor(A3$F_hat, A2$F_hat)) + xlab(&quot;A2 Factors (ff)&quot;) + ylab(&quot;A3 factors (ev)&quot;) + ggtitle(&quot;Correlation A3 v A2&quot;)</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc(F_hat = A3$F_hat, F_true = A2$F_hat, lambda=0)</code></pre>
+<pre><code>$M
+  est_ix true_ix     value
+1      1       8 0.5984437
+2      2       1 0.9925383
+3      3       4 0.8534390
+4      4       2 0.8886404
+
+$u_est
+integer(0)
+
+$u_true
+[1] 3 5 6 7 9
+
+$single_trait_est
+integer(0)</code></pre>
+<p>All four of the factors estimated with the ev method have a match among those estimated by the ff method though A3 factor 1 matches A2 factor 8 with a correlation of only 0.6.</p>
+<p>Comparing ff and ev methods A6 vs A7:</p>
+<pre class="r"><code>plot_factors(cor(A7$F_hat, A6$F_hat)) + xlab(&quot;A6 Factors (ff)&quot;) + ylab(&quot;A7 factors (ev)&quot;) + ggtitle(&quot;Correlation A3 v A2&quot;)</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc(F_hat = A7$F_hat, F_true = A6$F_hat, lambda=0)</code></pre>
+<pre><code>$M
+  est_ix true_ix     value
+1      2       6 0.8415358
+2      3       1 0.7173161
+3      5       2 0.6318862
+
+$u_est
+[1] 1 4
+
+$u_true
+[1]  3  4  5  7  8  9 10
+
+$single_trait_est
+integer(0)</code></pre>
+<p>A6 and A7 match less well than A2 and A3. The highest correlation amongst any pair is 0.84.</p>
+</div>
+<div id="examining-factors-of-a2" class="section level3">
+<h3>Examining factors of A2</h3>
+<p>I will focus on the factors estimated by A2. I chose this analysis to focus on because the ff method performed best in simulations. The results above indicate that the smaller number of SNPs available to A6 might make that analysis unreliable. Of the five factors estimated by A2, factors 1,2,4, and 8 are well matched by factors estimated using the ev method (A3) and factors 1,2,3,4,8, and 9 are matched well by the ff method using fewer SNPs (A6).</p>
+<p>Here I have ordered the traits in the same order as Figure 2 of <span class="citation">Kettunen et al. (2016)</span>.</p>
+<pre class="r"><code>library(stringr)
+names &lt;- str_replace(A2$names, &quot;kettunen_&quot;, &quot;&quot;) %&gt;% str_replace(&quot;.est&quot;, &quot;&quot;)
+to &lt;- c(&quot;Gp&quot;, &quot;Urea&quot;, &quot;Alb&quot;, &quot;Crea&quot;, &quot;bOHBut&quot;, &quot;AcAce&quot;,
+                 &quot;Ace&quot;, &quot;Tyr&quot;, &quot;Phe&quot;, &quot;Val&quot;, &quot;Leu&quot;, &quot;Ile&quot;, &quot;His&quot;,
+                 &quot;Gly&quot;, &quot;Gln&quot;, &quot;Ala&quot;, &quot;Glol&quot;, &quot;Cit&quot;, &quot;Pyr&quot;, &quot;Lac&quot;,
+                 &quot;Glc&quot;, &quot;Bis.FA.ratio&quot;, &quot;Bis.DB.ratio&quot;, &quot;FALen&quot;,
+                 &quot;DB.in.FA&quot;, &quot;CH2.DB.ratio&quot;, &quot;CH2.in.FA&quot;, &quot;MUFA&quot;,
+                 &quot;DHA&quot;, &quot;otPUFA&quot;, &quot;LA&quot;, &quot;FAw79S&quot;, &quot;FAw6&quot;, &quot;FAw3&quot;, &quot;Tot.FA&quot;,
+                 &quot;ApoB&quot;, &quot;ApoA1&quot;, &quot;SM&quot;, &quot;PC&quot;, &quot;TotPG&quot;, &quot;Serum.TG&quot;,
+                 &quot;HDL.C&quot;, &quot;LDL.C&quot;, &quot;Free.C&quot;, &quot;Est.C&quot;, &quot;Serum.C&quot;,
+                 &quot;HDL.D&quot;, &quot;LDL.D&quot;, &quot;VLDL.D&quot;, &quot;S.HDL.P&quot;, &quot;S.HDL.L&quot;, &quot;S.HDL.TG&quot;,
+                 &quot;M.HDL.P&quot;, &quot;M.HDL.L&quot;, &quot;M.HDL.CE&quot;, &quot;M.HDL.PL&quot;, &quot;M.HDL.FC&quot;,  &quot;M.HDL.C&quot;,
+                 &quot;L.HDL.P&quot;, &quot;L.HDL.L&quot;, &quot;L.HDL.CE&quot;, &quot;L.HDL.PL&quot;, &quot;L.HDL.FC&quot;,  &quot;L.HDL.C&quot;,
+                 &quot;XL.HDL.P&quot;, &quot;XL.HDL.L&quot;, &quot;XL.HDL.CE&quot;,&quot;XL.HDL.TG&quot;,  &quot;XL.HDL.PL&quot;, &quot;XL.HDL.FC&quot;,  &quot;XL.HDL.C&quot;,
+                 &quot;S.LDL.P&quot;, &quot;S.LDL.L&quot;, &quot;S.LDL.C&quot;,
+                 &quot;M.LDL.P&quot;, &quot;M.LDL.L&quot;, &quot;M.LDL.CE&quot;, &quot;M.LDL.PL&quot;, &quot;M.LDL.C&quot;,
+                 &quot;L.LDL.P&quot;, &quot;L.LDL.L&quot;, &quot;L.LDL.CE&quot;, &quot;L.LDL.PL&quot;, &quot;L.LDL.FC&quot;, &quot;L.LDL.C&quot;,
+                 &quot;IDL.P&quot;, &quot;IDL.L&quot;, &quot;IDL.TG&quot;,  &quot;IDL.PL&quot;, &quot;IDL.FC&quot;,  &quot;IDL.C&quot;,
+                 &quot;XS.VLDL.P&quot;, &quot;XS.VLDL.L&quot;, &quot;XS.VLDL.TG&quot;, &quot;XS.VLDL.PL&quot;,
+                 &quot;S.VLDL.P&quot;, &quot;S.VLDL.L&quot;, &quot;S.VLDL.TG&quot;, &quot;S.VLDL.PL&quot;, &quot;S.VLDL.FC&quot;, &quot;S.VLDL.C&quot;,
+                 &quot;M.VLDL.P&quot;, &quot;M.VLDL.L&quot;,&quot;M.VLDL.CE&quot;, &quot;M.VLDL.TG&quot;, &quot;M.VLDL.PL&quot;, &quot;M.VLDL.FC&quot;, &quot;M.VLDL.C&quot;,
+                 &quot;L.VLDL.P&quot;, &quot;L.VLDL.L&quot;,&quot;L.VLDL.CE&quot;, &quot;L.VLDL.TG&quot;, &quot;L.VLDL.PL&quot;, &quot;L.VLDL.FC&quot;, &quot;L.VLDL.C&quot;,
+                 &quot;XL.VLDL.P&quot;, &quot;XL.VLDL.L&quot;, &quot;XL.VLDL.TG&quot;, &quot;XL.VLDL.PL&quot;,
+                 &quot;XXL.VLDL.P&quot;, &quot;XXL.VLDL.L&quot;, &quot;XXL.VLDL.TG&quot;, &quot;XXL.VLDL.PL&quot;)
+trait_order &lt;- match(to, names)
+plot_factors(A2$F_hat, names, trait_order = trait_order)</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I will leave interpretation of these for now but will come back and add to this section. One thing that I think is interesting is that factor 2 seems to be broadly correlated with the Lp(a) pattern identified by <span class="citation">Kettunen et al. (2016)</span> in Figure 2 at least in terms of effect signs.</p>
+</div>
+<div id="snp-associations-with-a2-factors" class="section level3">
+<h3>SNP associations with A2 Factors</h3>
+<p>I estimated SNP association with each of the factors estimated by A2 using the following procedure. Let <span class="math inline">\(\hat{F}\)</span> be the estimated factors. Let <span class="math inline">\(\tilde{B}\)</span> and <span class="math inline">\(\tilde{S}\)</span> be the normalized effect estimates and normalized effect estimate sds for a new set of SNPs that we would like to evaluate (each are snps by traits). Then we estimate the matrix of SNP associations with factors, <span class="math inline">\(\tilde{L}\)</span> as</p>
+<p><span class="math display">\[
+\tilde{L} = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \tilde{B}
+\]</span></p>
+<p>The variance of a row of <span class="math inline">\(\tilde{L}\)</span> is computed as</p>
+<p>L_est_se &lt;- map(seq(n_var), function(i){ V &lt;- H%<em>% diag(S2_tilde[i,] + 1/tau) %</em>% t(H) sqrt(diag(V)) })</p>
+<p><span class="math display">\[
+Var(\tilde{L}_{j, \bullet}) = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \Sigma_{j} \hat{F} (\hat{F}^\top \hat{F})^{-1}
+\]</span> where <span class="math inline">\(\Sigma_j\)</span> is a diagonal matrix with elements <span class="math inline">\(\tilde{S}_{j, \bullet}^2 + \gamma^2\)</span> where <span class="math inline">\(\gamma^2\)</span> is the trait length vector of residual variance. One option for <span class="math inline">\(\gamma^2\)</span> is the variance of columns of <span class="math inline">\(\Theta\)</span> computed by FLASH, however these are shrunk and give anticonservative estimates. Instead I estimate <span class="math inline">\(\gamma^2\)</span> by simply taking the sample variance of columns of <span class="math inline">\(\tilde{B}_{fit} - \hat{B}_{fit}\)</span> where <span class="math inline">\(\tilde{B}_{fit}\)</span> is the matrix of estimates used to fit the model and <span class="math inline">\(\hat{B}_{fit}\)</span> is the fitted values from the model.</p>
+<p>Since each factor is associated with many traits, there are more variants associated with factors than with individual traits. I will highlight the results for Factor 2 from A2 which I pointed out above. The original data have 12 million SNPs. In order to be able to plot them, I have truncated <span class="math inline">\(p\)</span>-values and <span class="math inline">\(10^{-300}\)</span> and am only plotting SNPs with <span class="math inline">\(p\)</span>-values less than <span class="math inline">\(10^{-6}\)</span>.</p>
+<pre class="r"><code>library(qqman)</code></pre>
+<pre><code></code></pre>
+<pre><code>For example usage please run: vignette(&#39;qqman&#39;)</code></pre>
+<pre><code></code></pre>
+<pre><code>Citation appreciated but not required:</code></pre>
+<pre><code>Turner, S.D. qqman: an R package for visualizing GWAS results using Q-Q and manhattan plots. biorXiv DOI: 10.1101/005165 (2014).</code></pre>
+<pre><code></code></pre>
+<pre class="r"><code>P &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A2_estL_P2.RDS&quot;)
+qqman::manhattan(P, chr=&quot;seqnames&quot;, bp=&quot;start&quot;, p = &quot;p2&quot;)</code></pre>
+<pre><code>Warning in qqman::manhattan(P, chr = &quot;seqnames&quot;, bp = &quot;start&quot;, p = &quot;p2&quot;): No SNP
+column found. OK unless you&#39;re trying to highlight.</code></pre>
+<p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-6-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>It is worth noting that there are an enormous number of SNPs with low <span class="math inline">\(p\)</span>-values. This could be explained by the factor being associated with so many traits or the <span class="math inline">\(p\)</span>-values could be poorly calibrated. The SNP examined by <span class="citation">Kettunen et al. (2016)</span> has a <span class="math inline">\(p\)</span>-value of <span class="math inline">\(10^{-88}\)</span> for Factor 2 and is visible on chromosome 6.</p>
+<p>I will add more details about other variants in the future.</p>
+</div>
+<div id="z-scores" class="section level3">
+<h3><span class="math inline">\(z\)</span>-scores</h3>
+<p>To avoid issues caused by using standardized effects, I also looked at a few analyses using <span class="math inline">\(z\)</span>-scores. I will add notes on these soon.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Number</th>
+<th>Method</th>
+<th>Number of traits non-missing</th>
+<th><span class="math inline">\(p\)</span>-threshold</th>
+<th>total SNPs</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>B1</td>
+<td>plain</td>
+<td>123</td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>B2</td>
+<td>ff</td>
+<td>123</td>
+<td>1</td>
+<td></td>
+<td>Took too long, no results</td>
+</tr>
+<tr class="odd">
+<td>B3</td>
+<td>ev</td>
+<td>123</td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>B4</td>
+<td>plain</td>
+<td>123</td>
+<td>0.01</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>B5</td>
+<td>ff</td>
+<td>123</td>
+<td>0.01</td>
+<td></td>
+<td>Took too long, no results</td>
+</tr>
+<tr class="even">
+<td>B6</td>
+<td>ev</td>
+<td>123</td>
+<td>0.01</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<div id="refs" class="references hanging-indent">
+<div id="ref-Kettunen2016">
+<p>Kettunen, Johannes, Ayse Demirkan, Peter Würtz, Harmen H. M. Draisma, Toomas Haller, Rajesh Rawal, Anika Vaarhorst, et al. 2016. “Genome-wide study for circulating metabolites identifies 62 loci and reveals novel systemic effects of LPA.” <em>Nature Communications</em> 7: 1–9. <a href="https://doi.org/10.1038/ncomms11122">https://doi.org/10.1038/ncomms11122</a>.</p>
+</div>
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.2 (2020-06-22)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.5 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] qqman_0.1.4               stringr_1.4.0            
+[3] ggplot2_3.3.2             sumstatFactors_0.0.0.9000
+[5] workflowr_1.6.2          
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.1.0 xfun_0.18        ashr_2.2-47      purrr_0.3.4     
+ [5] reshape2_1.4.4   lattice_0.20-41  colorspace_1.4-1 vctrs_0.3.4     
+ [9] generics_0.0.2   htmltools_0.5.0  yaml_2.2.1       rlang_0.4.7     
+[13] mixsqp_0.3-43    later_1.1.0.1    pillar_1.4.6     glue_1.4.2      
+[17] withr_2.3.0      calibrate_1.7.7  lifecycle_0.2.0  plyr_1.8.6      
+[21] munsell_0.5.0    gtable_0.3.0     flashier_0.2.4   evaluate_0.14   
+[25] labeling_0.3     knitr_1.30       httpuv_1.5.4     invgamma_1.1    
+[29] irlba_2.3.3      parallel_4.0.2   Rcpp_1.0.5       readr_1.3.1     
+[33] promises_1.1.1   backports_1.1.10 scales_1.1.1     truncnorm_1.0-8 
+[37] farver_2.0.3     fs_1.5.0         hms_0.5.3        digest_0.6.25   
+[41] stringi_1.5.3    dplyr_1.0.2      ebnm_0.1-24      rprojroot_1.3-2 
+[45] grid_4.0.2       tools_4.0.2      magrittr_1.5     tibble_3.0.3    
+[49] crayon_1.3.4     whisker_0.4      pkgconfig_2.0.3  MASS_7.3-53     
+[53] ellipsis_0.3.1   Matrix_1.2-18    SQUAREM_2020.3   rmarkdown_2.3   
+[57] rstudioapi_0.11  R6_2.4.1         intervals_0.15.2 git2r_0.27.1    
+[61] compiler_4.0.2  </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
