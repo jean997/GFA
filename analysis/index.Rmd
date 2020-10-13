@@ -48,6 +48,7 @@ In reverse chronological order
 ## Analyses of data
 In reverse chronological order
 
+1. [Metabolites](2020-10-02_metabolites.html)
 1. [Immune Mediated Diseases](imd.html)
 1. [Blood Cell Traits](blood_cell.html)
 
