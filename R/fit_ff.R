@@ -27,10 +27,8 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
   Sig_new <- Sigma - diag(rep(lambda_min, n_trait))
   if(adjust){
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
   }else{
     B_tilde = B_hat
-    S_tilde = S_hat
   }
 
   if(all(Sig_new ==0)){
