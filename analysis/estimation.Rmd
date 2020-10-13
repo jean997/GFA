@@ -53,12 +53,12 @@ The pros of this method are that it is (of the two I will talk about) easier to 
 $$
 \tilde{B} = LF^\top + \Theta + E
 $$
-where the covariance of each row of $E$ is $\Sigma = SRS$ where $S$ is $M\times M$ diagonal with diagonal elements $1/\sqrt{N_m}$ and $R$ is a known correlation matrix. Let $R = VDV^\top $ be the eigendecomposition of $R$. Then
+where the covariance of each row of $E$ is $\Sigma = SRS$ where $S$ is $M\times M$ diagonal with diagonal elements $1/\sqrt{N_m}$ and $R$ is a known correlation matrix. Let $\Sigma = VDV^\top$ be the eigendecomposition of $\Sigma$. Then
 
 $$
 \tilde{B}V = L (V^\top F)^\top + \Theta V + E_2 
 $$
-where the elements of $E_2$ are independent with $Var((E_2)_{j,m}) = d_{m}/N_m$ where $d_m$ is the $m$th diagonal element of $D$. We can infer $L$ and $F$ by first transforming $\tilde{B}$ and then back transforming the estimated factors. Unfortunately we are now assuming that $V^\top F$ is sparse rather than assuming that $F$ is sparse. In simulations this doesn't seem to make a huge difference. However, the inability to use incomplete SNPs may significantly impact real data analysis. To fit in FLASH we use
+where the elements of $E_2$ are independent with $Var((E_2)_{j,m}) = d_{m}$ where $d_m$ is the $m$th diagonal element of $D$. We can infer $L$ and $F$ by first transforming $\tilde{B}$ and then back transforming the estimated factors. Unfortunately we are now assuming that $V^\top F$ is sparse rather than assuming that $F$ is sparse. In simulations this doesn't seem to make a huge difference. However, the inability to use incomplete SNPs may significantly impact real data analysis. To fit in FLASH we use
 
 ```{r, eval=FALSE}
 fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
@@ -68,18 +68,19 @@ fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
     stopifnot(nrow(S_hat) == n_var & ncol(S_hat) == n_trait)
     stopifnot(length(N) == n_trait)
     
-    R_eig <- eigen(R)
-    d <- R_eig$values
-    V <- R_eig$vectors
+    Sigma <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
+    Sig_eig <- eigen(Sigma)
+    d <- Sig_eig$values
+    V <- Sig_eig$vectors
     
-    R_eig$values[abs(d) < zero_thresh] <- 0
-    if(any(R_eig$values < 0))stop("R is not psd")
+    Sig_eig$values[abs(d) < zero_thresh] <- 0
+    if(any(Sig_eig$values < 0))stop("R is not psd")
     
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S))
     S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
     
     B_tilde_tilde <- B_tilde %*% V
-    S_tilde_tilde <- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+    S_tilde_tilde <- t( sqrt(d) * t(matrix(1, nrow=n_var, ncol=n_trait)))
     
     fit <- flash.init(data=B_tilde_tilde, S = S_tilde_tilde,  var.type=2) %>%
                       flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%

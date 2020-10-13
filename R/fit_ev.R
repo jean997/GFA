@@ -19,18 +19,26 @@ fit_ev <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
   R_eig <- eigen(R)
   R_eig$values[abs(R_eig$values) < zero_thresh] <- 0
   if(any(R_eig$values < 0))stop("R is not psd")
-  d <- R_eig$values
-  V <- R_eig$vectors
 
+
+  if(all(N == N[1])){
+    d <- R_eig$values
+    V <- R_eig$vectors
+    S_tilde_tilde <- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+  }else{
+    Sigma <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
+    Sig_eig <- eigen(Sigma)
+    d <- Sig_eig$values
+    V <- Sig_eig$vectors
+    S_tilde_tilde <- t( sqrt(d) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+  }
   if(adjust){
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
   }else{
     B_tilde = B_hat
-    S_tilde = S_hat
   }
   B_tilde_tilde <- B_tilde %*% V
-  S_tilde_tilde <- t( sqrt(d) * t(S_tilde))
+
 
   fit <- flash.init(data=B_tilde_tilde, S = S_tilde_tilde,  var.type=2) %>%
     flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %>%
