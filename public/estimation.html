@@ -416,7 +416,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-09-30
+<strong>Last updated:</strong> 2020-10-13
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -507,16 +507,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef6a98eafc9d3b6f0a3955abaf14093c3350923d6targetblankf6a98eaa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f6a98eafc9d3b6f0a3955abaf14093c3350923d6" target="_blank">f6a98ea</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec7126d80a1c3eded52746a3530c81cc114e24229targetblankc7126d8a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c7126d80a1c3eded52746a3530c81cc114e24229" target="_blank">c7126d8</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef6a98eafc9d3b6f0a3955abaf14093c3350923d6targetblankf6a98eaa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec7126d80a1c3eded52746a3530c81cc114e24229targetblankc7126d8a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f6a98eafc9d3b6f0a3955abaf14093c3350923d6" target="_blank">f6a98ea</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c7126d80a1c3eded52746a3530c81cc114e24229" target="_blank">c7126d8</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -532,19 +532,22 @@ Ignored files:
     Ignored:    analysis/simulations_cache/
     Ignored:    analysis/z_scores_cache/
     Ignored:    analysis_data/2020-06-10_ai/
+    Ignored:    analysis_data/2020-10-02_metabolites/
     Ignored:    analysis_data/simple_patterns/
+    Ignored:    analysis_data/sims_medium_k/
 
 Untracked files:
-    Untracked:  R/est_R_pairwise.R
-    Untracked:  analysis/k_greater_than_n.Rmd
     Untracked:  analysis/sample_corr2.Rmd
-    Untracked:  analysis/test.Rmd
     Untracked:  buttons.css
     Untracked:  bw_factors2.png
     Untracked:  code/hide_output.js
     Untracked:  k99_analysis.R
     Untracked:  k99_fit.RDS
     Untracked:  matrix_20.png
+
+Unstaged changes:
+    Modified:   analysis/k_greater_than_n.Rmd
+    Modified:   analysis/sumstat_factors.bib
 
 </code></pre>
 <p>
@@ -583,6 +586,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/08ba61016d19a26f21397fc331bba1a4dae9b86f/analysis/estimation.Rmd" target="_blank">08ba610</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+<td>
+correct matrix algebra error
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://glcdn.githack.com/jean_morrison/gwas-summay-statistic-factorization/raw/aa565b2c5fc05377d26d7ec16702b5b063a2e9b6/public/estimation.html" target="_blank">aa565b2</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-09-30
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -689,10 +726,10 @@ fit &lt;- flash.init(data=B_tilde, S = S_tilde,  var.type=2) %&gt;%
 <p>The pros of this method are that it is (of the two I will talk about) easier to fit and seems to perform better in simulations. The cons are that it can only be used with complete data. It also applies sparsity assumptions to the wrong matrix. First suppose that every element of <span class="math inline">\(E\)</span> has the same variance. In this section we will assume we are working with standardized effect esimtates <span class="math inline">\(\tilde{\beta}_{j,m}\)</span>. This also works with <span class="math inline">\(z\)</span>-scores but not with unstandardized effects (with unstandardized effects we would need to transform effects for each SNP separately). Our model is</p>
 <p><span class="math display">\[
 \tilde{B} = LF^\top + \Theta + E
-\]</span> where the covariance of each row of <span class="math inline">\(E\)</span> is <span class="math inline">\(\Sigma = SRS\)</span> where <span class="math inline">\(S\)</span> is <span class="math inline">\(M\times M\)</span> diagonal with diagonal elements <span class="math inline">\(1/\sqrt{N_m}\)</span> and <span class="math inline">\(R\)</span> is a known correlation matrix. Let $R = VDV^$ be the eigendecomposition of <span class="math inline">\(R\)</span>. Then</p>
+\]</span> where the covariance of each row of <span class="math inline">\(E\)</span> is <span class="math inline">\(\Sigma = SRS\)</span> where <span class="math inline">\(S\)</span> is <span class="math inline">\(M\times M\)</span> diagonal with diagonal elements <span class="math inline">\(1/\sqrt{N_m}\)</span> and <span class="math inline">\(R\)</span> is a known correlation matrix. Let <span class="math inline">\(\Sigma = VDV^\top\)</span> be the eigendecomposition of <span class="math inline">\(\Sigma\)</span>. Then</p>
 <p><span class="math display">\[
 \tilde{B}V = L (V^\top F)^\top + \Theta V + E_2 
-\]</span> where the elements of <span class="math inline">\(E_2\)</span> are independent with <span class="math inline">\(Var((E_2)_{j,m}) = d_{m}/N_m\)</span> where <span class="math inline">\(d_m\)</span> is the <span class="math inline">\(m\)</span>th diagonal element of <span class="math inline">\(D\)</span>. We can infer <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> by first transforming <span class="math inline">\(\tilde{B}\)</span> and then back transforming the estimated factors. Unfortunately we are now assuming that <span class="math inline">\(V^\top F\)</span> is sparse rather than assuming that <span class="math inline">\(F\)</span> is sparse. In simulations this doesn’t seem to make a huge difference. However, the inability to use incomplete SNPs may significantly impact real data analysis. To fit in FLASH we use</p>
+\]</span> where the elements of <span class="math inline">\(E_2\)</span> are independent with <span class="math inline">\(Var((E_2)_{j,m}) = d_{m}\)</span> where <span class="math inline">\(d_m\)</span> is the <span class="math inline">\(m\)</span>th diagonal element of <span class="math inline">\(D\)</span>. We can infer <span class="math inline">\(L\)</span> and <span class="math inline">\(F\)</span> by first transforming <span class="math inline">\(\tilde{B}\)</span> and then back transforming the estimated factors. Unfortunately we are now assuming that <span class="math inline">\(V^\top F\)</span> is sparse rather than assuming that <span class="math inline">\(F\)</span> is sparse. In simulations this doesn’t seem to make a huge difference. However, the inability to use incomplete SNPs may significantly impact real data analysis. To fit in FLASH we use</p>
 <pre class="r"><code>fit_ev &lt;- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15){
   
     n_var &lt;- nrow(B_hat)
@@ -700,18 +737,19 @@ fit &lt;- flash.init(data=B_tilde, S = S_tilde,  var.type=2) %&gt;%
     stopifnot(nrow(S_hat) == n_var &amp; ncol(S_hat) == n_trait)
     stopifnot(length(N) == n_trait)
     
-    R_eig &lt;- eigen(R)
-    d &lt;- R_eig$values
-    V &lt;- R_eig$vectors
+    Sigma &lt;- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
+    Sig_eig &lt;- eigen(Sigma)
+    d &lt;- Sig_eig$values
+    V &lt;- Sig_eig$vectors
     
-    R_eig$values[abs(d) &lt; zero_thresh] &lt;- 0
-    if(any(R_eig$values &lt; 0))stop(&quot;R is not psd&quot;)
+    Sig_eig$values[abs(d) &lt; zero_thresh] &lt;- 0
+    if(any(Sig_eig$values &lt; 0))stop(&quot;R is not psd&quot;)
     
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S))
     S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_triat)))
     
     B_tilde_tilde &lt;- B_tilde %*% V
-    S_tilde_tilde &lt;- t( (sqrt(d)/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+    S_tilde_tilde &lt;- t( sqrt(d) * t(matrix(1, nrow=n_var, ncol=n_trait)))
     
     fit &lt;- flash.init(data=B_tilde_tilde, S = S_tilde_tilde,  var.type=2) %&gt;%
                       flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute) %&gt;%
