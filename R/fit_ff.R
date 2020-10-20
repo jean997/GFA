@@ -8,7 +8,8 @@
 #'@param zero_thresh Threshold for setting eigenvalues of R to zero
 #'@return A list with elements fit, B_hat, L_hat, F_hat
 #'@export
-fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRUE){
+fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRUE,
+                   method="sequential"){
 
   n_var <- nrow(B_hat)
   n_trait <- ncol(B_hat)
@@ -52,7 +53,7 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
     fit <- fit %>%
       flash.init.factors(., EF = list(A_rand, W), prior.family = prior.normal(scale= 1)) %>%
       flash.fix.loadings(., kset = n + 1:(n_trait-1), mode=2) %>%
-      flash.backfit(method = "sequential")
+      flash.backfit(method = method)
 
     F_hat <- fit$loadings.pm[[2]][,1:n, drop=FALSE]
     L_hat <- fit$loadings.pm[[1]][, 1:n, drop=FALSE]
