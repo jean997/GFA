@@ -416,7 +416,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-10-13
+<strong>Last updated:</strong> 2020-10-20
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -507,16 +507,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec18d9ee85e45f97d658667a7997e4c670c97cd6btargetblankc18d9eea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c18d9ee85e45f97d658667a7997e4c670c97cd6b" target="_blank">c18d9ee</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef2f0178403577ebbbf93a1d7756c5c39c8c67b3dtargetblankf2f0178a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f2f0178403577ebbbf93a1d7756c5c39c8c67b3d" target="_blank">f2f0178</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreec18d9ee85e45f97d658667a7997e4c670c97cd6btargetblankc18d9eea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreef2f0178403577ebbbf93a1d7756c5c39c8c67b3dtargetblankf2f0178a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/c18d9ee85e45f97d658667a7997e4c670c97cd6b" target="_blank">c18d9ee</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/f2f0178403577ebbbf93a1d7756c5c39c8c67b3d" target="_blank">f2f0178</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -525,6 +525,7 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/figure/
     Ignored:    analysis/fixed_factors2_cache/
     Ignored:    analysis/fixed_factors_cache/
     Ignored:    analysis/metabo_flash_experiments_cache/
@@ -537,6 +538,7 @@ Ignored files:
     Ignored:    analysis_data/sims_medium_k/
 
 Untracked files:
+    Untracked:  R/fit_ff2.R
     Untracked:  analysis/sample_corr2.Rmd
     Untracked:  buttons.css
     Untracked:  bw_factors2.png
@@ -546,8 +548,8 @@ Untracked files:
     Untracked:  matrix_20.png
 
 Unstaged changes:
+    Modified:   R/fit_ff.R
     Modified:   analysis/k_greater_than_n.Rmd
-    Modified:   analysis/sumstat_factors.bib
 
 </code></pre>
 <p>
@@ -586,6 +588,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/f2f0178403577ebbbf93a1d7756c5c39c8c67b3d/analysis/2020-10-02_metabolites.Rmd" target="_blank">f2f0178</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-20
+</td>
+<td>
+wflow_publish(“analysis/2020-10-02_metabolites.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://glcdn.githack.com/jean_morrison/gwas-summay-statistic-factorization/raw/c7126d80a1c3eded52746a3530c81cc114e24229/public/2020-10-02_metabolites.html" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -734,6 +770,43 @@ A2 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A2.RDS&quot;)
 A6 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A6.RDS&quot;)
 plot_factors(cor(A2$F_hat, A6$F_hat)) + xlab(&quot;A6 Factors&quot;) + ylab(&quot;A2 factors&quot;) + ggtitle(&quot;Correlation A2 v A6&quot;)</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-1-1">
+Past versions of unnamed-chunk-1-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-1-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>disc(F_hat = A6$F_hat, F_true = A2$F_hat, lambda=0)</code></pre>
 <pre><code>$M
   est_ix true_ix     value
@@ -760,6 +833,43 @@ $single_trait_est
 A7 &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A7.RDS&quot;)
 plot_factors(cor(A3$F_hat, A7$F_hat)) + xlab(&quot;A7 Factors&quot;) + ylab(&quot;A3 factors&quot;) + ggtitle(&quot;Correlation A3 v A7&quot;)</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-2-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>disc(F_hat = A7$F_hat, F_true = A3$F_hat, lambda=0)</code></pre>
 <pre><code>$M
   est_ix true_ix     value
@@ -780,6 +890,43 @@ integer(0)</code></pre>
 <p>Comparing ff and ev methods A2 vs A3:</p>
 <pre class="r"><code>plot_factors(cor(A3$F_hat, A2$F_hat)) + xlab(&quot;A2 Factors (ff)&quot;) + ylab(&quot;A3 factors (ev)&quot;) + ggtitle(&quot;Correlation A3 v A2&quot;)</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-3-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>disc(F_hat = A3$F_hat, F_true = A2$F_hat, lambda=0)</code></pre>
 <pre><code>$M
   est_ix true_ix     value
@@ -800,6 +947,43 @@ integer(0)</code></pre>
 <p>Comparing ff and ev methods A6 vs A7:</p>
 <pre class="r"><code>plot_factors(cor(A7$F_hat, A6$F_hat)) + xlab(&quot;A6 Factors (ff)&quot;) + ylab(&quot;A7 factors (ev)&quot;) + ggtitle(&quot;Correlation A3 v A2&quot;)</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-4-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>disc(F_hat = A7$F_hat, F_true = A6$F_hat, lambda=0)</code></pre>
 <pre><code>$M
   est_ix true_ix     value
@@ -848,13 +1032,50 @@ to &lt;- c(&quot;Gp&quot;, &quot;Urea&quot;, &quot;Alb&quot;, &quot;Crea&quot;, 
 trait_order &lt;- match(to, names)
 plot_factors(A2$F_hat, names, trait_order = trait_order)</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-5-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>I will leave interpretation of these for now but will come back and add to this section. One thing that I think is interesting is that factor 2 seems to be broadly correlated with the Lp(a) pattern identified by <span class="citation">Kettunen et al. (2016)</span> in Figure 2 at least in terms of effect signs.</p>
 </div>
 <div id="snp-associations-with-a2-factors" class="section level3">
 <h3>SNP associations with A2 Factors</h3>
 <p>I estimated SNP association with each of the factors estimated by A2 using the following procedure. Let <span class="math inline">\(\hat{F}\)</span> be the estimated factors. Let <span class="math inline">\(\tilde{B}\)</span> and <span class="math inline">\(\tilde{S}\)</span> be the normalized effect estimates and normalized effect estimate sds for a new set of SNPs that we would like to evaluate (each are snps by traits). Then we estimate the matrix of SNP associations with factors, <span class="math inline">\(\tilde{L}\)</span> as</p>
 <p><span class="math display">\[
-\tilde{L} = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \tilde{B}
+\tilde{L}^\top = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \tilde{B}^\top
 \]</span></p>
 <p>The variance of a row of <span class="math inline">\(\tilde{L}\)</span> is computed as</p>
 <p>L_est_se &lt;- map(seq(n_var), function(i){ V &lt;- H%<em>% diag(S2_tilde[i,] + 1/tau) %</em>% t(H) sqrt(diag(V)) })</p>
@@ -874,7 +1095,53 @@ qqman::manhattan(P, chr=&quot;seqnames&quot;, bp=&quot;start&quot;, p = &quot;p2
 <pre><code>Warning in qqman::manhattan(P, chr = &quot;seqnames&quot;, bp = &quot;start&quot;, p = &quot;p2&quot;): No SNP
 column found. OK unless you&#39;re trying to highlight.</code></pre>
 <p><img src="figure/2020-10-02_metabolites.Rmd/unnamed-chunk-6-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/c7126d80a1c3eded52746a3530c81cc114e24229/public/figure/2020-10-02_metabolites.Rmd/unnamed-chunk-6-1.png" target="_blank">c7126d8</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-10-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>It is worth noting that there are an enormous number of SNPs with low <span class="math inline">\(p\)</span>-values. This could be explained by the factor being associated with so many traits or the <span class="math inline">\(p\)</span>-values could be poorly calibrated. The SNP examined by <span class="citation">Kettunen et al. (2016)</span> has a <span class="math inline">\(p\)</span>-value of <span class="math inline">\(10^{-88}\)</span> for Factor 2 and is visible on chromosome 6.</p>
+<p>The “genomic inflation factor” defined as the median <span class="math inline">\(\chi^2\)</span> statistic for a factor divided by the median of the <span class="math inline">\(\chi^2_1\)</span> distribution for each factor:</p>
+<pre class="r"><code>P &lt;- readRDS(&quot;analysis_data/2020-10-02_metabolites/A2_estL.RDS&quot;)
+C2 &lt;- qchisq(as.matrix(P[1:100,paste0(&quot;p&quot;, 1:9)]), 1, lower.tail=F)
+apply(C2, 2, median)/qchisq(0.5, 1)</code></pre>
+<pre><code>       p1        p2        p3        p4        p5        p6        p7        p8 
+9.3012602 6.4027785 0.9735924 3.7855867 0.2106090 0.1894637 0.2053953 1.9754651 
+       p9 
+0.4724463 </code></pre>
+<p>These values are quite large for the first factors and then substantially less than 1 for factors 5, 6, 7, and 9. Overall, these results don’t look like typical GWAS results.</p>
 <p>I will add more details about other variants in the future.</p>
 </div>
 <div id="z-scores" class="section level3">
@@ -959,7 +1226,7 @@ column found. OK unless you&#39;re trying to highlight.</code></pre>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 4.0.2 (2020-06-22)
+<pre><code>R version 4.0.3 (2020-10-10)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 18.04.5 LTS
 
@@ -991,15 +1258,15 @@ loaded via a namespace (and not attached):
 [17] withr_2.3.0      calibrate_1.7.7  lifecycle_0.2.0  plyr_1.8.6      
 [21] munsell_0.5.0    gtable_0.3.0     flashier_0.2.4   evaluate_0.14   
 [25] labeling_0.3     knitr_1.30       httpuv_1.5.4     invgamma_1.1    
-[29] irlba_2.3.3      parallel_4.0.2   Rcpp_1.0.5       readr_1.3.1     
+[29] irlba_2.3.3      parallel_4.0.3   Rcpp_1.0.5       readr_1.3.1     
 [33] promises_1.1.1   backports_1.1.10 scales_1.1.1     truncnorm_1.0-8 
 [37] farver_2.0.3     fs_1.5.0         hms_0.5.3        digest_0.6.25   
 [41] stringi_1.5.3    dplyr_1.0.2      ebnm_0.1-24      rprojroot_1.3-2 
-[45] grid_4.0.2       tools_4.0.2      magrittr_1.5     tibble_3.0.3    
+[45] grid_4.0.3       tools_4.0.3      magrittr_1.5     tibble_3.0.3    
 [49] crayon_1.3.4     whisker_0.4      pkgconfig_2.0.3  MASS_7.3-53     
 [53] ellipsis_0.3.1   Matrix_1.2-18    SQUAREM_2020.3   rmarkdown_2.3   
 [57] rstudioapi_0.11  R6_2.4.1         intervals_0.15.2 git2r_0.27.1    
-[61] compiler_4.0.2  </code></pre>
+[61] compiler_4.0.3  </code></pre>
 </div>
 </div>
 
