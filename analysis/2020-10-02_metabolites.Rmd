@@ -162,7 +162,7 @@ I will leave interpretation of these for now but will come back and add to this 
 I estimated SNP association with each of the factors estimated by A2 using the following procedure. Let $\hat{F}$ be the estimated factors. Let $\tilde{B}$ and $\tilde{S}$ be the normalized effect estimates and normalized effect estimate sds for a new set of SNPs that we would like to evaluate (each are snps by traits). Then we estimate the matrix of SNP associations with factors, $\tilde{L}$ as
 
 $$
-\tilde{L} = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \tilde{B}
+\tilde{L}^\top = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \tilde{B}^\top
 $$
 
 
@@ -189,6 +189,15 @@ qqman::manhattan(P, chr="seqnames", bp="start", p = "p2")
 ```
 
 It is worth noting that there are an enormous number of SNPs with low $p$-values. This could be explained by the factor being associated with so many traits or the $p$-values could be poorly calibrated. The SNP examined by @Kettunen2016 has a $p$-value of $10^{-88}$ for Factor 2 and is visible on chromosome 6. 
+
+
+The "genomic inflation factor" defined as the median $\chi^2$ statistic for a factor divided by the median of the $\chi^2_1$ distribution for each factor: 
+```{r}
+P <- readRDS("analysis_data/2020-10-02_metabolites/A2_estL.RDS")
+C2 <- qchisq(as.matrix(P[1:100,paste0("p", 1:9)]), 1, lower.tail=F)
+apply(C2, 2, median)/qchisq(0.5, 1)
+```
+These values are quite large for the first factors and then substantially less than 1 for factors 5, 6, 7, and 9. Overall, these results don't look like typical GWAS results. 
 
 I will add more details about other variants in the future. 
 
