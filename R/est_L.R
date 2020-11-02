@@ -1,30 +1,67 @@
+#'@title Estimate L
+#'@param B_hat matrix of effect estimates
+#'@param S_hat matrix of standard errors
+#'@param R Estimated residual correlation of rows of B_hat
+#'@param N Sample size
+#'@param tau vector length n traits of per-trait precision (1/variance) of theta
+#'@param fit Flash fit
+#'@param adjust. Whether to adjust estimates to use standardized effects.
 #'@export
-est_L <- function(B_hat, S_hat, N, tau, adjust=TRUE, fit, ignore_tau =FALSE){
+est_L <- function(B_hat, S_hat, R, N, tau, fit,  adjust=TRUE, tol=1e-15){
 
   n_var <- nrow(B_hat)
   n_trait <- ncol(B_hat)
   n_factor <- ncol(fit$F_hat)
-  if(!ignore_tau){
-    if(missing(tau)){stop("Please provide tau.")}
-    stopifnot(length(tau)==n_trait)
+
+  stopifnot(length(tau)==n_trait)
+  stopifnot(nrow(R) == n_trait & ncol(R) == n_trait)
+  stopifnot(all(diag(R) == 1 ))
+  stopifnot(Matrix::isSymmetric(R))
+  eig_R <- eigen(R, symmetric = TRUE)
+  if(any(eig_R$values < -1*abs(tol))) stop("R is not psd.")
+
+  if(all.equal(R, diag(1, ntrait))){
+    R_is_identity <- TRUE
   }else{
-    tau <- rep(1, n_trait)
+    R_is_identity <- FALSE
   }
+
   if(adjust){
     B_tilde = t( (1/sqrt(N)) *t(B_hat/S_hat))
-    S2_tilde = t( (1/N) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+    S_tilde = t( (1/sqrt(N)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
+    all_snps_same_S <- TRUE
   }else{
     B_tilde = B_hat
-    S2_tilde = S_hat^2
+    S_tilde = S_hat
+    if(all(apply(S_tilde, 2, function(x){all(x==x[1])}))){
+      all_snps_same_S <- TRUE
+    }else{
+      all_snps_same_S <- FALSE
+    }
   }
 
   H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
   L_est <- H %*% t(B_hat) %>% t()
-  L_est_se <- map(seq(n_var), function(i){
-    V <- H%*% diag(S2_tilde[i,] + 1/tau) %*% t(H)
-    sqrt(diag(V))
-  }) %>%
-  do.call(rbind, .)
+
+
+  if(all_snps_same_S){
+    S <- diag(S_tilde[1,] + 1/sqrt(tau))
+    V <- H%*% S %*% R %*% S %*% t(H)
+    L_est_se <- t( sqrt(diag(V)), t(matrix(1, nrow=n_var, ncol=n_trait)))
+  }else if(R_is_identity){
+    L_est_se <- map(seq(n_var), function(i){
+                    V <- H%*% diag(S_tilde[i,]^2 + 1/tau) %*% t(H)
+                    sqrt(diag(V))
+                }) %>%
+                do.call(rbind, .)
+  }else{
+    L_est_se <- map(seq(n_var), function(i){
+                    S <- diag(S_tilde[i,] + 1/sqrt(tau))
+                    V <- H%*% S %*% R %*% S %*% t(H)
+                    sqrt(diag(V))
+                    }) %>%
+                do.call(rbind, .)
+  }
 
   return(list(L_est = L_est, L_est_se = L_est_se))
 }
