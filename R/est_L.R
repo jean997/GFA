@@ -16,8 +16,7 @@ est_L <- function(B_hat, S_hat, R, N, tau, fit,  adjust=TRUE, tol=1e-15){
   stopifnot(length(tau)==n_trait)
   stopifnot(nrow(R) == n_trait & ncol(R) == n_trait)
   stopifnot(all(diag(R) == 1 ))
-  stopifnot(Matrix::isSymmetric(R))
-  eig_R <- eigen(R, symmetric = TRUE)
+  stopifnot(matrixcalc::is.positive.definite(R))
   if(any(eig_R$values < -1*abs(tol))) stop("R is not psd.")
 
   if(all.equal(R, diag(1, ntrait))){
