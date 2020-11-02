@@ -19,7 +19,7 @@ est_L <- function(B_hat, S_hat, R, N, tau, fit,  adjust=TRUE, tol=1e-15){
   stopifnot(matrixcalc::is.positive.definite(R))
 
 
-  if(all.equal(R, diag(1, ntrait))){
+  if(all(R == diag(1, n_trait))){
     R_is_identity <- TRUE
   }else{
     R_is_identity <- FALSE
