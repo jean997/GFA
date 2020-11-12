@@ -168,52 +168,70 @@ $$
 
 The variance of a row of $\tilde{L}$ is computed as
 
-L_est_se <- map(seq(n_var), function(i){
-    V <- H%*% diag(S2_tilde[i,] + 1/tau) %*% t(H)
-    sqrt(diag(V))
-  })
-
 
 $$
 Var(\tilde{L}_{j, \bullet}) = (\hat{F}^\top \hat{F})^{-1} \hat{F}^\top \Sigma_{j} \hat{F} (\hat{F}^\top \hat{F})^{-1}
 $$
-where $\Sigma_j$ is a diagonal matrix with elements $\tilde{S}_{j, \bullet}^2 + \gamma^2$ where $\gamma^2$ is the trait length vector of residual variance. One option for $\gamma^2$ is the variance of columns of $\Theta$ computed by FLASH, however these are shrunk and give anticonservative estimates. Instead I estimate $\gamma^2$ by simply taking the sample variance of columns of $\tilde{B}_{fit} - \hat{B}_{fit}$ where $\tilde{B}_{fit}$ is the matrix of estimates used to fit the model and $\hat{B}_{fit}$ is the fitted values from the model. 
+where $\Sigma_j = SRS + T$ where $T$ is a diagonal matrix with elements $\gamma_m^2$, the variance of the $m$th column of $\Theta$ as estimated by FLASH. 
 
 
-Since each factor is associated with many traits, there are more variants associated with factors than with individual traits. I will highlight the results for Factor 2 from A2 which I pointed out above. The original data have 12 million SNPs. In order to be able to plot them, I have truncated $p$-values and $10^{-300}$ and am only plotting SNPs with $p$-values less than $10^{-6}$.
+S I will highlight the results for Factor 2 from A2 which I pointed out above. The original data have 12 million SNPs. In order to be able to plot them, I am only showing SNPs with $p$-values less than $10^{-3}$.
 
 ```{r, fig.width=15}
 library(qqman)
-P <- readRDS("analysis_data/2020-10-02_metabolites/A2_estL_P2.RDS")
-qqman::manhattan(P, chr="seqnames", bp="start", p = "p2")
+P <- readRDS("analysis_data/2020-10-02_metabolites/A2_estL_pvals.RDS")
+filter(P, p2 < 1e-3) %>%
+  mutate(seqnames = as.numeric(seqnames)) %>%
+  qqman::manhattan(., chr="seqnames", bp="start", p = "p2")
 ```
 
-It is worth noting that there are an enormous number of SNPs with low $p$-values. This could be explained by the factor being associated with so many traits or the $p$-values could be poorly calibrated. The SNP examined by @Kettunen2016 has a $p$-value of $10^{-88}$ for Factor 2 and is visible on chromosome 6. 
+The SNP examined by @Kettunen2016 has a $p$-value of $10^{-8}$ for Factor 2 and is visible on chromosome 6. 
 
 
 The "genomic inflation factor" defined as the median $\chi^2$ statistic for a factor divided by the median of the $\chi^2_1$ distribution for each factor: 
 ```{r}
-P <- readRDS("analysis_data/2020-10-02_metabolites/A2_estL.RDS")
-C2 <- qchisq(as.matrix(P[1:100,paste0("p", 1:9)]), 1, lower.tail=F)
+C2 <- qchisq(as.matrix(P[,paste0("p", 1:9)]), 1, lower.tail=F)
 apply(C2, 2, median)/qchisq(0.5, 1)
 ```
-These values are quite large for the first factors and then substantially less than 1 for factors 5, 6, 7, and 9. Overall, these results don't look like typical GWAS results. 
-
-I will add more details about other variants in the future. 
+These values are close to reasonable but are substantially less than 1 for factors 5, 6, 7, and 9. 
 
 
 ### $z$-scores
 
 To avoid issues caused by using standardized effects, I also looked at a few analyses using $z$-scores. I will add notes on these soon. 
 
-Number | Method |   Number of traits non-missing | $p$-threshold | total SNPs | Note | 
+Number | Method |   Number of traits non-missing | $p$-threshold | total SNPs | n factors
 -------|--------|--------------------------------|---------------|------------|-------
-B1      | plain  | 123                            | 1             |            | 
-B2      | ff     | 123                            | 1             |            | Took too long, no results
-B3      | ev     | 123                            | 1             |            | 
-B4      | plain  | 123                            | 0.01          |            | 
-B5      | ff     | 123                            | 0.01          |            | Took too long, no results
-B6      | ev     | 123                            | 0.01          |            | 
+B1      | plain  | 123                            | 1            | 352,752   | 15
+B2      | ff     | 123                            | 1            | NA        | NA
+B3      | ev     | 123                            | 1            |  352,752  | 3 
+B4      | ev     | 123                            | 1            | 7,662     | 4
+B5      | ff     | 123                            | 1            | 7,662     | 
+B6      | plain  | 123                            | 0.01         |  124,652  | 17
+B7      | ff     | 123                            | 0.01         |   NA      | NA
+B8      | ev     | 123                            | 0.01         |  124,652  | 4
 
+### Comparing z-score and standardized effect analyses
+
+
+The A3 analysis using the eigenvector transformation on standardized effects discovered four factors. Using z-scores and a much larger set of variants discovered 3 factors and only two of these match factors discovered by A3. 
+
+```{r}
+# A3 <- readRDS("analysis_data/2020-10-02_metabolites/A3.RDS")
+B3 <- readRDS("analysis_data/2020-10-02_metabolites/B3.RDS")
+plot_factors(cor(A3$F_hat, B3$F_hat)) + xlab("B3 Factors") + ylab("A3 factors") + ggtitle("Correlation A3 v B3")
+
+disc(F_hat = B3$F_hat, F_true = A3$F_hat, lambda=0)
+```
+
+A3 and B4 are run on the exact same set of SNPs and these match much better. All but the first factor have very high correlation, and the correlation for the first factor is 0.75. This suggests that the difference here has more to do with the set of SNPs than with the normalization method. 
+
+```{r}
+# A3 <- readRDS("analysis_data/2020-10-02_metabolites/A3.RDS")
+B4 <- readRDS("analysis_data/2020-10-02_metabolites/B4.RDS")
+plot_factors(cor(A3$F_hat, B4$F_hat)) + xlab("B4 Factors") + ylab("A3 factors") + ggtitle("Correlation A3 v B4")
+
+disc(F_hat = B4$F_hat, F_true = A3$F_hat, lambda=0)
+```
 
 ## References
