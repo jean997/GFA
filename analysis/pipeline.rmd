@@ -16,6 +16,9 @@ To download the pipeline skeleton you can use a function in the R package I have
 sumstatFactors::pipeline_init()
 ```
 
+TODO: This is not implemented yet. For now, copy the directory `/project2/xinhe/jean/gwas_factors/data_analysis/2020-11-11_test_pipeline/pipeline` on RCC. 
+
+
 This will download files:
 
 + `Snakefile`: The pipeline file
