@@ -1,0 +1,3 @@
+NameError in line 8 of /home/jean/Dropbox/projects/2020_gwas_factors/sumstatFactors/pipeline/test_snake.py:
+name 'pd' is not defined
+  File "/home/jean/Dropbox/projects/2020_gwas_factors/sumstatFactors/pipeline/test_snake.py", line 8, in <module>

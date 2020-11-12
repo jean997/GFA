@@ -1,0 +1,143 @@
+---
+title: "Pipeline"
+author: "Jean Morrison"
+date: "2020-11-11"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+I have written a [Snakemake](https://snakemake.readthedocs.io/en/stable/index.html) pipeline for analyzing data. This is very much in progress so changes may happen frequently or there may be new versions. I will update this document as things change. 
+
+To download the pipeline skeleton you can use a function in the R package I have made for this project, the [`sumstatFactors` package](https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/-/blob/master/README.md). 
+```{r, eval=FALSE}
+sumstatFactors::pipeline_init()
+```
+
+This will download files:
+
++ `Snakefile`: The pipeline file
++ `config.yaml`: Config file for specifying analysis options
++ `cluster.yaml`: Cluster file. You won't have to change this.
++ `run-snakemake.sh`: Submit command for running the Snakemake. If you are on RCC you won't have to change this unless you need to change accounts. 
++ A directory of R code. This is called by the Snakefile.
++ An example csv file for specifying data.
+
+## Requirements
+
+To run the pipeline you need Snakemake installed. You also need the following R packages:
+
++ `sumstatFactors`: This is the package I made for developing this project. You can find instructions [here](https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/-/blob/master/README.md).
++ Tidyverse packages: `stringr`, `readr`, `deplyr`, `tidyr`, `purrr`
++ `cause`: I only use the formatting function. Instructions [here](https://github.com/jean997/cause).
++ `gwasvcf`, `VariantAnnotation` for dealing with vcf files.  See [here](https://mrcieu.github.io/gwasvcf/). 
++ `ieugwasr`: For LD pruning with plink. See [here](https://mrcieu.github.io/ieugwasr/).  
++ `LaplacesDemon`: I only use one function from here, `as.symmetric.matrix` there may be a workaround later that doesn't require this. 
+
+## How it works
+
+The Snakefile reads options from `config.yaml` and runs the specified analysis. To specify your analysis you will modify `config.yaml` and provide a csv file specified there. Ideally you will not have to change anything else. You might have to modify `run-snakemake.sh` if you have different options for submitting your jobs (like if you want to use a different partition or a different PI account on RCC).
+
+This is a good time to go look at the config file. The config file has three sections. I will walk through each part here. Currently there is no validation of parameter inputs in the config file so read the following sections carefully so you can provide appropriate inputs. In the future we can implement validation. 
+
+### Input
+This section specifies the data files that contain your input GWAS summary statistics. The only parameter in the input section is `sum_stats`. This gives a csv that contains information about the GWAS you want to analyze. The input section of the yaml file looks like thsi:
+
+```
+input:
+    sum_stats: "my_gwas_files.csv"
+```
+
+There is an example csv file downloaded when you download the pipeline. The csv file should have the following fields in any order:
+
++ name: A unique string for each trait. 
++ raw_data_path: Path to the raw summary statistics (usually as downloaded is fine)
++ snp, A1, A2, beta_hat, se, chrom, pos, p_value, sample_size: If the raw data is a flat file (for example tsv or csv), then these are column names in the raw data for columns giving SNP rs number, effect allele, non-effect allele, effect estimate, standard error of effect estimate, chromosome, position, p-value, and sample size. p-value and sample size can be listed as NA if that column is missing. The other columns are required. If the data is a vcf file, these fields can all be given as NA as they will be ignored. 
++ effect_is_or: Yes or No. If Yes this indicates that beta_hat is an odds ratio (rather than log odds ratio) and it will be transformed. 
++ pub_sample_size: Sample size provided in the corresponding publication. If sample_size is not present in the summary statistics file, this sample size will be used instead. 
+
+The csv file should contain one entry for each study you want to include. Don't list any files you don't want to include. In some rare cases you may have to create a modified version of the data before using the pipeline. Sometimes the fields of rs number or standard error are omitted. At some point I may add some functionality to deal with these cases, however, the IEU open GWAS project is also collecting studies and standardizing them so this may stop being an issue we run into frequently.
+
+### Analysis
+This section specifies how you want the analysis to be run. There are several parameters and it will look like this:
+
+```
+analysis:
+    r2_plink: 0.01
+    ref_path: "/project2/compbio/LD/plink_reference/EUR"
+    R_pthresh: 0.2
+    kmax: 100
+    norm_type: ["ss", "z"]
+    min_nonmissing: [123]
+    method: ["plain", "ev", "ff"]
+    flash_pthresh: [1, 0.01]
+    seed: 2
+    est_L: True
+```
+
+Here is a description of each parameter:
+
++ `r2_plink`: r^2 threshold for LD pruning
++ `ref_path`: Path to LD reference files used by plink
++ `R_pthresh`: p-value threshold for computing $R$, the correlation matrix for rows of $E$. For a particular pair of traits, the function will use all variants with $p$-value greater than the threshold for both traits. 
++ `kmax`: Maximum number of factors for FLASH
++ `norm_type`: The type of statistics you want to use. This should be a python syntax list of one or two items. Each item can be either `ss` or `z`. `ss` indicates normalized effect estimates (i.e. z-score divided by square root of sample size) while `z` indicates `z`-scores. Setting this option as `["ss"]` would run only one analysis using normalized effect estimates. Setting it as `["ss", "z"]` will run both.
++ `min_nonmissing`: Variants will be retained if they have summary statistics for at least this number of traits. This parameter should be a python syntax list of integers. 
++ `method`: A python syntax list of methods to run. `plain` indicates not adjusting for sample overlap. `ev` indicates using the eigenvector transformation method, `ff` indicates using the fixed factor method. Currently if `ev` is uses with `min_nonmissing` less than the full number of traits you will get an error from the flash step of the pipeline. This is a future item to improve about the pipeline.
++ `flash_pthresh`: A python syntax list of numbers between 0 an 1 giving the p-value threshold for FLASH. FLASH will only use SNPs that have a p-value less than this threshold for at least one trait. 
++ `seed`: A random seed
++ `est_L`: Either True or False. Whether to run the step of estimating $\hat{L}$ and standard errors. This generates fairly big files so it might be best to start with False and then only compute $\hat{L}$ for analyses you are interested in. 
+
+Most likely, you will only need to modify `min_nonmissing`, `method`, `norm_type`. `flash_pthresh`, and `est_L`. You may modify seed to see how robust the results are. The other parameters are at reasonable defaults. If you use data with non-european ancestry, you may want to change the LD reference data. 
+
+### Output
+
+This section specifies where to put output files and what to call them. It looks like this:
+
+```
+out:
+    data_dir: "data/"
+    formatted_gwas_dir: "/project2/compbio/gwas_summary_statistics/standard_formats/ss_factors/"
+    output_dir: "results/"
+    prefix: "my-prefix_"
+```
+
++ `data_dir`:  A directory where interim data files will be stored. 
++ `formatted_gwas_dir`: A directory where formatted GWAS data will be stored. This is separate because these files aren't analsis specific and you may want to re-use them. 
++ `output_dir`: A directory where results will be stored.  
++ `prefix`: An analysis specific prefix that will be pre-pended to all files produced. 
+
+You should make sure that the directory names end in "/" and that the prefix name ends in "_". 
+
+## How to run it
+
+It is always good to check that the pipeline will run and will do what you think it will before you actually run this. To do this, run Snakemake with the dry run option (`-n`). I like to output the results to a file so I can look at them later:
+
+```
+snakemake -n > plan.txt
+```
+
+This will either give you an error if something is wrong (for example maybe one of your files is missing) or it will print out a list of all the jobs it will run. If this runs without error and looks as you expect you are ready to run the pipeline. 
+
+I prefer to submit the pipeline from an `sinteractive` session on a compute node. This makes it easy to kill in the middle if I want to by terminating the session. If you do this, make sure to log on to start the session with the `screen` command. This will let you "detatch" the session so that it keeps running even when the window is closed. You can use a command like
+
+```
+screen sinteractive --account pi-mstephens --partition mstephens  --mem 5G --time 4-00:00:00
+```
+
+This starts an `sinteractive` session on the `mstephens` partition that will run for 4 days (unless you kill it early) and will be allotted 5G of memory. 
+
+Next run Snakemake using
+
+```
+nohup ./run-snakemake.sh & 
+```
+
+The `nohup` and `&` parts make sure that the command keeps running when the window is closed. You might need to give `run-snakemake.sh` executable permissions using `chmod a+x run-snakemake.sh`. 
+
+When this is submitted, Snakemake will run and will take care of submitting jobs to the cluster. Log files will be written to a subdirectory called `log`. You can see output as it runs in `nohup.out` (unless you redirect to another output file using `nohup ./run-snakemake.sh > myfile.out & `. 
+
+You can detatch your screen session using Ctrl-d. 
+

@@ -1,0 +1,32 @@
+# sum_stats is a csv file
+input:
+    sum_stats: "2020-10-02_metabolites.csv"
+
+# r2_plink: r^2 threshold for LD pruning with plink
+# ref_path: Path to LD reference data
+# R_pthresh: p-value threshold for computing R, the row correltation matrix
+# kmax: Max number of factors to add
+# norm_type: Type of effects to use. Either "ss"" to use normalized effects which are z-score
+#            scaled by sqare root of sample size or "z" to use z-scores
+# seed: Random seed for reproducibility
+analysis:
+    r2_plink: 0.01
+    ref_path: "/project2/compbio/LD/plink_reference/EUR"
+    R_pthresh: 0.2
+    kmax: 100
+    norm_type: ["ss", "z"]
+    min_nonmissing: [123]
+    method: ["plain", "ev", "ff"]
+    flash_pthresh: [1, 0.01]
+    seed: 2
+    est_L: True
+
+# data_dir: Where to put interim data produced
+# output_dir: Where to put final results
+# prefix: A unique prefix for this analysis
+out:
+    data_dir: "data/"
+    formatted_gwas_dir: "/project2/compbio/gwas_summary_statistics/standard_formats/ss_factors/"
+    output_dir: "results/"
+    prefix: "2020-10-02-metabolites_"
+
