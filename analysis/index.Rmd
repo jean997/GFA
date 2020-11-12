@@ -52,6 +52,8 @@ In reverse chronological order
 1. [Immune Mediated Diseases](imd.html)
 1. [Blood Cell Traits](blood_cell.html)
 
+Pipeline documentation is [here](pipeline.html)
+
 ## Related work
 
 See [here](literature.html)
