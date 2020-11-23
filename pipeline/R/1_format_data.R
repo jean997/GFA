@@ -1,6 +1,5 @@
 library(stringr)
 library(readr)
-library(cause)
 library(VariantAnnotation)
 library(gwasvcf)
 library(magrittr)
@@ -77,7 +76,7 @@ if(str_ends(data_file, "vcf.gz") | str_ends(data_file, "vcf.bgz")){
         beta_hat <- "beta"
     }
 
-    dat <- cause::gwas_format(X, snp_name, beta_hat_name, se_name, A1_name,
+    dat <- gwas_format(X, snp_name, beta_hat_name, se_name, A1_name,
                        A2_name, chrom_name, pos_name,
                        p_value = p_value_name,
                        sample_size = sample_size_name,
