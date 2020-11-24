@@ -75,6 +75,10 @@ Comparing A2 and A6: Here I plot the correlation between A6 factors and A2 facto
 ```{r}
 library(sumstatFactors)
 library(ggplot2)
+library(dplyr)
+library(qqman)
+```
+```{r}
 A2 <- readRDS("analysis_data/2020-10-02_metabolites/A2.RDS")
 A6 <- readRDS("analysis_data/2020-10-02_metabolites/A6.RDS")
 plot_factors(cor(A2$F_hat, A6$F_hat)) + xlab("A6 Factors") + ylab("A2 factors") + ggtitle("Correlation A2 v A6")
@@ -178,7 +182,6 @@ where $\Sigma_j = SRS + T$ where $T$ is a diagonal matrix with elements $\gamma_
 S I will highlight the results for Factor 2 from A2 which I pointed out above. The original data have 12 million SNPs. In order to be able to plot them, I am only showing SNPs with $p$-values less than $10^{-3}$.
 
 ```{r, fig.width=15}
-library(qqman)
 P <- readRDS("analysis_data/2020-10-02_metabolites/A2_estL_pvals.RDS")
 filter(P, p2 < 1e-3) %>%
   mutate(seqnames = as.numeric(seqnames)) %>%
@@ -234,4 +237,22 @@ plot_factors(cor(A3$F_hat, B4$F_hat)) + xlab("B4 Factors") + ylab("A3 factors") 
 disc(F_hat = B4$F_hat, F_true = A3$F_hat, lambda=0)
 ```
 
+
+Comparing B3 and B8 i.e. how does the p-value threshold affect results. All three factors estimated in B3 are matched well by a factor in B8. These don't match the B4 factors so well so this may indicate that it is better to reduce SNPs by p-value thresholding than at random or by missingness. 
+
+```{r}
+B8 <- readRDS("analysis_data/2020-10-02_metabolites/B8.RDS")
+plot_factors(cor(B8$F_hat, B3$F_hat)) + xlab("B3 Factors") + ylab("B8 factors") + ggtitle("Correlation B8 v B3")
+disc(F_hat = B3$F_hat, F_true = B8$F_hat, lambda=0)
+
+plot_factors(B8$F_hat, names, trait_order = trait_order)
+```
+
+
+B8 v A2
+```{r}
+plot_factors(cor(A2$F_hat, B8$F_hat)) + xlab("B8 Factors") + ylab("A2 factors") + ggtitle("Correlation A2 v B8")
+
+disc(F_hat = B8$F_hat, F_true = A2$F_hat, lambda=0)
+```
 ## References
