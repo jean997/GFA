@@ -34,7 +34,6 @@ To run the pipeline you need Snakemake installed. You also need the following R 
 
 + `sumstatFactors`: This is the package I made for developing this project. You can find instructions [here](https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/-/blob/master/README.md).
 + Tidyverse packages: `stringr`, `readr`, `deplyr`, `tidyr`, `purrr`
-+ `cause`: I only use the formatting function. Instructions [here](https://github.com/jean997/cause).
 + `gwasvcf`, `VariantAnnotation` for dealing with vcf files.  See [here](https://mrcieu.github.io/gwasvcf/). 
 + `ieugwasr`: For LD pruning with plink. See [here](https://mrcieu.github.io/ieugwasr/).  
 + `LaplacesDemon`: I only use one function from here, `as.symmetric.matrix` there may be a workaround later that doesn't require this. 
