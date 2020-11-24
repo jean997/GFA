@@ -126,3 +126,48 @@ read_standard_format <- function(file, ...){
                        beta_hat="d", se = "d", p_value ="d", sample_size="d"), ...)
   return(dat)
 }
+
+#Flip signs and strabds so that allele 1 is allways A
+align_beta <- function(X, beta_hat_name, upper=TRUE){
+  flp = c("A" = "T", "G" = "C", "T" = "A",
+          "C" = "G", "a"  = "t", "t" = "a",
+          "c" = "g", "g" = "c")
+  if(upper){
+    X <- X %>% mutate( flip_strand = A1 == "T" | A2 == "T")
+  }else{
+    X <- X %>% mutate( flip_strand = A1 == "t" | A2 == "t")
+  }
+  X <- X %>% mutate(A1flp = case_when(flip_strand ~ flp[A1],
+                                      TRUE ~ A1),
+                    A2flp = case_when(flip_strand ~ flp[A2],
+                                      TRUE ~ A2),
+                    temp = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
+                                     TRUE ~ -1*get(beta_hat_name))) %>%
+    select(-A1, -A2) %>%
+    mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
+                          TRUE ~ A2flp),
+           A2 = case_when(A1flp == "A" | A1flp=="a" ~ A2flp,
+                          TRUE ~ A1flp)) %>%
+    select(-A1flp, -A2flp, -flip_strand)
+  ix <- which(names(X)==beta_hat_name)
+  X <- X[,-ix]
+  ix <- which(names(X) == "temp")
+  names(X)[ix] <- beta_hat_name
+  return(X)
+}
+
+remove_ambiguous <- function(X, upper=TRUE){
+  if(upper){
+    X <- X %>% dplyr::filter(!(A1 == "G" & A2 == "C") &
+                               !(A1 == "C" & A2 == "G") &
+                               !(A1 == "A" & A2 == "T") &
+                               !(A1 == "T" & A2 == "A"))
+    return(X)
+  }
+  X <- X %>% filter(!(A1 == "g" & A2 == "c") &
+                      !(A1 == "c" & A2 == "g") &
+                      !(A1 == "a" & A2 == "t") &
+                      !(A1 == "t" & A2 == "a"))
+  return(X)
+}
+
