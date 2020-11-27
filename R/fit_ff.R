@@ -66,7 +66,7 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
     # randomly initialize A
     A_rand <- matrix(rnorm(n=n_var*nf), nrow=n_var, ncol=nf)
 
-    gg <- normalmix(pi = c(1), mean = c(0), sd = c(1))
+    gg <- ashr::normalmix(pi = c(1), mean = c(0), sd = c(1))
     #First add some greedy factors but don't backfit
 
     if(S_NULL){
