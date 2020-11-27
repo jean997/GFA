@@ -56,7 +56,7 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
     B_tilde = B_hat
   }
 
-  if(all(Sig_new ==0)){
+  if(all(eS$values==0)){
     fit <- NULL
     B_hat <- NULL
     F_hat <- NULL
