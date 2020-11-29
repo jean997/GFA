@@ -3,12 +3,12 @@
 #'@param R Estimated residual correlation of rows of Z_hat
 #'@param fit Flash fit
 #'@export
-est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = TRUE){
+est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=TRUE){
 
   n_var <- nrow(Z_hat)
   n_trait <- ncol(Z_hat)
   n_factor <- ncol(fit$F_hat)
-  stopifnot(opt1 | opt2)
+  stopifnot(opt1 | opt2 | opt3)
   stopifnot(nrow(R) == n_trait & ncol(R) == n_trait)
   stopifnot(all(diag(R) == 1 ))
   stopifnot(matrixcalc::is.positive.definite(R))
@@ -23,9 +23,6 @@ est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = TRUE){
       V <- eS$vectors[, -n_trait]
       W <- V %*% diag(sqrt(eS$values[-n_trait]-lambda_min)) %*% t(V)
     }
-
-    H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
-    L_est <- H %*% t(Z_hat) %>% t()
     Sigma <- diag(fit$fit$residuals.sd^2) + W
   }else if(opt2){
     F_total <- fit$fit$loadings.pm[[2]]
@@ -41,7 +38,11 @@ est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = TRUE){
     d <- d[-(1:n)]
     X <- L_resid %*% diag(d) %*% t(F_resid)
     Sigma <- diag(fit$fit$residuals.sd^2) + (t(X) %*% X)/(nrow(L_resid))
+  }else if(opt3){
+    Sigma <- diag(fit$fit$residuals.sd^2) + R
   }
+  H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
+  L_est <- H %*% t(Z_hat) %>% t()
   L_est_var <-  H%*% Sigma %*% t(H)
   L_est_se <- t( sqrt(diag(L_est_var)) * t(matrix(1, nrow=n_var, ncol=n_factor)))
 
