@@ -45,14 +45,17 @@ The Snakefile reads options from `config.yaml` and runs the specified analysis. 
 This is a good time to go look at the config file. The config file has three sections. I will walk through each part here. Currently there is no validation of parameter inputs in the config file so read the following sections carefully so you can provide appropriate inputs. In the future we can implement validation. 
 
 ### Input
-This section specifies the data files that contain your input GWAS summary statistics. The only parameter in the input section is `sum_stats`. This gives a csv that contains information about the GWAS you want to analyze. The input section of the yaml file looks like thsi:
+This section specifies the data files that contain your input GWAS summary statistics. The only parameter in the input section is `sum_stats`. This gives a csv that contains information about the GWAS you want to analyze. The input section of the yaml file looks like this:
 
 ```
 input:
     sum_stats: "my_gwas_files.csv"
 ```
 
-There is an example csv file downloaded when you download the pipeline. The csv file should have the following fields in any order:
+There is an example csv file downloaded when you download the pipeline. There is one row per study.
+The csv file tells the location and format of the raw gwas summary statistics. There are two types of files that you can provide, flat files with any delimiter (like  csv, tsv, space separated etc), or vcf files downloaded from the IEU open gwas project. You can have some studies of each type if necessary. If the file is a flat file, it is ok if it is gzipped. vcf files must end in `.vcf.gz`. The two types of files are entered a bit differently in the spread sheet, so read the instructions carefully below. 
+
+The csv file should have the following fields in any order:
 
 + name: A unique string for each trait. 
 + raw_data_path: Path to the raw summary statistics (usually as downloaded is fine)
