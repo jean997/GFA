@@ -57,6 +57,7 @@ There is an example csv file downloaded when you download the pipeline. The csv 
 + name: A unique string for each trait. 
 + raw_data_path: Path to the raw summary statistics (usually as downloaded is fine)
 + snp, A1, A2, beta_hat, se, chrom, pos, p_value, sample_size: If the raw data is a flat file (for example tsv or csv), then these are column names in the raw data for columns giving SNP rs number, effect allele, non-effect allele, effect estimate, standard error of effect estimate, chromosome, position, p-value, and sample size. p-value and sample size can be listed as NA if that column is missing. The other columns are required. If the data is a vcf file, these fields can all be given as NA as they will be ignored. 
++ delimiter: This can be "space", "tab" "comma" or any character. It indicates the delimiter of the file. 
 + effect_is_or: Yes or No. If Yes this indicates that beta_hat is an odds ratio (rather than log odds ratio) and it will be transformed. 
 + pub_sample_size: Sample size provided in the corresponding publication. If sample_size is not present in the summary statistics file, this sample size will be used instead. 
 
