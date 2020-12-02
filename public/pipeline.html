@@ -507,16 +507,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreeb8b5a5b959b10d215d044744bf076aedc2a42dfdtargetblankb8b5a5ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/b8b5a5b959b10d215d044744bf076aedc2a42dfd" target="_blank">b8b5a5b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreed43d7570d18a55f5ef8a0f3696177232bd094c1btargetblankd43d757a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/d43d7570d18a55f5ef8a0f3696177232bd094c1b" target="_blank">d43d757</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreeb8b5a5b959b10d215d044744bf076aedc2a42dfdtargetblankb8b5a5ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgitlabcomjeanmorrisongwassummaystatisticfactorizationtreed43d7570d18a55f5ef8a0f3696177232bd094c1btargetblankd43d757a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/b8b5a5b959b10d215d044744bf076aedc2a42dfd" target="_blank">b8b5a5b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/tree/d43d7570d18a55f5ef8a0f3696177232bd094c1b" target="_blank">d43d757</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -555,7 +555,6 @@ Untracked files:
 
 Unstaged changes:
     Modified:   R/est_L.R
-    Modified:   R/est_L_z.R
 
 </code></pre>
 <p>
@@ -594,6 +593,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://gitlab.com/jean_morrison/gwas-summay-statistic-factorization/blob/d43d7570d18a55f5ef8a0f3696177232bd094c1b/analysis/pipeline.rmd" target="_blank">d43d757</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-12-01
+</td>
+<td>
+wflow_publish(“analysis/pipeline.rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://glcdn.githack.com/jean_morrison/gwas-summay-statistic-factorization/raw/998527e950024a6b2b1a0e121a140b4f0fe896b8/public/pipeline.html" target="_blank">998527e</a>
+</td>
+<td>
+Jean Morrison
+</td>
+<td>
+2020-12-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -754,10 +787,11 @@ add pipeline
 <p>This is a good time to go look at the config file. The config file has three sections. I will walk through each part here. Currently there is no validation of parameter inputs in the config file so read the following sections carefully so you can provide appropriate inputs. In the future we can implement validation.</p>
 <div id="input" class="section level3">
 <h3>Input</h3>
-<p>This section specifies the data files that contain your input GWAS summary statistics. The only parameter in the input section is <code>sum_stats</code>. This gives a csv that contains information about the GWAS you want to analyze. The input section of the yaml file looks like thsi:</p>
+<p>This section specifies the data files that contain your input GWAS summary statistics. The only parameter in the input section is <code>sum_stats</code>. This gives a csv that contains information about the GWAS you want to analyze. The input section of the yaml file looks like this:</p>
 <pre><code>input:
     sum_stats: &quot;my_gwas_files.csv&quot;</code></pre>
-<p>There is an example csv file downloaded when you download the pipeline. The csv file should have the following fields in any order:</p>
+<p>There is an example csv file downloaded when you download the pipeline. There is one row per study. The csv file tells the location and format of the raw gwas summary statistics. There are two types of files that you can provide, flat files with any delimiter (like csv, tsv, space separated etc), or vcf files downloaded from the IEU open gwas project. You can have some studies of each type if necessary. If the file is a flat file, it is ok if it is gzipped. vcf files must end in <code>.vcf.gz</code>. The two types of files are entered a bit differently in the spread sheet, so read the instructions carefully below.</p>
+<p>The csv file should have the following fields in any order:</p>
 <ul>
 <li>name: A unique string for each trait.</li>
 <li>raw_data_path: Path to the raw summary statistics (usually as downloaded is fine)</li>
