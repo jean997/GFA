@@ -39,7 +39,9 @@ est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=TRUE){
     X <- L_resid %*% diag(d) %*% t(F_resid)
     Sigma <- diag(fit$fit$residuals.sd^2) + (t(X) %*% X)/(nrow(L_resid))
   }else if(opt3){
-    Sigma <- diag(fit$fit$residuals.sd^2) + R
+    S <- diag(rep(1, n_trait) + fit$fit$residuals.sd^2)
+    Sigma <- S %*% R %*% S
+    #Sigma <- diag(fit$fit$residuals.sd^2) + R
   }
   H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
   L_est <- H %*% t(Z_hat) %>% t()
