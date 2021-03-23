@@ -44,9 +44,9 @@ est_L <- function(B_hat, S_hat, R, N, tau, fit,  adjust=TRUE, tol=1e-15){
 
 
   if(all_snps_same_S){
-    S <- diag(S_tilde[1,] + 1/sqrt(tau))
-    V <- H%*% S %*% R %*% S %*% t(H)
-    L_est_se <- t( sqrt(diag(V)), t(matrix(1, nrow=n_var, ncol=n_trait)))
+    S <- diag(S_tilde[1,])
+    V <- H%*% S %*% (R + daig(1/tau)) %*% S %*% t(H)
+    L_est_se <- t( sqrt(diag(V)) * t(matrix(1, nrow=n_var, ncol=n_trait)))
   }else if(R_is_identity){
     L_est_se <- map(seq(n_var), function(i){
                     V <- H%*% diag(S_tilde[i,]^2 + 1/tau) %*% t(H)
