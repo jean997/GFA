@@ -29,6 +29,10 @@ fit_ff(
 \item{kmax}{Maximum number of factors}
 
 \item{zero_thresh}{Threshold for setting eigenvalues of R to zero}
+
+\item{adjust}{If TRUE, will compute adjusted effect estimates as B_hat/(sqrt(N)*S_hat)}
+
+\item{S_NULL}{If TRUE, will fit EBMF without supplying S.}
 }
 \value{
 A list with elements fit, B_hat, L_hat, F_hat

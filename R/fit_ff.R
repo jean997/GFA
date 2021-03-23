@@ -6,6 +6,8 @@
 #'@param R Estimated residual correlation matrix
 #'@param kmax Maximum number of factors
 #'@param zero_thresh Threshold for setting eigenvalues of R to zero
+#'@param adjust If TRUE, will compute adjusted effect estimates as B_hat/(sqrt(N)*S_hat)
+#'@param S_NULL If TRUE, will fit EBMF without supplying S.
 #'@return A list with elements fit, B_hat, L_hat, F_hat
 #'@export
 fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRUE,
@@ -41,8 +43,8 @@ fit_ff <- function(B_hat, S_hat, N, R, kmax=100, zero_thresh = 1e-15, adjust=TRU
     #s <- matrix(rep(sqrt(diag(Sigma-X)), n_var), nrow=n_var, byrow = TRUE)
     nf <- nmax
   }else{
-
-    lambda_min <- min(eS$values)
+    ix_zero <- which(eS$values == 0)
+    lambda_min <- min(eS$values[-ix_zero])
     V <- eS$vectors[, -n_trait]
     W <- V %*% diag(sqrt(eS$values[-n_trait]-lambda_min))
     s <- sqrt(lambda_min)
