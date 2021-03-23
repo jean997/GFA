@@ -4,7 +4,7 @@
 \alias{est_L_z}
 \title{Estimate L. This only works for z-scores using the ff method.}
 \usage{
-est_L_z(Z_hat, R, fit)
+est_L_z(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3 = TRUE)
 }
 \arguments{
 \item{Z_hat}{matrix of z-scores}
