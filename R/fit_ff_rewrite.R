@@ -52,6 +52,12 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
       F_hat <- fit$loadings.pm[[2]]
       L_hat <- fit$loadings.pm[[1]]
       B_hat <- fitted(fit)
+      c <- colSums(F_hat^2)
+      if(any(c==0)){
+        i <- which(c==0)
+        F_hat <- F_hat[,-i]
+        L_hat <- L_hat[,-i]
+      }
     }else{
       B_hat <- F_hat  <- L_hat <- NULL;
     }
