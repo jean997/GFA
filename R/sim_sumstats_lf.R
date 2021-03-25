@@ -14,7 +14,7 @@
 #'@param R_LD_list List of eigen decompositions of LD correlation matrices, may be missing.
 #'@param relative_pve Relative pve contributed by each factor. Length K.
 #'@param g_F Function from which non-zero elements of F are generated
-#'@param pi_F Propotion of non-zero elements of F.
+#'@param pi_F Proportion of non-zero elements of F.
 #'@details
 #'
 #'note: have removed relative_pve so below is not correct. will update,
@@ -56,6 +56,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     K <- length(nz_factor)
     M <- length(h_2_trait)
     if(missing(scale_factor)) scale_factor <- rep(1, K)
+    stopifnot(length(scale_factor)==K)
     cat("Will generate L and F with ", J, " markers, ", M, " traits, and ", K, "factors.\n")
   }
   stopifnot(length(h_2_trait) == M)
@@ -70,7 +71,6 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   stopifnot(pi_theta >=0 & pi_theta <=1)
   stopifnot(nrow(R_E) == M & ncol(R_E) == M)
   stopifnot(Matrix::isSymmetric(R_E))
-  stopifnot(length(scale_factor)==K)
   if(!missing(R_LD)) cat(R_LD, "\n")
   R_E_eig <- eigen(R_E)
   stopifnot(all(R_E_eig$values >= 0))
