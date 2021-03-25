@@ -1,7 +1,6 @@
 # sum_stats is a csv file
 input:
-    sum_stats: "2020-12-25_metplustest.csv"
-    neale_var_ref: "/project2/compbio/gwas_summary_statistics/ukbbneale_2018/variants.tsv.bgz"
+    sum_stats: "2020-10-02_metabolites.csv"
 
 # r2_plink: r^2 threshold for LD pruning with plink
 # ref_path: Path to LD reference data
@@ -15,15 +14,12 @@ analysis:
     ref_path: "/project2/compbio/LD/plink_reference/EUR"
     R_pthresh: 0.2
     kmax: 100
-    norm_type: ["z"]
-    max_missing: [0]
-    method: ["ff-1", "ff-0.9"]
-    flash_pthresh: ["1e-3", "1"]
-    est_L: False
-    n_sub: ["Inf"]
-    seeds: [1]
-    tsvd_thresh: [1, 0.001]
-    tsvd_k: 30
+    norm_type: ["ss", "z"]
+    min_nonmissing: [123]
+    method: ["plain", "ev", "ff"]
+    flash_pthresh: [1, 0.01]
+    seed: 2
+    est_L: True
 
 # data_dir: Where to put interim data produced
 # output_dir: Where to put final results
@@ -32,6 +28,5 @@ out:
     data_dir: "data/"
     formatted_gwas_dir: "/project2/compbio/gwas_summary_statistics/standard_formats/ss_factors/"
     output_dir: "results/"
-    data_prefix: "2020-12-25-metplustest_"
-    results_prefix: "2020-12-25-metplustestL_"
+    prefix: "2020-10-02-metabolites_"
 

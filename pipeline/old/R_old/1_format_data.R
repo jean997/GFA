@@ -1,10 +1,8 @@
 library(stringr)
 library(readr)
-library(sumstatFactors)
 library(VariantAnnotation)
 library(gwasvcf)
 library(magrittr)
-library(dplyr)
 
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -34,8 +32,8 @@ if(str_ends(data_file, "vcf.gz") | str_ends(data_file, "vcf.bgz")){
     l1 <- str_length(dat$A1)
     dat <- dat[l1==1 & l2==1,]
 
-    dat <- sumstatFactors:::remove_ambiguous(dat)
-    dat1 <- sumstatFactors:::align_beta(dat, "ES")
+    dat <- cause:::remove_ambiguous(dat)
+    dat1 <- cause:::align_beta(dat, "ES")
 
     dat <- dat1 %>%
            mutate(AF = case_when(ES == -1*dat$ES ~ 1-AF,

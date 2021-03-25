@@ -29,8 +29,12 @@ z_order <- match(R$names, nms)
 Z_hat <- Z_hat[,z_order]
 
 R$R <- LaplacesDemon::as.symmetric.matrix(R$R)
-LL <- est_L_z(Z_hat = Z_hat, R = R$R, fit=fit)
-nfactor <- ncol(fit$F_hat)
+
+fake_fit <- list( fit = list(residuals.sd = rep(0, ncol(Z_hat))), F_hat = fit$v)
+
+
+LL <- est_L_z(Z_hat = Z_hat, R = R$R, fit=fake_fit)
+nfactor <- ncol(fake_fit$F_hat)
 P <- with(LL, 2*pnorm(-abs(L_est/L_est_se)))
 P <- cbind(X[, 1:5], P)
 names(P)[-c(1:5)] <- paste0("p", 1:nfactor)
