@@ -3,13 +3,14 @@
 \name{fit_ff_new}
 \alias{fit_ff_new}
 \title{Fit with fixed factors. This version is from March 2021 and explicitly only runs on
-either z-scores or standardized effects.}
+either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.}
 \usage{
 fit_ff_new(
   Z_hat,
   B_std,
   N,
   R,
+  kmax,
   zero_thresh = 1e-15,
   method = "sequential",
   max_ev_percent = 1,
@@ -26,11 +27,12 @@ needed if using B_std.}
 
 \item{R}{Estimated residual correlation matrix}
 
+\item{kmax}{Maximum number of factors. Defaults to 2*ntraits for plain or ntraits
+if using the fixed factor correction.}
+
 \item{zero_thresh}{Threshold for setting eigenvalues of R to zero}
 
 \item{S_NULL}{If TRUE, will fit EBMF without supplying S.}
-
-\item{kmax}{Maximum number of factors}
 
 \item{max_ev_percent.}{Only the eigenvectors of R explaining the top percentage of
 variance are retained. Defaults to 1, retaining all eigenvectors.}
@@ -40,5 +42,5 @@ A list with elements fit, B_hat, L_hat, F_hat
 }
 \description{
 Fit with fixed factors. This version is from March 2021 and explicitly only runs on
-either z-scores or standardized effects.
+either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.
 }

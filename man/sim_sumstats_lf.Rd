@@ -47,7 +47,7 @@ sim_sumstats_lf(
 
 \item{relative_pve}{Relative pve contributed by each factor. Length K.}
 
-\item{pi_F}{Propotion of non-zero elements of F.}
+\item{pi_F}{Proportion of non-zero elements of F.}
 }
 \description{
 Simulate summary statistcs for fully overlapping GWAS with no LD
