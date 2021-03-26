@@ -23,7 +23,7 @@ pve_by_factor2 <- function(fit, S_hat){
   nvar <- nrow(fit$loadings.pm[[1]])
   ntrait <- nrow(fit$loadings.pm[[2]])
   k <- ncol(fit$loadings.pm[[1]])
-  if(is.missing(S_hat)){
+  if(missing(S_hat)){
     S_hat = matrix(1, nrow = nvar, ncol = ntrait)
   }
   stopifnot(nrow(S_hat) == nvar & ncol(S_hat) == ntrait)
