@@ -3,7 +3,7 @@
 #'@param R Estimated residual correlation of rows of Z_hat
 #'@param fit Flash fit
 #'@export
-est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=TRUE){
+est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=FALSE, opt4 = TRUE){
 
   n_var <- nrow(Z_hat)
   n_trait <- ncol(Z_hat)
@@ -41,7 +41,8 @@ est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=TRUE){
   }else if(opt3){
     S <- diag(rep(1, n_trait) + fit$fit$residuals.sd^2)
     Sigma <- S %*% R %*% S
-    #Sigma <- diag(fit$fit$residuals.sd^2) + R
+  }else if(opt4){
+    Sigma <- R
   }
   H <- with(fit, solve(t(F_hat) %*% F_hat) %*% t(F_hat))
   L_est <- H %*% t(Z_hat) %>% t()
