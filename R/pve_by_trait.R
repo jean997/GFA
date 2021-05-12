@@ -36,7 +36,7 @@ pve_by_factor2 <- function(fit, S_hat){
   theta_var <- (S_hat^2)*matrix(rep(fit$residuals.sd^2, nvar), byrow=TRUE, nrow = nvar)
   theta_trait_sums <- colSums(theta_var)
   total_var <- trait_sums + theta_trait_sums
-  pve_by_trait <- t(t(sj)/total_var)
+  pve_by_trait <- sj/total_var
   ix <- which(fit$loadings.scale ==0)
   pve_by_trait <- pve_by_trait[,-ix]
   return(pve_by_trait)
