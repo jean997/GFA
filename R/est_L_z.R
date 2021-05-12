@@ -8,7 +8,7 @@ est_L_z <- function(Z_hat, R, fit, opt1 = FALSE, opt2 = FALSE, opt3=FALSE, opt4 
   n_var <- nrow(Z_hat)
   n_trait <- ncol(Z_hat)
   n_factor <- ncol(fit$F_hat)
-  stopifnot(opt1 | opt2 | opt3)
+  stopifnot(opt1 | opt2 | opt3 | opt4)
   stopifnot(nrow(R) == n_trait & ncol(R) == n_trait)
   stopifnot(all(diag(R) == 1 ))
   stopifnot(matrixcalc::is.positive.definite(R))
