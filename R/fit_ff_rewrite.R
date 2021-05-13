@@ -121,11 +121,9 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
     fixed_ix <- n + (1:nf)
   }else{
     if(S_NULL){
-      fit <-  flash.init(B_hat, var.type = 2) %>%
-        flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+      fit <-  flash.init(B_hat, var.type = 2)
     }else{
-      fit <-  flash.init(B_hat, S = sqrt(lambda_min), var.type = 2) %>%
-        flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+      fit <-  flash.init(B_hat, S = sqrt(lambda_min), var.type = 2)
     }
     #first add in fixed factors. Use sequential mode for backfit
     fit <- fit %>%
