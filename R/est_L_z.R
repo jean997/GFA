@@ -10,7 +10,7 @@ est_L_z <- function(Z_hat, R, F_hat){
   n_factor <- ncol(F_hat)
 
   stopifnot(nrow(R) == n_trait & ncol(R) == n_trait)
-  stopifnot(all(diag(R) == 1 ))
+  #stopifnot(all(diag(R) == 1 ))
   stopifnot(matrixcalc::is.positive.definite(R))
   Rinv <- solve(R)
 
