@@ -16,7 +16,7 @@
 #'@export
 fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
                    zero_thresh = 1e-15, method="sequential",
-                   max_ev_percent = 1, S_NULL = FALSE){
+                   max_ev_percent = 1, S_NULL = FALSE, reverse_fit_order = FALSE){
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
@@ -99,26 +99,46 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
   # randomly initialize A
   A_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
   gg <- ashr::normalmix(pi = c(1), mean = c(0), sd = c(1))
-  #First add some greedy factors but don't backfit
-  if(S_NULL){
+  if(!reverse_fit_order){
+    #First add some greedy factors but don't backfit
+    if(S_NULL){
+        fit <-  flash.init(B_hat, var.type = 2) %>%
+          flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+    }else{
+      fit <-  flash.init(B_hat, S = sqrt(lambda_min), var.type = 2) %>%
+        flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+    }
+    #Next add in fixed factors. Use sequential mode for backfit
+    n <- fit$n.factors
+    fit <- fit %>%
+           flash.init.factors(., EF = list(A_rand, W),
+                              prior.family = prior.normal(scale= 1,
+                              g_init=gg, fix_g = TRUE)) %>%
+           flash.fix.loadings(., kset = n + 1:nf, mode=2) %>%
+           flash.backfit(method = method)
+    F_hat <- fit$loadings.pm[[2]][,1:n, drop=FALSE]
+    L_hat <- fit$loadings.pm[[1]][, 1:n, drop=FALSE]
+    fixed_ix <- n + (1:nf)
+  }else{
+    if(S_NULL){
       fit <-  flash.init(B_hat, var.type = 2) %>%
         flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
-  }else{
-    fit <-  flash.init(B_hat, S = sqrt(lambda_min), var.type = 2) %>%
-      flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+    }else{
+      fit <-  flash.init(B_hat, S = sqrt(lambda_min), var.type = 2) %>%
+        flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+    }
+    #first add in fixed factors. Use sequential mode for backfit
+    fit <- fit %>%
+      flash.init.factors(., EF = list(A_rand, W),
+                         prior.family = prior.normal(scale= 1,
+                                                     g_init=gg, fix_g = TRUE)) %>%
+      flash.fix.loadings(., kset = 1:nf, mode=2) %>%
+      flash.add.greedy(Kmax = kmax, init.fn = init.fn.default ) %>%
+      flash.backfit(method = method)
+    F_hat <- fit$loadings.pm[[2]][,-(1:nf), drop=FALSE]
+    L_hat <- fit$loadings.pm[[1]][, -(1:nf), drop=FALSE]
+    fixed_ix <- 1:nf
   }
-  #Next add in fixed factors. Use sequential mode for backfit
-  n <- fit$n.factors
-  fit <- fit %>%
-         flash.init.factors(., EF = list(A_rand, W),
-                            prior.family = prior.normal(scale= 1,
-                            g_init=gg, fix_g = TRUE)) %>%
-         flash.fix.loadings(., kset = n + 1:nf, mode=2) %>%
-         flash.backfit(method = method)
-
-  F_hat <- fit$loadings.pm[[2]][,1:n, drop=FALSE]
-  L_hat <- fit$loadings.pm[[1]][, 1:n, drop=FALSE]
-  fixed_ix <- n + (1:nf)
   B_hat <- fitted(fit) -
     with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
   c <- colSums(F_hat^2)
