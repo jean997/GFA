@@ -67,7 +67,7 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
 
   stopifnot(nrow(R) == ntrait & ncol(R) == ntrait)
   if(mode == "std"){
-    stopifnot(lenght(N) == ntrait)
+    stopifnot(length(N) == ntrait)
     R <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
   }
   eS <- eigen(R)
@@ -91,8 +91,8 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
   }
 
   lambda_min <- eS$values[nmax]
-  V <- eS$vectors[,1:(nmax-1)]
-  W <- V %*% diag(sqrt(eS$values[1:(nmax-1)]-lambda_min))
+  V <- eS$vectors[,1:(nmax-1), drop = FALSE]
+  W <- V %*% diag(sqrt(eS$values[1:(nmax-1)]-lambda_min), ncol = (nmax -1))
   nf <- nmax-1
   if(missing(kmax)) kmax <- ntrait
   #Fitting
@@ -138,7 +138,7 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
     fixed_ix <- 1:nf
   }
   B_hat <- fitted(fit) -
-    with(fit, loadings.pm[[1]][, fixed_ix]%*%diag(loadings.scale[fixed_ix])%*% t(loadings.pm[[2]][, fixed_ix]))
+    with(fit, loadings.pm[[1]][, fixed_ix, drop =FALSE]%*%diag(loadings.scale[fixed_ix], ncol = length(fixed_ix))%*% t(loadings.pm[[2]][, fixed_ix, drop = FALSE]))
   c <- colSums(F_hat^2)
   if(any(c==0)){
       i <- which(c==0)
