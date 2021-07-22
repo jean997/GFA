@@ -11,6 +11,8 @@ align_effects_ieu(phe, ref, ref_snp_col = "snp", ref_ea = "A1", ref_nea = "A2")
 
 \item{ref}{Reference data frame}
 
+\item{ref_snp_col}{Name of snp column in ref}
+
 \item{ref_ea}{Name of effect allele column in ref}
 
 \item{ref_nea}{Name of non effect allele column in ref}

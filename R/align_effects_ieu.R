@@ -2,7 +2,7 @@
 #'@title Align alleles looked up from IEU Open GWAS using ieugwasr package
 #'@param phe Output of ieugwasr::phewas or ieugwasr::associations
 #'@param ref Reference data frame
-#'@parm ref_snp_col Name of snp column in ref
+#'@param ref_snp_col Name of snp column in ref
 #'@param ref_ea Name of effect allele column in ref
 #'@param ref_nea Name of non effect allele column in ref
 #'@export
