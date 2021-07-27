@@ -154,8 +154,10 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
                      flash.backfit(method = method, maxiter = max_prefit_iter)
       fits[[i]] <- fits[[i]] %>%
                    flash.init.factors(EF = fits[[i-1]]$flash.fit$EF, EF2 = fits[[i-1]]$flash.fit$EF2) %>%
-                   flash.fix.loadings(., kset = fixed_ix, mode=2) %>%
-                   flash.backfit() %>%
+                   flash.fix.loadings(., kset = fixed_ix, mode=2)
+      fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero
+      fits[[i]] <- fits[[i]] %>%
+                   flash.backfit(method = method, maxiter = max_prefit_iter) %>%
                    flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute,
                          prior.family = prior.point.normal())
     }
