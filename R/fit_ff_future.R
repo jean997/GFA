@@ -177,6 +177,6 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
       F_hat <- F_hat[,-i]
       L_hat <- L_hat[,-i]
   }
-  ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat)
+  ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat, fixed_ix = fixed_ix)
   return(ret)
 }
