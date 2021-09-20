@@ -101,7 +101,9 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     }
   }else{
     #Re scale rows of F
-    F_mat <- F_mat*sqrt(omega*h_2_trait/rowSums(F_mat^2))
+    scale <- sqrt(omega*h_2_trait/rowSums(F_mat^2))
+    scale[omega == 0] <- 0
+    F_mat <- F_mat*scale
   }
 
 
