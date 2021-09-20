@@ -20,7 +20,8 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
                    max_ev_percent = 1,
                    S_inf = c(10, 1),
                    num_prefits = 1,
-                   max_prefit_iter = 500,
+                   max_prefit_iter = 50,
+                   max_final_iter = 1000,
                    min_var_ratio = 1){
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
@@ -164,7 +165,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   }
   fit <- fits[[length(S_inf)]]
   fit <- fit %>%
-         flash.backfit(method = method) %>%
+         flash.backfit(method = method, maxiter = max_final_iter) %>%
          flash.nullcheck(remove = FALSE)
   F_hat <- fit$loadings.pm[[2]][,-fixed_ix, drop=FALSE]
   L_hat <- fit$loadings.pm[[1]][, -fixed_ix, drop=FALSE]

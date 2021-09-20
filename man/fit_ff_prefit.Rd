@@ -16,7 +16,8 @@ fit_ff_prefit(
   max_ev_percent = 1,
   S_inf = c(10, 1),
   num_prefits = 1,
-  max_prefit_iter = 500,
+  max_prefit_iter = 50,
+  max_final_iter = 1000,
   min_var_ratio = 1
 )
 }
