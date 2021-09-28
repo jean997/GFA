@@ -153,10 +153,21 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     for(i in 2:length(S_inf)){
       fits[[i-1]] <- fits[[i-1]] %>%
                      flash.backfit(method = method, maxiter = max_prefit_iter)
+      iz <- which(fits[[i-1]]$flash.fit$is.zero)
+      nfi <- seq(fits[[i-1]]$n.factor)[-fixed_ix]
+      nfi <- nfi[!nfi %in% iz]
+      n <- length(nfi)
+
       fits[[i]] <- fits[[i]] %>%
-                   flash.init.factors(EF = fits[[i-1]]$flash.fit$EF, EF2 = fits[[i-1]]$flash.fit$EF2) %>%
-                   flash.fix.loadings(., kset = fixed_ix, mode=2)
-      fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero
+                   flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, fixed_ix], fits[[i-1]]$flash.fit$EF[[2]][, fixed_ix]),
+                                      prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
+                   flash.fix.loadings(., kset = seq(length(fixed_ix)), mode=2)
+      if(n > 0){
+        fits[[i]] <- fits[[i]] %>%
+                     flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, nfi], fits[[i-1]]$flash.fit$EF[[2]][, nfi]))
+      }
+      fixed_ix <- 1:length(fixed_ix)
+      fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero[c(fixed_ix, nfi)]
       fits[[i]] <- fits[[i]] %>%
                    flash.backfit(method = method, maxiter = max_prefit_iter) %>%
                    flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute,
