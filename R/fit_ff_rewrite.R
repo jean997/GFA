@@ -15,7 +15,7 @@
 #'@return A list with elements fit, B_hat, L_hat, F_hat
 #'@export
 fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
-                   zero_thresh = 1e-15, method="sequential",
+                   zero_thresh = 1e-15, method="sequential", maxiter = 500,
                    max_ev_percent = 1, S_NULL = FALSE, reverse_fit_order = FALSE){
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
@@ -115,7 +115,7 @@ fit_ff_new <- function(Z_hat, B_std, N, R, kmax,
                               prior.family = prior.normal(scale= 1,
                               g_init=gg, fix_g = TRUE)) %>%
            flash.fix.loadings(., kset = n + 1:nf, mode=2) %>%
-           flash.backfit(method = method)
+           flash.backfit(method = method, maxiter = maxiter)
     F_hat <- fit$loadings.pm[[2]][,1:n, drop=FALSE]
     L_hat <- fit$loadings.pm[[1]][, 1:n, drop=FALSE]
     fixed_ix <- n + (1:nf)
