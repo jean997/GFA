@@ -152,7 +152,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 
     ret <- list(beta_hat =beta_hat, se_beta_hat = se_beta_hat,
                 L_mat = L_mat, F_mat = F_mat, theta = theta,
-                R_E = R_E, Sigma=Sigma)
+                R_E = R_E, tau = tau, Sigma=Sigma)
     return(ret)
   }
 
