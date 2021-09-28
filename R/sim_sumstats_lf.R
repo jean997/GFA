@@ -17,15 +17,6 @@
 #'@param pi_F Proportion of non-zero elements of F.
 #'@details
 #'
-#'note: have removed relative_pve so below is not correct. will update,
-#'omega, h2_trait, and relative_pve constrain the rows and columns of F. The sum of squared elements in row m must equal
-#'omega[m]*h2_trait[m]. relative_pve is normalized to sum to sum(omega*h2_trait). After this normalization the sum of
-#'squared elements in column k must equal relative_pve[k]. The function `scale_F` iteratively rescales rows and columns
-#'until they have the desired sums. This allows us to preserve the input sparsity structure and approximate distribution
-#'magnitudes and still achieve the desired row and column squared sums.
-#'
-#'If F_mat is provided it is rescaled as described. In this case relative_pve is optional.
-#'
 #'If F_mat is not provided, it will be generated using the `generate_F2` function.
 #'In this case g_F and nz_factor must be provided. scale_factor is an optional argument that can
 #'be use to adjust the relative scalings of the factors. All of the elements
@@ -134,13 +125,22 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 
   #Compute row covariance
   Sigma_G <- F_mat %*% t(F_mat) + J*diag(pi_theta*sigma_theta^2)
+
   sigma_2_F <- (1-h_2_factor)/(h_2_factor)
   Sigma_FE <- F_mat %*% diag(sigma_2_F) %*% t(F_mat)
+
+  if(any(h_2_trait + diag(Sigma_FE) > 1)){
+    stop("Provided parameters are incompatible with generated F.\n")
+  }
+
   sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
   Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
   Sigma <- (1/N)*(Sigma_G + Sigma_FE  + Sigma_E)
   Sigma_indep <- (1/N)*diag(M)
   Sigma <- overlap_prop*Sigma + (1-overlap_prop)*Sigma_indep
+
+  # Compute proportion of environmental variance from factors
+  tau <- diag(Sigma_FE)/(1-h_2_trait)
 
   #Generate sampling error
   E <- MASS::mvrnorm(n=J, mu = rep(0, M), Sigma = Sigma)
@@ -190,7 +190,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 
   ret <- list(beta_hat =beta_hat, se_beta_hat = S,
               L_mat = L_mat, F_mat = F_mat, theta = theta,
-              R_E = R_E, Sigma=Sigma)
+              R_E = R_E, tau = tau, Sigma=Sigma)
   return(ret)
 }
 
@@ -216,29 +216,6 @@ scale_F <- function(F_init, square_row_sums, square_col_sums, tol = 1e-5, max_re
     cat(rep, ": ", test," ", test > tol & rep <= max_rep, "\n")
   }
   return(F_mat)
-}
-
-generate_F <- function(percent_zero, square_row_sums, square_col_sums, rfunc = function(n){runif(n, -1, 1)},
-                       tol = 1e-5, max_rep = 100){
-  f <- function(n){
-    x <- rbinom(n, 1, 1-percent_zero)
-    x[x==1] <- rfunc(sum(x))
-    return(x)
-  }
-  stopifnot(all(square_row_sums > 0))
-  stopifnot(all(square_col_sums > 0))
-  stopifnot(abs(sum(square_row_sums) - sum(square_col_sums)) < tol)
-  M <- length(square_row_sums)
-  K <- length(square_col_sums)
-
-  init <- FALSE
-  F_mat <- replicate(n=K, expr={f(M)})
-
-  missing_ix <- which(rowSums(F_mat !=0)==0)
-  square_row_sums <- square_row_sums[-missing_ix]
-
-  F_mat <- scale_F(F_mat, square_row_sums, square_col_sums, tol, max_rep )
-
 }
 
 #'@export
