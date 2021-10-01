@@ -11,15 +11,14 @@
 #'@param pi_L Proportion of non-zero elements in L_k. Length K factor
 #'@param pi_theta Proportion of non-zero elements in theta. Scalar.
 #'@param R_E Environmental trait correlation not mediated by factors. M by M pd matrix
-#'@param R_LD_list List of eigen decompositions of LD correlation matrices, may be missing.
-#'@param relative_pve Relative pve contributed by each factor. Length K.
+#'@param R_LD List of eigen decompositions of LD correlation matrices, may be missing.
+#'@param snp_info If R_LD is provided, provide a data frame with columns "SNP" and "AF"
 #'@param g_F Function from which non-zero elements of F are generated
 #'@param pi_F Proportion of non-zero elements of F.
 #'@details
 #'
 #'If F_mat is not provided, it will be generated using the `generate_F2` function.
-#'In this case g_F and nz_factor must be provided. scale_factor is an optional argument that can
-#'be use to adjust the relative scalings of the factors. All of the elements
+#'In this case g_F and nz_factor must be provided. All of the elements
 #'in F are generated iid from a mixture of a point mass at 0 and g_F. The matrix is then
 #'rescaled according to the constraints.
 #'
@@ -31,8 +30,8 @@
 #'
 #'@export
 sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_theta,
-                            R_E, R_LD,
-                            g_F, nz_factor, scale_factor, add=FALSE,
+                            R_E, R_LD, snp_info,
+                            g_F, nz_factor, add=FALSE,
                             overlap_prop =1){
 
   #Check parameters
@@ -46,8 +45,6 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     }
     K <- length(nz_factor)
     M <- length(h_2_trait)
-    if(missing(scale_factor)) scale_factor <- rep(1, K)
-    stopifnot(length(scale_factor)==K)
     cat("Will generate L and F with ", J, " markers, ", M, " traits, and ", K, "factors.\n")
   }
   stopifnot(length(h_2_trait) == M)
@@ -79,7 +76,6 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     #                    square_col_sums = relative_pve, rfunc = g_F)
     F_mat <- generate_F2(non_zero_by_factor = nz_factor,
                          square_row_sums = omega*h_2_trait,
-                         scale_by_factor = scale_factor,
                          rfunc = g_F, add=add)
     if(ncol(F_mat) > K){
       nextra <- ncol(F_mat)-K
@@ -194,34 +190,10 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   return(ret)
 }
 
-scale_F <- function(F_init, square_row_sums, square_col_sums, tol = 1e-5, max_rep = 100){
-  stopifnot(all(square_row_sums >= 0))
-  stopifnot(all(square_col_sums >= 0))
-  stopifnot(abs(sum(square_row_sums) - sum(square_col_sums)) < tol)
-  M <- length(square_row_sums)
-  K <- length(square_col_sums)
-  F_mat <- F_init
-  r2 <- rowSums(F_mat^2)
-  c2 <- colSums(F_mat^2)
-  test <- max(abs(c(r2-square_row_sums, c2 - square_col_sums)))
-  rep <- 1
-  while(test > tol & rep <= max_rep){
-    F_mat <- F_mat*sqrt(square_row_sums)/sqrt(r2)
-    c2 <- colSums(F_mat^2)
-    F_mat <- t(t(F_mat)*sqrt(square_col_sums)/sqrt(c2))
-    r2 <- rowSums(F_mat^2)
-    c2 <- colSums(F_mat^2)
-    test <- max(abs(c(r2-square_row_sums, c2 - square_col_sums)))
-    rep <- rep+1
-    cat(rep, ": ", test," ", test > tol & rep <= max_rep, "\n")
-  }
-  return(F_mat)
-}
 
 #'@export
 generate_F2 <- function(non_zero_by_factor,
                         square_row_sums,
-                        scale_by_factor,
                         rfunc = function(n){runif(n, -1, 1)},
                         add=FALSE){
   f <- function(n, nz){
@@ -235,10 +207,10 @@ generate_F2 <- function(non_zero_by_factor,
 
   M <- length(square_row_sums)
   K <- length(non_zero_by_factor)
-  stopifnot(length(scale_by_factor)==K)
+
 
   F_mat <- sapply(seq(K), function(k){f(M, non_zero_by_factor[k])})
-  F_mat <- t(t(F_mat)*scale_by_factor) # Multiply each column by scale factor
+
   if(any(rowSums(F_mat !=0)==0)){
     missing_ix <- which(rowSums(F_mat !=0)==0)
     if(add){
