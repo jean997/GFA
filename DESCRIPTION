@@ -1,12 +1,11 @@
 Package: sumstatFactors
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Working package for development of Genetic Factor Analysis (GFA)
+Version: 0.1.0
 Authors@R: 
     person(given = "Jean",
            family = "Morrison",
            role = c("aut", "cre"),
-           email = "jeanm@uchicago.edu",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "jvmorr@umich.edu",)
 Description: What the package does (one paragraph).
 License: What license it uses
 Encoding: UTF-8
