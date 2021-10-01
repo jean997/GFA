@@ -16,13 +16,12 @@
 #'@return A list with elements fit, Y, L_hat, F_hat
 #'@export
 fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
-                   zero_thresh = 1e-15, method="extrapolate",
-                   max_ev_percent = 1,
+                   zero_thresh = 1e-15, max_ev_percent = 1,
+                   num_prefits = 1, min_var_ratio = 1,
                    S_inf = c(10, 1),
-                   num_prefits = 1,
-                   max_prefit_iter = 50,
-                   max_final_iter = 1000,
-                   min_var_ratio = 1){
+                   max_prefit_iter = 50, max_final_iter = 1000,
+                   method="extrapolate", prior_family = flashier::as.prior(ebnm::ebnm_point_normal, optmethod = "nlm"),
+                   init_fn = flashier::init.fn.default){
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
@@ -63,25 +62,26 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     }else if(mode == "std" ){
       S = t( (1/sqrt(N)) * t(matrix(1, nrow=nvar, ncol=ntrait)))
     }
-    fits <- lapply(S_inf, function(s){flash.init(data=Y, S = s*S,  var.type=2)})
-    fits[[1]] <- fits[[1]] %>%
-           flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute,
-                              prior.family = prior.point.normal())
 
+    #First initialize flash objects
+    fits <-  lapply(S_inf, function(s){flash.init(data = Y, S = s*S, var.type = 2)})
+
+    # Add factors for fit 1
+    fits[[1]] <- fits[[1]] %>%
+      flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family )
     if(length(S_inf) > 1){
       for(i in 2:length(S_inf)){
         fits[[i-1]] <- fits[[i-1]] %>%
-                      flash.backfit(maxiter = max_prefit_iter)
+                      flash.backfit(maxiter = max_prefit_iter, method = method)
         fits[[i]] <- fits[[i]] %>%
-                     flash.init.factors(EF = fits[[i-1]]$flash.fit$EF, EF2 = fits[[i-1]]$flash.fit$EF2) %>%
+                     flash.init.factors(EF = fits[[i-1]]$flash.fit$EF, EF2 = fits[[i-1]]$flash.fit$EF2, prior.family = prior_family) %>%
                      flash.backfit() %>%
-                     flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute,
-                           prior.family = prior.point.normal())
+                     flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family)
       }
     }
     fit <- fits[[length(S_inf)]]
     fit <- fit %>%
-           flash.backfit() %>%
+           flash.backfit(maxiter = max_final_iter, method = method) %>%
            flash.nullcheck(remove = TRUE)
     if(fit$n.factors > 0){
       F_hat <- fit$loadings.pm[[2]]
@@ -138,14 +138,13 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   #First initialize flash objects
   fits <-  lapply(S_inf, function(s){flash.init(data = Y, S = s*sqrt(lambda_min), var.type = 2)})
 
+  # Add factors for fit 1
   fits[[1]] <- fits[[1]] %>%
-               flash.add.greedy(Kmax = kmax, init.fn = init.fn.default )
+               flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family )
   #Next add in fixed factors.
   n <- fits[[1]]$n.factors
   fits[[1]] <- fits[[1]] %>%
-         flash.init.factors(., EF = list(A_rand, W),
-                            prior.family = prior.normal(scale= 1,
-                            g_init=gg, fix_g = TRUE)) %>%
+         flash.init.factors(., EF = list(A_rand, W), prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
          flash.fix.loadings(., kset = n + (1:nf), mode=2)
 
   fixed_ix <- n + (1:nf)
@@ -164,14 +163,14 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
                    flash.fix.loadings(., kset = seq(length(fixed_ix)), mode=2)
       if(n > 0){
         fits[[i]] <- fits[[i]] %>%
-                     flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, nfi], fits[[i-1]]$flash.fit$EF[[2]][, nfi]))
+                     flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, nfi], fits[[i-1]]$flash.fit$EF[[2]][, nfi]), prior.family = prior_family)
       }
+      #Fixed factors are now first
       fixed_ix <- 1:length(fixed_ix)
       fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero[c(fixed_ix, nfi)]
       fits[[i]] <- fits[[i]] %>%
                    flash.backfit(method = method, maxiter = max_prefit_iter) %>%
-                   flash.add.greedy(Kmax = kmax, init.fn = init.fn.softImpute,
-                         prior.family = prior.point.normal())
+                   flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family)
     }
   }
   fit <- fits[[length(S_inf)]]
