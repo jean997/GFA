@@ -10,7 +10,10 @@
 #'@param h_2_factor Heritability of each factor. Length K vector.
 #'@param pi_L Proportion of non-zero elements in L_k. Length K factor
 #'@param pi_theta Proportion of non-zero elements in theta. Scalar.
-#'@param R_E Environmental trait correlation not mediated by factors. M by M pd matrix
+#'@param R_E Environmental trait correlation not mediated by factors. M by M pd matrix.
+#'@param maf can either be a scalar in which case the same maf is used for all SNPS, NA in which case SNPs
+#'are assumed scaled to variance 1, a function that takes a number n and returns n values between 0 and 1, or a
+#'vector of length equal to the number of SNPs. maf is ignored if LD is provided.
 #'@param R_LD List of eigen decompositions of LD correlation matrices, may be missing.
 #'@param snp_info If R_LD is provided, provide a data frame with columns "SNP" and "AF"
 #'@param g_F Function from which non-zero elements of F are generated
@@ -29,8 +32,9 @@
 #'
 #'
 #'@export
-sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_theta,
-                            R_E, R_LD, snp_info,
+sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
+                            pi_L, pi_theta,
+                            R_E, maf = NA, R_LD, snp_info,
                             g_F, nz_factor, add=FALSE,
                             overlap_prop =1){
 
@@ -57,23 +61,41 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
   stopifnot(all(pi_L <= 1 & pi_L > 0))
   stopifnot(length(pi_theta) == 1 )
   stopifnot(pi_theta >=0 & pi_theta <=1)
-  stopifnot(nrow(R_E) == M & ncol(R_E) == M)
-  stopifnot(Matrix::isSymmetric(R_E))
-  if(!missing(R_LD)) cat(R_LD, "\n")
-  R_E_eig <- eigen(R_E)
-  stopifnot(all(R_E_eig$values >= 0))
   if(any(omega < 1) & pi_theta == 0){stop("Theta contributes non-zero heritability so pi_theta must be greater than 0.")}
 
-  if(!missing(F_mat)){
-    if(any(rowSums(F_mat == 0) == K & omega >0)){
-      stop("One row of F is all zero but corresponds to non-zero omega\n")
+  #R_E
+  stopifnot(nrow(R_E) == M & ncol(R_E) == M)
+  stopifnot(Matrix::isSymmetric(R_E))
+  R_E_eig <- eigen(R_E)
+  stopifnot(all(R_E_eig$values >= 0))
+
+  #N
+  if(length(N) == 1) N <- rep(N, M)
+    else stopifnot(length(N) == M)
+
+  if(missing(R_LD)){
+  #maf
+    if(is.na(maf)){
+      sx <- rep(1, J)
+    }else if(class(maf) == "numeric"){
+      stopifnot(length(maf) %in% c(1, J))
+      sx <- 2*maf*(1-maf)
+      if(length(sx) == 1) sx <- rep(sx, J)
+    }else if(class(maf) == "function"){
+      af <- maf(J)
+      sx <- 2*af*(1-af)
     }
+  }else{
+    if(missing(snp_info)) stop("Please prvide snp_info to go with R_LD.")
+    l <- sapply(R_LD, function(e){length(e$values)})
+    stopifnot(nrow(snp_info) == sum(l))
+    stopifnot(all(c("SNP", "AF") %in% names(snp_info)))
+    snp_info$block <- rep(seq(length(l)), l)
   }
+
+
   #Re-scale F or generate it if it is missing
   if(missing(F_mat)){
-    #relative_pve <- relative_pve*sum(omega*h_2_trait)/sum(relative_pve)
-    #F_mat <- generate_F(percent_zero = 1-pi_F, square_row_sums = omega*h_2_trait,
-    #                    square_col_sums = relative_pve, rfunc = g_F)
     F_mat <- generate_F2(non_zero_by_factor = nz_factor,
                          square_row_sums = omega*h_2_trait,
                          rfunc = g_F, add=add)
@@ -87,6 +109,9 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
       omega[ix] <- 0
     }
   }else{
+    if(any(rowSums(F_mat == 0) == K & omega >0)){
+      stop("One row of F is all zero but corresponds to non-zero omega\n")
+    }
     #Re scale rows of F
     scale <- sqrt(omega*h_2_trait/rowSums(F_mat^2))
     scale[omega == 0] <- 0
@@ -116,8 +141,10 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
     return(l)
   }) %>% do.call(cbind, .)
 
-  #Compute Beta
+  # Compute Beta, standardized effects
+  # Since phenos are scaled to variance 1, sqrt(N_m)*beta_{j,m} = z_{j,m}
   beta = L_mat %*% t(F_mat) + theta
+  Z <- beta %*% diag(sqrt(N))
 
   #Compute row covariance
   Sigma_G <- F_mat %*% t(F_mat) + J*diag(pi_theta*sigma_theta^2)
@@ -131,62 +158,74 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor, pi_L, pi_
 
   sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
   Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
-  Sigma <- (1/N)*(Sigma_G + Sigma_FE  + Sigma_E)
-  Sigma_indep <- (1/N)*diag(M)
-  Sigma <- overlap_prop*Sigma + (1-overlap_prop)*Sigma_indep
+  #correlation of z-scores
+  R <- Sigma_G + Sigma_FE + Sigma_E
+  R <- overlap_prop*R + (1- overlap_prop)*diag(M)
+
+  # Covariance of normalized effects
+  # Sigma <- diag(sqrt(1/N)) %*% R %*% diag(sqrt(1/N))
 
   # Compute proportion of environmental variance from factors
   tau <- diag(Sigma_FE)/(1-h_2_trait)
 
   #Generate sampling error
-  E <- MASS::mvrnorm(n=J, mu = rep(0, M), Sigma = Sigma)
+  E_Z <- MASS::mvrnorm(n=J, mu = rep(0, M), Sigma = R)
 
   #Generate summary statistics
   if(missing(R_LD)){
-    beta_hat <- beta + E
-    se_beta_hat <- matrix(rep(sqrt(diag(Sigma)), J), byrow=T, nrow=J)
+    se_beta_hat <- matrix(1/sx) %*% matrix(1/sqrt(N), nrow = 1) # J by M
+    beta_hat <- (Z + E_Z)*se_beta_hat
 
     ret <- list(beta_hat =beta_hat, se_beta_hat = se_beta_hat,
                 L_mat = L_mat, F_mat = F_mat, theta = theta,
-                R_E = R_E, tau = tau, Sigma=Sigma)
+                R_E = R_E, tau = tau, R=R, Z = Z)
     return(ret)
   }
 
   #If LD, introduce correlation
 
-  #Convert to z-scores
-  S <- matrix(rep(sqrt(diag(Sigma)), J), byrow=T, nrow=J)
-  E_Z <- E/S
-  Z <- beta/S
-
   #Figure out how much/how many replicates of supplied LD we need
-  # This is the fidliest bit
-  l <- sapply(R_LD, function(e){length(e$values)})
   nblock <- length(R_LD)
-  full_reps <- floor(J/sum(l))
-  remainder <- J  - full_reps*sum(l)
-  blocks_rem <- max(which(cumsum(l) <= remainder))
-  final_remainder <- remainder-cumsum(l)[blocks_rem]
+  ld_size <- sum(l)
+  full_reps <- floor(J/ld_size) # Recall l is list of block sizes
+  remainder <- J  - full_reps*ld_size
+  blocks_rem <- max(which(cumsum(l) <= remainder)) # full blocks in last partial repeat
+  final_remainder <- remainder-cumsum(l)[blocks_rem] # partial block in last partial repeat
 
-  last_block <- with(R_LD[[blocks_rem + 1]], (vectors %*% diag(values) %*% vectors)[1:final_remainder, 1:final_remainder])
+  last_block <- with(R_LD[[blocks_rem + 1]], (vectors %*% diag(values) %*% t(vectors))[1:final_remainder, 1:final_remainder])
   R_LD[[nblock + 1]] <- eigen(last_block)
-  block_index <- c(rep(seq(nblock), full_reps), 1:blocks_rem, nblock + 1)
-  l <- c(l, final_remainder)[block_index]
+  block_index <- c(rep(seq(nblock), full_reps), seq(blocks_rem), nblock + 1)
+  l <- c(l, final_remainder)[block_index] # l is now lengths of blocks in data
   start_ix <- cumsum(c(1, l[-length(l)]))
   end_ix <- start_ix + l-1
 
+  # Multiply errors by square root of LD matrix
   E_LD_Z <- lapply(seq_along(block_index), function(i){
     with(R_LD[[block_index[i]]], vectors %*% sqrt(diag(values)) %*% E_Z[start_ix[i]:end_ix[i], ])
   }) %>% do.call( rbind, .)
 
+  # Transform Z by LD matrix
+  Z <- lapply(seq_along(block_index), function(i){
+    with(R_LD[[block_index[i]]], vectors %*% diag(values) %*% t(vectors) %*% Z[start_ix[i]:end_ix[i], ])
+  }) %>% do.call( rbind, .)
   Z_hat <- Z + E_LD_Z
 
-  beta_hat <- Z_hat*S
-  E_LD <- E_LD_Z*S
+  #snp info
+  snp_info_full <- snp_info[c(rep(seq(ld_size), full_reps), seq(remainder)),]
+  if(full_reps == 0){
+    snp_info_full$rep <- rep(1, remainder)
+  }else{
+    snp_info_full$rep <- c(rep(seq(full_reps), each = ld_size), rep(full_reps + 1, remainder))
+  }
+  snp_info_full$SNP <- with(snp_info_full, paste0(SNP, ".", rep))
+  sx <- with(snp_info_full, 2*AF*(1-AF))
 
-  ret <- list(beta_hat =beta_hat, se_beta_hat = S,
+  se_beta_hat <- matrix(1/sx) %*% matrix(1/sqrt(N), nrow = 1) # J by M
+  beta_hat <- Z_hat*se_beta_hat
+
+  ret <- list(beta_hat =beta_hat, se_beta_hat = se_beta_hat, Z = Z,
               L_mat = L_mat, F_mat = F_mat, theta = theta,
-              R_E = R_E, tau = tau, Sigma=Sigma)
+              R_E = R_E, tau = tau, R = R, snp_info = snp_info_full)
   return(ret)
 }
 
