@@ -166,11 +166,11 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
                      flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, nfi], fits[[i-1]]$flash.fit$EF[[2]][, nfi]), prior.family = prior_family)
       }
       #Fixed factors are now first
-      fixed_ix <- 1:length(fixed_ix)
       fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero[c(fixed_ix, nfi)]
       fits[[i]] <- fits[[i]] %>%
                    flash.backfit(method = method, maxiter = max_prefit_iter) %>%
                    flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family)
+      fixed_ix <- 1:length(fixed_ix)
     }
   }
   fit <- fits[[length(S_inf)]]
