@@ -11,14 +11,17 @@ fit_ff_prefit(
   N,
   R,
   kmax,
-  zero_thresh = 1e-15,
-  method = "extrapolate",
-  max_ev_percent = 1,
-  S_inf = c(10, 1),
+  min_ev = 0.001,
+  max_lr_percent = 1,
+  lr_zero_thresh = 1e-10,
   num_prefits = 1,
+  min_var_ratio = 1,
+  S_inf = c(10, 1),
   max_prefit_iter = 50,
   max_final_iter = 1000,
-  min_var_ratio = 1
+  method = "extrapolate",
+  prior_family = flashier::as.prior(ebnm::ebnm_point_normal, optmethod = "nlm"),
+  init_fn = flashier::init.fn.default
 )
 }
 \arguments{
@@ -34,13 +37,10 @@ needed if using B_std.}
 \item{kmax}{Maximum number of factors. Defaults to 2*ntraits for plain or ntraits
 if using the fixed factor correction.}
 
-\item{zero_thresh}{Threshold for setting eigenvalues of R to zero}
+\item{min_ev, max_lr_percent, lr_zero_thresh}{See details}
 
 \item{S_inf}{A vector supplying a series of variance inflation factors for fitting ebmf.
 S_inf should be decreasing and the last element should be 1.}
-
-\item{max_ev_percent.}{Only the eigenvectors of R explaining the top percentage of
-variance are retained. Defaults to 1, retaining all eigenvectors.}
 }
 \value{
 A list with elements fit, Y, L_hat, F_hat
@@ -48,4 +48,11 @@ A list with elements fit, Y, L_hat, F_hat
 \description{
 Fit with fixed factors. This version is from March 2021 and explicitly only runs on
 either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.
+}
+\details{
+min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
+where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
+max_lr_percent specifies the proportion of variance of (R - lambda I) that will be retained. This defaults
+to 1 making the approximation exact. Eigenvalues of (R-lmabda I) that are less than lr_zero_thresh will
+be set to zero.
 }

@@ -14,10 +14,11 @@ sim_sumstats_lf(
   pi_L,
   pi_theta,
   R_E,
+  maf = NA,
   R_LD,
+  snp_info,
   g_F,
   nz_factor,
-  scale_factor,
   add = FALSE,
   overlap_prop = 1
 )
@@ -39,13 +40,17 @@ sim_sumstats_lf(
 
 \item{pi_theta}{Proportion of non-zero elements in theta. Scalar.}
 
-\item{R_E}{Environmental trait correlation not mediated by factors. M by M pd matrix}
+\item{R_E}{Environmental trait correlation not mediated by factors. M by M pd matrix.}
+
+\item{maf}{can either be a scalar in which case the same maf is used for all SNPS, NA in which case SNPs
+are assumed scaled to variance 1, a function that takes a number n and returns n values between 0 and 1, or a
+vector of length equal to the number of SNPs. maf is ignored if LD is provided.}
+
+\item{R_LD}{List of eigen decompositions of LD correlation matrices, may be missing.}
+
+\item{snp_info}{If R_LD is provided, provide a data frame with columns "SNP" and "AF"}
 
 \item{g_F}{Function from which non-zero elements of F are generated}
-
-\item{R_LD_list}{List of eigen decompositions of LD correlation matrices, may be missing.}
-
-\item{relative_pve}{Relative pve contributed by each factor. Length K.}
 
 \item{pi_F}{Proportion of non-zero elements of F.}
 }
@@ -53,18 +58,8 @@ sim_sumstats_lf(
 Simulate summary statistcs for fully overlapping GWAS with no LD
 }
 \details{
-note: have removed relative_pve so below is not correct. will update,
-omega, h2_trait, and relative_pve constrain the rows and columns of F. The sum of squared elements in row m must equal
-omega[m]*h2_trait[m]. relative_pve is normalized to sum to sum(omega*h2_trait). After this normalization the sum of
-squared elements in column k must equal relative_pve[k]. The function `scale_F` iteratively rescales rows and columns
-until they have the desired sums. This allows us to preserve the input sparsity structure and approximate distribution
-magnitudes and still achieve the desired row and column squared sums.
-
-If F_mat is provided it is rescaled as described. In this case relative_pve is optional.
-
 If F_mat is not provided, it will be generated using the `generate_F2` function.
-In this case g_F and nz_factor must be provided. scale_factor is an optional argument that can
-be use to adjust the relative scalings of the factors. All of the elements
+In this case g_F and nz_factor must be provided. All of the elements
 in F are generated iid from a mixture of a point mass at 0 and g_F. The matrix is then
 rescaled according to the constraints.
 

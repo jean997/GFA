@@ -13,6 +13,7 @@ fit_ff_new(
   kmax,
   zero_thresh = 1e-15,
   method = "sequential",
+  maxiter = 500,
   max_ev_percent = 1,
   S_NULL = FALSE,
   reverse_fit_order = FALSE
