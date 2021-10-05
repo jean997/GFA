@@ -8,15 +8,21 @@
 #'@param R Estimated residual correlation matrix
 #'@param kmax Maximum number of factors. Defaults to 2*ntraits for plain or ntraits
 #'if using the fixed factor correction.
-#'@param max_ev_percent. Only the eigenvectors of R explaining the top percentage of
-#'variance are retained. Defaults to 1, retaining all eigenvectors.
-#'@param zero_thresh Threshold for setting eigenvalues of R to zero
+#'@param min_ev,max_lr_percent,lr_zero_thresh See details
 #'@param S_inf A vector supplying a series of variance inflation factors for fitting ebmf.
 #'S_inf should be decreasing and the last element should be 1.
 #'@return A list with elements fit, Y, L_hat, F_hat
+#'@details
+#'
+#'min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
+#'where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
+#'max_lr_percent specifies the proportion of variance of (R - lambda I) that will be retained. This defaults
+#'to 1 making the approximation exact. Eigenvalues of (R-lmabda I) that are less than lr_zero_thresh will
+#'be set to zero.
+#'
 #'@export
 fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
-                   zero_thresh = 1e-15, max_ev_percent = 1,
+                   min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
                    num_prefits = 1, min_var_ratio = 1,
                    S_inf = c(10, 1),
                    max_prefit_iter = 50, max_final_iter = 1000,
@@ -25,7 +31,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
-
+  if(missing(kmax)) kmax <- ntrait
   if(!missing(Z_hat)){
     mode <- "zscore"
     Y <- Z_hat
@@ -106,9 +112,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     R <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
   }
   eS <- eigen(R)
-  eS$values[abs(eS$values) < zero_thresh] <- 0
-  if(any(eS$values < 0))stop("R is not psd")
-  if(all(eS$values == 0)) stop("All eigenvectors equal to zero.")
+  if(!all(eS$values >  min_ev)) stop("All eigenvalues of R must be greater than", min_ev)
   if(all(eS$values == 1)){
     warning("R appears to be the identity, you should rerun this command without it.")
     fit <- NULL
@@ -118,18 +122,21 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat)
     return(ret)
   }
-  if(max_ev_percent < 1){
-    vv <- cumsum(eS$values)/sum(eS$values)
-    nmax <- which.min(vv < max_ev_percent)-1
-  }else{
-    nmax <- sum(eS$values > 0)
-  }
 
-  lambda_min <- eS$values[nmax]
-  V <- eS$vectors[,1:(nmax-1), drop = FALSE]
-  W <- V %*% diag(sqrt(eS$values[1:(nmax-1)]-lambda_min), ncol = (nmax -1))
-  nf <- nmax-1
-  if(missing(kmax)) kmax <- ntrait
+  lambda_min <- eS$values[ntrait]
+  vals <- eS$values - lambda_min
+  if(max_lr_percent < 1){
+    vv <- cumsum(vals)/sum(vals)
+    nmax <- min(which(vv > max_lr_percent)) - 1
+  }else{
+    nmax <- ntrait - 1
+  }
+  ix <- which(vals[seq(nmax)] > lr_zero_thresh)
+  if(length(ix) == 0) stop("Is supplied R diagonal or close to diagonal?")
+  #V <- eS$vectors[,ix, drop = FALSE]
+  W <- eS$vectors[,ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
+  nf <- length(ix)
+
   #Fitting
   # randomly initialize A
   A_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
@@ -144,7 +151,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   #Next add in fixed factors.
   n <- fits[[1]]$n.factors
   fits[[1]] <- fits[[1]] %>%
-         flash.init.factors(., EF = list(A_rand, W), prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
+         flash.init.factors(., EF = list(A_rand, S_inf[1]*W), prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
          flash.fix.loadings(., kset = n + (1:nf), mode=2)
 
   fixed_ix <- n + (1:nf)
@@ -156,16 +163,16 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
       nfi <- seq(fits[[i-1]]$n.factor)[-fixed_ix]
       nfi <- nfi[!nfi %in% iz]
       n <- length(nfi)
-
+      #Fixed factors are now first
       fits[[i]] <- fits[[i]] %>%
-                   flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, fixed_ix], fits[[i-1]]$flash.fit$EF[[2]][, fixed_ix]),
+                   flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, fixed_ix], S_inf[i]*W),
                                       prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
-                   flash.fix.loadings(., kset = seq(length(fixed_ix)), mode=2)
+                   flash.fix.loadings(., kset = seq(nf), mode=2)
       if(n > 0){
         fits[[i]] <- fits[[i]] %>%
                      flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, nfi], fits[[i-1]]$flash.fit$EF[[2]][, nfi]), prior.family = prior_family)
       }
-      #Fixed factors are now first
+
       fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero[c(fixed_ix, nfi)]
       fits[[i]] <- fits[[i]] %>%
                    flash.backfit(method = method, maxiter = max_prefit_iter) %>%
