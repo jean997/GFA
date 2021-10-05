@@ -135,7 +135,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   if(length(ix) == 0) stop("Is supplied R diagonal or close to diagonal?")
   #V <- eS$vectors[,ix, drop = FALSE]
   W <- eS$vectors[,ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
-  nf <- length(ix)
+  nf <- length(ix) # Number of fixed factors
 
   #Fitting
   # randomly initialize A
@@ -175,8 +175,8 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
 
       fits[[i]]$flash.fit$is.zero <- fits[[i-1]]$flash.fit$is.zero[c(fixed_ix, nfi)]
       fits[[i]] <- fits[[i]] %>%
-                   flash.backfit(method = method, maxiter = max_prefit_iter) %>%
-                   flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family)
+                   flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family) %>%
+                   flash.backfit(method = method, maxiter = max_prefit_iter)
       fixed_ix <- 1:length(fixed_ix)
     }
   }
@@ -186,15 +186,20 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
          flash.nullcheck(remove = FALSE)
   F_hat <- fit$loadings.pm[[2]][,-fixed_ix, drop=FALSE]
   L_hat <- fit$loadings.pm[[1]][, -fixed_ix, drop=FALSE]
+  scale <- fit$loadings.scale[-fixed_ix]
 
-  Yhat <- fitted(fit) -
-    with(fit, loadings.pm[[1]][, fixed_ix, drop =FALSE]%*%diag(loadings.scale[fixed_ix], ncol = length(fixed_ix))%*% t(loadings.pm[[2]][, fixed_ix, drop = FALSE]))
+  F_fixed <- fit$loadings.pm[[2]][, fixed_ix, drop =FALSE]
+  L_fixed <- fit$loadings.pm[[1]][, fixed_ix, drop = FALSE]
+  scale_fixed <- fit$loadings.scale[fixed_ix]
+
+  Yhat <- fitted(fit) - L_fixed%*%diag(scale_fixed, ncol = nf)%*% t(F_fixed)
   c <- colSums(F_hat^2)
   if(any(c==0)){
       i <- which(c==0)
       F_hat <- F_hat[,-i]
       L_hat <- L_hat[,-i]
+      scale <- scale[-i]
   }
-  ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat, fixed_ix = fixed_ix)
+  ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat, scale = scale, fixed_ix = fixed_ix)
   return(ret)
 }
