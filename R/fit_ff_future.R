@@ -31,7 +31,6 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
-  if(missing(kmax)) kmax <- ntrait
   if(!missing(Z_hat)){
     mode <- "zscore"
     Y <- Z_hat
@@ -41,7 +40,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   }
   ntrait <- ncol(Y)
   nvar <- nrow(Y)
-
+  if(missing(kmax)) kmax <- 2*ntrait
   #Check if S_inf is valid
   if(missing(S_inf)){
     if(num_prefits == 0){
@@ -61,7 +60,6 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   }
 
   if(missing(R)){
-    if(missing(kmax)) kmax <- 2*ntrait
     warning("R is not supplied, fitting assuming full independence")
     if(mode == "zscore"){
       S <- 1
