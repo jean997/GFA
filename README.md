@@ -1,5 +1,6 @@
 # GWAS Summary Statisitc Factor Decomposition
 
+** As of October 12, 2021 this repository is moving to github and will no longer be updated on gitlab **
 
 This repository contains an R package and also a website that describes the project so far. 
 
