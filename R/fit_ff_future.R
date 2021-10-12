@@ -85,20 +85,12 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     }
     fit <- fits[[length(S_inf)]]
     fit <- fit %>%
-           flash.backfit(maxiter = max_final_iter, method = method) %>%
-           flash.nullcheck(remove = TRUE)
-    if(fit$n.factors > 0){
-      F_hat <- fit$loadings.pm[[2]]
-      L_hat <- fit$loadings.pm[[1]]
-      Yhat <- fitted(fit)
-      c <- colSums(F_hat^2)
-      if(any(c==0)){
-        i <- which(c==0)
-        F_hat <- F_hat[,-i]
-        L_hat <- L_hat[,-i]
-      }
+           flash.backfit(maxiter = max_final_iter, method = method) #%>%
+           #flash.nullcheck(remove = TRUE)
+    if(is.null(fit$flash.fit$maxiter.reached)){
+      ret <- gfa_wrapup(fit, fixed_ix, nullcheck = TRUE)
     }else{
-      Yhat <- F_hat  <- L_hat <- NULL;
+      ret <- list(fit = fit, fixed_ix = fixed_ix)
     }
     ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat)
     return(ret)
@@ -180,24 +172,58 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   }
   fit <- fits[[length(S_inf)]]
   fit <- fit %>%
-         flash.backfit(method = method, maxiter = max_final_iter) %>%
-         flash.nullcheck(remove = FALSE)
-  F_hat <- fit$loadings.pm[[2]][,-fixed_ix, drop=FALSE]
-  L_hat <- fit$loadings.pm[[1]][, -fixed_ix, drop=FALSE]
-  scale <- fit$loadings.scale[-fixed_ix]
+         flash.backfit(maxiter = max_final_iter, method = method)
+  if(is.null(fit$flash.fit$maxiter.reached)){
+    ret <- gfa_wrapup(fit, fixed_ix, nullcheck = TRUE)
+  }else{
+    ret <- list(fit = fit, fixed_ix = fixed_ix)
+  }
+  return(ret)
+}
 
-  F_fixed <- fit$loadings.pm[[2]][, fixed_ix, drop =FALSE]
-  L_fixed <- fit$loadings.pm[[1]][, fixed_ix, drop = FALSE]
-  scale_fixed <- fit$loadings.scale[fixed_ix]
+gfa_wrapup <- function(fit, fixed_ix, nullcheck = TRUE){
+  if(nullcheck){
+    fit <- fit %>% flash.nullcheck(remove = FALSE)
+  }
+  if(length(fixed_ix) > 0){
+    F_hat <- fit$loadings.pm[[2]][,-fixed_ix, drop=FALSE]
+    L_hat <- fit$loadings.pm[[1]][, -fixed_ix, drop=FALSE]
+    scale <- fit$loadings.scale[-fixed_ix]
 
-  Yhat <- fitted(fit) - L_fixed%*%diag(scale_fixed, ncol = nf)%*% t(F_fixed)
+    F_fixed <- fit$loadings.pm[[2]][, fixed_ix, drop =FALSE]
+    L_fixed <- fit$loadings.pm[[1]][, fixed_ix, drop = FALSE]
+    scale_fixed <- fit$loadings.scale[fixed_ix]
+    Yhat <- fitted(fit) - L_fixed%*%diag(scale_fixed, ncol = length(fixed_ix))%*% t(F_fixed)
+  }else{
+    F_hat <- fit$loadings.pm[[2]]
+    L_hat <- fit$loadings.pm[[1]]
+    scale <- fit$loadings.scale
+
+    F_fixed <- NULL
+    L_fixed <- NULL
+    scale_fixed <- NULL
+    Yhat <- fitted(fit)
+  }
   c <- colSums(F_hat^2)
   if(any(c==0)){
-      i <- which(c==0)
-      F_hat <- F_hat[,-i]
-      L_hat <- L_hat[,-i]
-      scale <- scale[-i]
+    i <- which(c==0)
+    F_hat <- F_hat[,-i]
+    L_hat <- L_hat[,-i]
+    scale <- scale[-i]
   }
   ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat, scale = scale, fixed_ix = fixed_ix)
   return(ret)
 }
+
+#'@export
+gfa_rebackfit <- function(fit, fixed_ix, method, maxiter){
+  fit <- fit %>% flash.backfit(method = method, maxiter = maxiter)
+  if(is.null(fit$flash.fit$maxiter.reached)){
+    ret <- gfa_wrapup(fit, fixed_ix, nullcheck = TRUE)
+  }else{
+    ret <- list(fit = fit, fixed_ix = fixed_ix)
+  }
+  return(ret)
+}
+
+
