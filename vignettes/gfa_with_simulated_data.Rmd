@@ -2,9 +2,9 @@
 title: "Running GFA with Simulated Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{gfa_with_simulated_data}
+  %\VignetteIndexEntry{GFA with Simulated Data}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  %\VignetteEncoding{imputenc}
 ---
 
 ```{r, include = FALSE}
