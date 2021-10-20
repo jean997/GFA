@@ -19,3 +19,9 @@ Imports:
   intervals,
   purrr, 
   ggplot2
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)
