@@ -1,12 +1,13 @@
 Package: sumstatFactors
 Title: Working package for development of Genetic Factor Analysis (GFA)
 Version: 0.1.2
+Date: 2021-10-20
 Authors@R: 
     person(given = "Jean",
            family = "Morrison",
            role = c("aut", "cre"),
-           email = "jvmorr@umich.edu",)
-Description: What the package does (one paragraph).
+           email = "jvmorr@umich.edu")
+Description: Simulates data and fits GFA
 License: What license it uses
 Encoding: UTF-8
 LazyData: true
