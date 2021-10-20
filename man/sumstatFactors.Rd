@@ -5,7 +5,7 @@
 \alias{sumstatFactors}
 \title{sumstatFactors}
 \description{
-Helper package for experimenting with factor decompostion of summary statistics.
+Helper package for experimenting with factor decomposition of summary statistics.
 }
 \author{
 Jean Morrison <jeanm@uchicago.edu>
