@@ -23,8 +23,7 @@
 #'@export
 fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
                    min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
-                   num_prefits = 1, min_var_ratio = 1,
-                   S_inf = c(10, 1),
+                   num_prefits = 0, min_var_ratio = 2, S_inf,
                    max_prefit_iter = 50, max_final_iter = 1000,
                    method="extrapolate", prior_family = flashier::as.prior(ebnm::ebnm_point_normal, optmethod = "nlm"),
                    init_fn = flashier::init.fn.default){
@@ -88,11 +87,11 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
            flash.backfit(maxiter = max_final_iter, method = method) #%>%
            #flash.nullcheck(remove = TRUE)
     if(is.null(fit$flash.fit$maxiter.reached)){
-      ret <- gfa_wrapup(fit, fixed_ix, nullcheck = TRUE)
+      ret <- gfa_wrapup(fit, fixed_ix = c(), nullcheck = TRUE)
     }else{
-      ret <- list(fit = fit, fixed_ix = fixed_ix)
+      ret <- list(fit = fit, fixed_ix = c())
     }
-    ret <- list(fit=fit, B_hat = Yhat, L_hat = L_hat, F_hat = F_hat)
+
     return(ret)
   }
 
