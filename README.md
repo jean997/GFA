@@ -1,15 +1,34 @@
 # GWAS Summary Statisitc Factor Decomposition
 
-** As of October 12, 2021 this repository is moving to github and will no longer be updated on gitlab **
 
 This repository contains an R package and also a website that describes the project so far. 
 
-Install from GitHub:
+
+Before installing, you will need to install [flashier](https://github.com/willwerscheid/flashier)
+
+```
+devtools::install_github("willwerscheid/flashier")
+```
+
+(as far as I know, vignettes are currently not working for `flashier`).
+
+
+Install `sumstatFactors` from GitHub
 
 ```
 devtools::install_github("jean997/sumstatFactors")
 ```
 
+
+or to install with vignette 
+
+```
+devtools::install_github("jean997/sumstatFactors", build_vignettes = TRUE)
+browseVignettes("sumstatFactors")
+```
+
+
+## Old installation instructions for GitLab
 
 Install the R package from GitLab:
 
