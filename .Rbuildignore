@@ -1,8 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^analysis$
-^docs$
 ^code$
 ^output$
-^data$
 ^analysis_data$
+^public$
+^scratch$
+^doc$
+^Meta$

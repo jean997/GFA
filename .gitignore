@@ -10,3 +10,6 @@ analysis/*html
 analysis/*_cache
 analysis/site_libs
 analysis_data/
+inst/doc
+/doc/
+/Meta/
