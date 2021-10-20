@@ -53,8 +53,8 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   }
   stopifnot(length(h_2_trait) == M)
   stopifnot(all(h_2_trait <= 1 & h_2_trait >= 0))
-  stopifnot(length(h_2_factor) == K)
-  stopifnot(all(h_2_factor <= 1 & h_2_factor >= 0))
+
+
   stopifnot(length(omega) == M)
   stopifnot(all(omega >= 0 & omega <= 1))
   stopifnot(length(pi_L) == K)
@@ -64,17 +64,24 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   if(any(omega < 1) & pi_theta == 0){stop("Theta contributes non-zero heritability so pi_theta must be greater than 0.")}
 
   #R_E
-  stopifnot(nrow(R_E) == M & ncol(R_E) == M)
-  stopifnot(Matrix::isSymmetric(R_E))
-  R_E_eig <- eigen(R_E)
-  stopifnot(all(R_E_eig$values >= 0))
+  if(overlap_prop > 0){
+    if(missing(R_E)) stop("R_E must be provided if overlap_prop > 0. Use R_E = diag(ntrait) for no environmental covariance.")
+    if(missing(h_2_factor))('h_2_factor must be provided if overlap_prop > 0.')
+    stopifnot(nrow(R_E) == M & ncol(R_E) == M)
+    stopifnot(Matrix::isSymmetric(R_E))
+    R_E_eig <- eigen(R_E)
+    stopifnot(all(R_E_eig$values >= 0))
+
+    stopifnot(length(h_2_factor) == K)
+    stopifnot(all(h_2_factor <= 1 & h_2_factor >= 0))
+  }
 
   #N
   if(length(N) == 1) N <- rep(N, M)
     else stopifnot(length(N) == M)
 
-  if(missing(R_LD)){
   #maf
+  if(missing(R_LD)){
     if(is.na(maf)){
       sx <- rep(1, J)
     }else if(class(maf) == "numeric"){
@@ -101,7 +108,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
                          rfunc = g_F, add=add)
     if(ncol(F_mat) > K){
       nextra <- ncol(F_mat)-K
-      h_2_factor <- c(h_2_factor, rep(1, nextra))
+      if(overlap_prop > 0) h_2_factor <- c(h_2_factor, rep(1, nextra))
       pi_L <- c(pi_L, rep(pi_theta, nextra))
     }
     if(any(rowSums(F_mat^2) == 0)){
@@ -147,27 +154,32 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   Z <- beta %*% diag(sqrt(N))
 
   #Compute row covariance
-  Sigma_G <- F_mat %*% t(F_mat) + J*diag(pi_theta*sigma_theta^2)
+  if(overlap_prop > 0){
+    Sigma_G <- F_mat %*% t(F_mat) + J*diag(pi_theta*sigma_theta^2)
 
-  sigma_2_F <- (1-h_2_factor)/(h_2_factor)
-  Sigma_FE <- F_mat %*% diag(sigma_2_F) %*% t(F_mat)
+    sigma_2_F <- (1-h_2_factor)/(h_2_factor)
+    Sigma_FE <- F_mat %*% diag(sigma_2_F) %*% t(F_mat)
 
-  if(any(h_2_trait + diag(Sigma_FE) > 1)){
-    stop("Provided parameters are incompatible with generated F.\n")
+    if(any(h_2_trait + diag(Sigma_FE) > 1)){
+      stop("Provided parameters are incompatible with generated F.\n")
+    }
+
+    sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
+    Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
+    #correlation of z-scores
+    R <- Sigma_G + Sigma_FE + Sigma_E
+    R <- overlap_prop*R + (1- overlap_prop)*diag(M)
+
+    # Covariance of normalized effects
+    # Sigma <- diag(sqrt(1/N)) %*% R %*% diag(sqrt(1/N))
+
+    # Compute proportion of environmental variance from factors
+    tau <- diag(Sigma_FE)/(1-h_2_trait)
+  }else{
+    R <- diag(M)
+    tau <- NULL
+    R_E = NULL
   }
-
-  sigma_E <- sqrt(1 - h_2_trait - diag(Sigma_FE))
-  Sigma_E <- diag(sigma_E) %*% R_E %*% diag(sigma_E)
-  #correlation of z-scores
-  R <- Sigma_G + Sigma_FE + Sigma_E
-  R <- overlap_prop*R + (1- overlap_prop)*diag(M)
-
-  # Covariance of normalized effects
-  # Sigma <- diag(sqrt(1/N)) %*% R %*% diag(sqrt(1/N))
-
-  # Compute proportion of environmental variance from factors
-  tau <- diag(Sigma_FE)/(1-h_2_trait)
-
   #Generate sampling error
   E_Z <- MASS::mvrnorm(n=J, mu = rep(0, M), Sigma = R)
 
