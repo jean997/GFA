@@ -180,6 +180,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
   return(ret)
 }
 
+#'@export
 gfa_wrapup <- function(fit, fixed_ix, nullcheck = TRUE){
   if(nullcheck){
     fit <- fit %>% flash.nullcheck(remove = FALSE)
