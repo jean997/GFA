@@ -21,7 +21,7 @@
 #'be set to zero.
 #'
 #'@export
-fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
+fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
                    min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
                    num_prefits = 0, min_var_ratio = 2, S_inf,
                    max_prefit_iter = 50, max_final_iter = 1000,
@@ -112,6 +112,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax,
     return(ret)
   }
 
+  eS$values <- (eS$values + ridge_penalty)/(1 + ridge_penalty)
   lambda_min <- eS$values[ntrait]
   vals <- eS$values - lambda_min
   if(max_lr_percent < 1){
