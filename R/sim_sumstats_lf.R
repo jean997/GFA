@@ -222,6 +222,16 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   }) %>% do.call( rbind, .)
   Z_hat <- Z + E_LD_Z
 
+  # Transform L by LD matrix
+  L_mat <- lapply(seq_along(block_index), function(i){
+    with(R_LD[[block_index[i]]], vectors %*% diag(values) %*% t(vectors) %*% L_mat[start_ix[i]:end_ix[i], ])
+  }) %>% do.call( rbind, .)
+
+  # Transform Theta by LD matrix
+  theta <- lapply(seq_along(block_index), function(i){
+    with(R_LD[[block_index[i]]], vectors %*% diag(values) %*% t(vectors) %*% theta[start_ix[i]:end_ix[i], ])
+  }) %>% do.call( rbind, .)
+
   #snp info
   snp_info_full <- snp_info[c(rep(seq(ld_size), full_reps), seq(remainder)),]
   if(full_reps == 0){
