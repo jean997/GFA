@@ -11,6 +11,7 @@
 #'@param min_ev,max_lr_percent,lr_zero_thresh See details
 #'@param S_inf A vector supplying a series of variance inflation factors for fitting ebmf.
 #'S_inf should be decreasing and the last element should be 1.
+#'@param fixed_g Supply the prior for loadings of fixed factors.
 #'@return A list with elements fit, Y, L_hat, F_hat
 #'@details
 #'
@@ -25,8 +26,11 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
                    min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
                    num_prefits = 0, min_var_ratio = 2, S_inf,
                    max_prefit_iter = 50, max_final_iter = 1000,
-                   method="extrapolate", prior_family = flashier::as.prior(ebnm::ebnm_point_normal, optmethod = "nlm"),
-                   init_fn = flashier::init.fn.default){
+                   method="extrapolate",
+                   prior_family = flashier::as.prior(ebnm::ebnm_point_normal, optmethod = "nlm"),
+                   init_fn = flashier::init.fn.default,
+                   fixed_g = ashr::normalmix(pi = c(1), mean = c(0), sd = c(1))){
+
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
@@ -113,6 +117,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   }
 
   eS$values <- (eS$values + ridge_penalty)/(1 + ridge_penalty)
+
   lambda_min <- eS$values[ntrait]
   vals <- eS$values - lambda_min
   if(max_lr_percent < 1){
@@ -123,16 +128,23 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   }
   ix <- which(vals[seq(nmax)] > lr_zero_thresh)
   if(length(ix) == 0) stop("Is supplied R diagonal or close to diagonal?")
-  #V <- eS$vectors[,ix, drop = FALSE]
+  #V <- eS$vectors[,ix, drop = FALSE
+
   W <- eS$vectors[,ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
   nf <- length(ix) # Number of fixed factors
 
   #Fitting
   # randomly initialize A
   A_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
-  gg <- ashr::normalmix(pi = c(1), mean = c(0), sd = c(1))
 
+
+  if(class(fixed_g) == "normalmix"){
+    fixed_pfam = prior.normal(scale= 1, g_init=fixed_g, fix_g = TRUE)
+  }else if(class(fixed_g) == "unimix"){
+    fixed_pfam = prior.unimodal.symmetric(scale = 1, g_init=fixed_g, fix_g = TRUE)
+  }
   #First initialize flash objects
+
   fits <-  lapply(S_inf, function(s){flash.init(data = Y, S = s*sqrt(lambda_min), var.type = 2)})
 
   # Add factors for fit 1
@@ -141,7 +153,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   #Next add in fixed factors.
   n <- fits[[1]]$n.factors
   fits[[1]] <- fits[[1]] %>%
-         flash.init.factors(., EF = list(A_rand, S_inf[1]*W), prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
+         flash.init.factors(., EF = list(A_rand, S_inf[1]*W), prior.family = fixed_pfam) %>%
          flash.fix.loadings(., kset = n + (1:nf), mode=2)
 
   fixed_ix <- n + (1:nf)
@@ -156,7 +168,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
       #Fixed factors are now first
       fits[[i]] <- fits[[i]] %>%
                    flash.init.factors(EF = list(fits[[i-1]]$flash.fit$EF[[1]][, fixed_ix], S_inf[i]*W),
-                                      prior.family = prior.normal(scale= 1, g_init=gg, fix_g = TRUE)) %>%
+                                      prior.family = fixed_pfam) %>%
                    flash.fix.loadings(., kset = seq(nf), mode=2)
       if(n > 0){
         fits[[i]] <- fits[[i]] %>%
