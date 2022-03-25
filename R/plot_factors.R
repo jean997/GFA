@@ -1,15 +1,20 @@
 #'@title Plot Factors from a matrix
 #'@export
-plot_factors <- function(x, names, factor_names, trait_order){
+plot_factors <- function(x, row_names, col_names, row_order, col_order,
+                         row_title = "Trait", col_title = "Factor"){
   if(is.null(x)) return(NULL)
-  if(missing(names)) names <- trait_order <-  seq(nrow(x))
-  if(missing(factor_names)) factor_names <- seq(ncol(x))
-  meltx <- melt(x) %>%
-    rename(Trait = Var1, Factor = Var2) %>%
-    mutate( Trait = names[Trait],
-            Factor = as.factor(factor_names[Factor]))
-  meltx$Trait = factor(meltx$Trait, levels = names[trait_order])
-  ggplot(data = meltx, aes(x=Factor, y=Trait, fill=value)) +
+  if(missing(row_names)) row_names <- row_order <-  seq(nrow(x))
+  if(missing(col_names)) col_names <- col_order <- seq(ncol(x))
+  meltx <- melt(x)
+  names(meltx)[1:2] <- c("R", "C")
+  meltx <- meltx %>%
+    mutate( R = row_names[R] %>%
+                factor(., levels = row_names[row_order]),
+            C = col_names[C] %>%
+                factor(., levels = col_names[col_order]))
+  ggplot(data = meltx, aes(x=C, y=R, fill=value)) +
+    xlab(row_title) +
+    ylab(col_title) +
     geom_tile() +
     scale_fill_gradient2() +
     theme(axis.text.x = element_text(angle=90))
