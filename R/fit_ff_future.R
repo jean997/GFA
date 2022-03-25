@@ -135,13 +135,22 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
 
   #Fitting
   # randomly initialize A
-  A_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
+
 
 
   if(class(fixed_g) == "normalmix"){
     fixed_pfam = prior.normal(scale= 1, g_init=fixed_g, fix_g = TRUE)
+    if(length(fixed_g$pi) == 1){
+      A_rand <- matrix(rnorm(n=nvar*nf, mean = fixed_g$mean, sd = fixed_g$sd), nrow=nvar, ncol=nf)
+      A2_rand <- matrix(rnorm(n=nvar*nf, mean = fixed_g$mean, sd = fixed_g$sd), nrow=nvar, ncol=nf)
+    }else{
+      A_rand <- matrix(rnormalmix(n=nvar*nf, g = fixed_g), nrow=nvar, ncol=nf)
+      A2_rand <- matrix(rnormalmix(n=nvar*nf, g = fixed_g), nrow=nvar, ncol=nf)
+    }
   }else if(class(fixed_g) == "unimix"){
     fixed_pfam = prior.unimodal.symmetric(scale = 1, g_init=fixed_g, fix_g = TRUE)
+    A_rand <- matrix(runimix(n=nvar*nf, g = fixed_g), nrow=nvar, ncol=nf)
+    A2_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
   }
   #First initialize flash objects
 
@@ -150,6 +159,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   # Add factors for fit 1
   fits[[1]] <- fits[[1]] %>%
                flash.add.greedy(Kmax = kmax, init.fn = init_fn, prior.family = prior_family )
+
   #Next add in fixed factors.
   n <- fits[[1]]$n.factors
   fits[[1]] <- fits[[1]] %>%
@@ -183,6 +193,7 @@ fit_ff_prefit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     }
   }
   fit <- fits[[length(S_inf)]]
+
   fit <- fit %>%
          flash.backfit(maxiter = max_final_iter, method = method)
   if(is.null(fit$flash.fit$maxiter.reached)){

@@ -23,5 +23,3 @@ est_L_z <- function(Z_hat, R, F_hat){
 
   return(list(L_est = L_est, L_est_se = L_est_se))
 }
-
-
