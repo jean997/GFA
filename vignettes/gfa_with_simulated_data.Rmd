@@ -40,7 +40,7 @@ myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
 
 myF <- apply(myF, 2, function(x){x/sum(x^2)})
 
-p <- plot_factors(myF, names = c("T3", "T2", "T1"), factor_names = c("F1", "F2")) +
+p <- plot_factors(myF, row_names = c("T3", "T2", "T1"), col_names = c("F1", "F2")) +
      scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
      xlab("Mediator") +
      ggtitle("True Mediator Network") +
@@ -100,7 +100,7 @@ ix5 <- sample(which((rowSums(dat$L_mat == 0) == 1) & abs(dat$L_mat[,2]) > 0.07 &
 
 X <- dat$beta_hat[c(ix0, ix1, ix2, ix3, ix4, ix5),][,c(3,2,1)]
 se <- dat$se_beta_hat[c(ix0, ix1, ix2, ix3, ix4, ix5),][, c(3,2,1)]
-plot_factors(X, factor_names = c("T1", "T2", "T3")) +
+plot_factors(X, col_names = c("T1", "T2", "T3")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Beta hat") +
   xlab("Trait") +
   ylab("Variant") +
@@ -137,7 +137,7 @@ All positive eigen-values = positive definite. If $R$ is not psd, we recommend a
 
 Step 2: Fit GFA
 
-This is accomplished via the function `fit_ff_prefit` (function name may change in the future). This function has a lot of options but can be fit at minimum with either 
+This is accomplished via the function `fit_ff_update` (function name may change in the future). This function has a lot of options but can be fit at minimum with either 
 
 + Only z-scores passed using the `Z` option or 
 
@@ -148,17 +148,28 @@ If the argument `R` is ommited, GFA will assume that there is no sample overlap 
 
 ```{r}
 Z_hat = with(dat, beta_hat/se_beta_hat)
-fit_plain <- fit_ff_prefit(Z_hat = Z_hat)
+fit_plain <- fit_ff_update(Z_hat = Z_hat)
 ```
 
 ```{r}
-fit_withR <- fit_ff_prefit(Z_hat = Z_hat, R = R)
+fit_withR <- fit_ff_update(Z_hat = Z_hat, R = R)
 ```
 Now plotting results:
 
 ```{r}
+fit_plain$F_hat %>%
+  plot_factors(., col_names = c("T3", "T2", "T1")) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (GFA)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+
 fit_withR$F_hat %>%
-  plot_factors(., names = c("T3", "T2", "T1")) +
+  plot_factors(., col_names = c("T3", "T2", "T1")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Mediator") +
   ylab("Trait") +
@@ -169,8 +180,9 @@ fit_withR$F_hat %>%
            axis.ticks = element_blank())
 
 ```
+We get nearly identical factors using either the method accounting for correlation or the the method not accounting for correlation. This is good, since the data were created with no correlation. 
 
-These factors capture the truth quite well. Note that our estimated factors are in a different order than the original but order is arbitrary. We also have a third factor that effects only a single trait. This occurs sometimes, especially when GWAS signal is very strong but does not represent incorrect information -- there are variants that effect only trait 2 and our model is capturing these through the third factor rather than through $\Theta$. 
+The factors capture the truth quite well. Note that our estimated factors are in a different order than the original. It is important to keep in mind that the ordering of the factors is arbitrary.  We also have a third factor that effects (almost) only trait 2. This occurs sometimes, especially when GWAS signal is very strong, but does not represent incorrect information. There are variants that effect only trait 2 and our model is capturing these through the third. The $\Theta$ term also captures variation that affects individual traits. 
 
 For comparison we can run a few other methods. First we try svd applied to z-scores which decomposes $\hat{Z}$ as $UDV^\top$ . Here the equivalent estimate to our factors estimate is $V$. 
 
@@ -178,7 +190,7 @@ For comparison we can run a few other methods. First we try svd applied to z-sco
 fit_svd <- svd(Z_hat)
 
 fit_svd$v %>%
-  plot_factors(., names = c("T3", "T2", "T1")) +
+  plot_factors(., col_names = c("T3", "T2", "T1")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Mediator") +
   ylab("Trait") +
@@ -194,7 +206,7 @@ Next we try svd applied to hard-thresholded z-scores. In this method, all z-scor
 ```{r}
 fit_dg <- sparse_svd(dat, z_score_thresh = 4)
 fit_dg$v %>%
-  plot_factors(., names = c("T3", "T2", "T1")) +
+  plot_factors(., col_names = c("T3", "T2", "T1")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Mediator") +
   ylab("Trait") +
@@ -306,16 +318,25 @@ As before, we first estimate $R$. This time we can use LD-score regression.
 Z_hat <- with(dat, beta_hat/se_beta_hat)
 ldscores <- dat$snp_info$ldscore_hm3
 R <- R_ldsc(Z_hat, ldscores = ldscores, weights = 1/ldscores)
+Rpt <- with(dat, est_R_pairwise(beta_hat, se_beta_hat, N = rep(N, 50), z_scores = TRUE, p_val_thresh = 0.05))
 ```
 
 We can take a look at the estimated $R$ and the true $R$
 
 ```{r}
+R <- cov2cor(R)
 plot_factors(dat$R) + theme(axis.title =  element_blank()) + ggtitle("True R")
 plot_factors(R) + theme(axis.title =  element_blank()) + ggtitle("Estimated R")
 plot(dat$R, R, xlab = "True Correlation", ylab = "Estimated Correlation")
 abline(0, 1)
 ```
+
+
+```{r}
+plot(dat$R, Rpt, xlab = "True Correlation", ylab = "Estimated Correlation - Threshold method")
+abline(0, 1)
+```
+
 
 If we had real data we would now need to obtain a set of independent SNPs via LD-pruning or clumping. Since we have already calculated this for these data, we can simply extract the set of independent SNPS.
 
@@ -328,17 +349,20 @@ dim(Z_hat_indep)
 Next we can fit GFA. 
 
 ```{r}
-fit <- fit_ff_prefit(Z_hat = Z_hat_indep, R = R)
+fit1 <- fit_ff_update(Z_hat = Z_hat_indep, R = R)
+
+fit2 <- fit_ff_update(Z_hat = Z_hat_indep, R = Rpt)
 ```
 
 ```{r}
-dim(fit$F_hat)
+dim(fit1$F_hat)
+dim(fit2$F_hat)
 ```
 
 Our fit has discovered `r nrow(fit$F_hat)` factors. We can plot them but with complex structure, it is difficult to compare the estimates and the truth.
 
 ```{r}
-fit$F_hat %>%
+fit1$F_hat %>%
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Mediator") +
@@ -353,7 +377,7 @@ fit$F_hat %>%
 To compare fitted and true factors more easily, we can use the `disc` function which will match true and estimated factors. The `disc` function produces four pieces of information. First object `M` reports pairs of matching factors in estimated and true matrices and their correlation. Only pairs with correlation greater than `lambda` are reported. Next `u_est` and `u_true` report indices of estimated and true factors that have no match. Finally `single_trait_est` contains indices of estimated factors that have nearly all weight on a single trait. These are not contained in `u_est`. 
 
 ```{r}
-disc(fit$F_hat, dat$F_mat, lambda = 0)
+disc(fit1$F_hat, dat$F_mat, lambda = 0)
 ```
 We've matched four factors well and a fifth factor moderately well. Seven of the true factors are undiscovered. 
 
@@ -362,7 +386,7 @@ We can also fit using GFA but not including $R$. This will lead to a bad fit sin
 
 
 ```{r}
-fit_noR <- fit_ff_prefit(Z_hat = Z_hat_indep)
+fit_noR <- fit_ff_update(Z_hat = Z_hat_indep)
 ```
 
 Plotting the factors, we see that some of the estimated factors resemble the structure of $R_E$. This is because the method does not know that there is correlation in the rows of $E$. 
@@ -383,7 +407,7 @@ fit_noR$F_hat %>%
 disc(fit_noR$F_hat, dat$F_mat, lambda = 0)
 ```
 
-These results don't fit as well as the results that include R. 
+Without including R, we generate many factors that don't correspond to the true structure of the effects and instead correspond in full or in part to the patterns of environmental correlation. 
 
 We can fit this data using alternate methods as well. Here we use the hard-thresholded svd method. 
 
@@ -396,4 +420,17 @@ disc(fit_dg$v, dat$F_mat, lambda = 0)
 ```
 
 This method doesn't match any of the factors with a correlation greater than 0.9 and only one factor with a correlation greater than 0.8. Additionally, there is easy way to select the correct number of factors. By default $V$ with be $M \times M$ where $M$ is the number of traits so there are many unmatched/un-necessary factors factors. 
+
+## Estimating $L$ in left out variants
+
+We used a set of independent variants to estimate the factors in the previous section. We might be interested in estimating $L$, the variant-factor effect matrix in all of the variants. We can do this post-hoc using the `est_L_flash2` function. 
+
+```{r}
+
+ft <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat_indep, fit = fit2$fit, tol = 1e-7)
+
+fit1k <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat[1:1000,], fit = fit2$fit)
+
+fit500 <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat[1:500,], fit = fit2$fit)
+```
 

@@ -1,10 +1,16 @@
 #'@title Plot Factors from a matrix
+#'@param row_names Labels for rows
+#'@params col_names Labels for cols
+#'@row_order
+#'@col_order
 #'@export
 plot_factors <- function(x, row_names, col_names, row_order, col_order,
                          row_title = "Trait", col_title = "Factor"){
   if(is.null(x)) return(NULL)
   if(missing(row_names)) row_names <- row_order <-  seq(nrow(x))
   if(missing(col_names)) col_names <- col_order <- seq(ncol(x))
+  if(missing(row_order)) row_order <- seq(nrow(x))
+  if(missing(col_order)) col_order <- seq(ncol(x))
   meltx <- melt(x)
   names(meltx)[1:2] <- c("R", "C")
   meltx <- meltx %>%

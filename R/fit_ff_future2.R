@@ -18,7 +18,7 @@
 #'min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
 #'where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
 #'max_lr_percent specifies the proportion of variance of (R - lambda I) that will be retained. This defaults
-#'to 1 making the approximation exact. Eigenvalues of (R-lmabda I) that are less than lr_zero_thresh will
+#'to 1 making the approximation exact. Eigenvalues of (R-lambda I) that are less than lr_zero_thresh will
 #'be set to zero.
 #'
 #'@export
@@ -43,7 +43,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   ntrait <- ncol(Y)
   nvar <- nrow(Y)
   if(missing(kmax)) kmax <- 2*ntrait
-  #Check if S_inf is valid
+
 
   if(missing(R)){
     warning("R is not supplied, fitting assuming full independence")
@@ -61,7 +61,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
       flash.add.greedy(Kmax = kmax, init.fn = init_fn, ebnm.fn = ebnm_fn ) %>%
       flash.backfit(maxiter = max_iter, extrapolate = extrapolate)
     if(is.null(fit$flash.fit$maxiter.reached)){
-      ret <- gfa_wrapup2(fit, fixed_ix = c(), nullcheck = TRUE)
+      ret <- gfa_wrapup2(fit, nullcheck = TRUE)
     }else{
       ret <- list(fit = fit, fixed_ix = c())
     }
@@ -116,15 +116,14 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   }
   #First initialize flash objects
 
-  fit <-  flash.init(data = Y, S = S, var.type = 2) %>%
+  fit <-  flash.init(data = Y, S = sqrt(lambda_min), var.type = 2) %>%
     flash.add.greedy(Kmax = kmax, init.fn = init_fn, ebnm.fn = ebnm_fn )
 
   #Next add in fixed factors.
   n <- fit$n.factors
   fit <- fit %>%
          flash.init.factors(., init = list(A_rand, W), ebnm.fn = fixed_ebnm) %>%
-         flash.fix.factors(., kset = n + (1:nf), mode=2)
-  fit <- fit %>%
+         flash.fix.factors(., kset = n + (1:nf), mode=2) %>%
          flash.backfit(maxiter = max_iter, extrapolate=extrapolate)
   if(is.null(fit$flash.fit$maxiter.reached)){
     ret <- gfa_wrapup2(fit, nullcheck = TRUE)
@@ -139,8 +138,9 @@ gfa_wrapup2 <- function(fit, nullcheck = TRUE){
   if(nullcheck){
     fit <- fit %>% flash.nullcheck(remove = TRUE)
   }
-  fixed_ix <- fit$flash.fit$fix.dim %>% sapply(., function(x){!is.null(x)}) %>% which()
-  if(length(fixed_ix) > 0){
+  fixed_ix <- fit$flash.fit$fix.dim %>% sapply(., function(x){!is.null(x)})
+  if(any(fixed_ix)){
+    fixed_ix <- which(fixed_ix)
     F_hat <- fit$F.pm[,-fixed_ix, drop=FALSE]
     L_hat <- fit$L.pm[, -fixed_ix, drop=FALSE]
   }else{
@@ -171,7 +171,7 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
   return(ret)
 }
 
-est_L_flash2 <- function(Z_hat, fit){
+est_L_flash2 <- function(Z_hat, fit, tol = 1e-5){
   flash_fit <- fit$flash.fit
   n_new <- nrow(Z_hat)
   s <- 1/sqrt(ff.tau(flash_fit))
@@ -203,7 +203,7 @@ est_L_flash2 <- function(Z_hat, fit){
   }
   fit_new <- fit_new %>%
     flash.fix.factors(kset = seq(nfct), mode = 2) %>%
-    flash.backfit()
+    flash.backfit(tol = tol)
 }
 
 

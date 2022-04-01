@@ -4,7 +4,18 @@
 \alias{plot_factors}
 \title{Plot Factors from a matrix}
 \usage{
-plot_factors(x, names, factor_names, trait_order)
+plot_factors(
+  x,
+  row_names,
+  col_names,
+  row_order,
+  col_order,
+  row_title = "Trait",
+  col_title = "Factor"
+)
+}
+\arguments{
+\item{row_names}{Labels for rows}
 }
 \description{
 Plot Factors from a matrix
