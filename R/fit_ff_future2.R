@@ -172,6 +172,7 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
   return(ret)
 }
 
+#'@export
 est_L_flash2 <- function(Z_hat, fit, tol = 1e-5){
   flash_fit <- fit$flash.fit
   n_new <- nrow(Z_hat)

@@ -17,7 +17,8 @@ fit_ff_update(
   lr_zero_thresh = 1e-10,
   max_iter = 1000,
   extrapolate = TRUE,
-  ebnm_fn = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
+  ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
+  ebnm_fn_L = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
   init_fn = flashier::init.fn.default,
   fixed_truncate = Inf
 )
