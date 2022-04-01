@@ -378,6 +378,7 @@ To compare fitted and true factors more easily, we can use the `disc` function w
 
 ```{r}
 disc(fit1$F_hat, dat$F_mat, lambda = 0)
+disc(fit2$F_hat, dat$F_mat, lambda = 0)
 ```
 We've matched four factors well and a fifth factor moderately well. Seven of the true factors are undiscovered. 
 
