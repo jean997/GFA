@@ -428,10 +428,10 @@ We used a set of independent variants to estimate the factors in the previous se
 
 ```{r}
 
-ft <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat_indep, fit = fit2$fit, tol = 1e-7)
+ft <- est_L_flash2(Z_hat = Z_hat_indep, fit = fit1$fit, tol = 1e-7)
 
-fit1k <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat[1:1000,], fit = fit2$fit)
+fit10k <- est_L_flash2(Z_hat = Z_hat[1:10000,], fit = fit2$fit)
 
-fit500 <- sumstatFactors:::est_L_flash2(Z_hat = Z_hat[1:500,], fit = fit2$fit)
+fit500 <- est_L_flash2(Z_hat = Z_hat[1:500,], fit = fit1$fit)
 ```
 
