@@ -8,5 +8,5 @@
 Helper package for experimenting with factor decomposition of summary statistics.
 }
 \author{
-Jean Morrison <jeanm@uchicago.edu>
+Jean Morrison <jvmorr@umich.edu>
 }
