@@ -38,7 +38,7 @@ This example is shown in Figure 2 of the paper. We start by constructing the tru
 set.seed(100)
 myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
 
-myF <- apply(myF, 2, function(x){x/sum(x^2)})
+myF <- apply(myF, 2, function(x){x/sqrt(sum(x^2))})
 
 p <- plot_factors(myF, row_names = c("T3", "T2", "T1"), col_names = c("F1", "F2")) +
      scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
@@ -73,8 +73,10 @@ $F$ can either be supplied as we do below or it will be generated randomly. $L$ 
 This toy example is designed to have a very strong signal that can be seen visually, but we don't consider these parameters realistic. The heritability of each trait is 0.5, $N = 50,000$, $\omega = 0.8$ for each trait (most heritability is mediated by factors), the sample size is 50k and we generate 10k independent SNPs. $L$ and $\Theta$ both have 10% non-zero elements. Becuase we set the proportion of overlap to 0, we omit `h_2_factor` and `R_E`. We could optionally have also supplie minor allele frequencies. With this argument missing, SNPs are assumed standardized to variance 1. 
 
 ```{r}
+
 dat <- sim_sumstats_lf(F_mat = myF, N = 50000, J = 10000, h_2_trait = rep(0.5, 3),
-                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1, 
+                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1,
+                       #omega = rowSums(myF^2)*0.8/1.134, pi_L = rep(0.1,2), pi_theta = 0.1, 
                        overlap_prop =  0)
 names(dat)
 ```
@@ -143,7 +145,7 @@ This is accomplished via the function `fit_ff_update` (function name may change 
 
 + Standardized effects and sample size `B_std` and `N`. Standardized effect sizes are equal to z-scores divided by square root of sample size. 
 
-If the argument `R` is ommited, GFA will assume that there is no sample overlap and provide a warning. These options are enough to fit most data sets. We first fit without `R` and then with. The results should be very similar because our estimate is so close to the identity. 
+If the argument `R` is omitted, GFA will assume that there is no sample overlap and provide a warning. These options are enough to fit most data sets. We first fit without `R` and then with. The results should be very similar because our estimate is so close to the identity. 
 
 
 ```{r}
@@ -233,7 +235,7 @@ head(snpdata)
 length(ld_evd_list)
 ```
 
-SNP-SNP correlation data is stored in `ld_evd_list`. To create this object, we first partitioned chromosome 19 into 39 approximately indpendent blocks (using?) and then estimated the correlation of SNPs within each block using LD-Shrink (ref). We then computed the eigen-decomposition of each block (this is a convenient way to store the data for the functions that use it). Each element of `ld_evd_list` is an eigen-dcomposition produced using `eigen`. These data are accompanied by a dataframe `snpdata` which includes name, position, LD-score, and allele frequency for each SNP. We have also stored LD-pruning information at a threshold of $r^2 < 0.1$ and $r^2 < 0.01$. 
+SNP-SNP correlation data is stored in `ld_evd_list`. To create this object, we first partitioned chromosome 19 into 39 approximately independent blocks (using?) and then estimated the correlation of SNPs within each block using LD-Shrink (ref). We then computed the eigen-decomposition of each block (this is a convenient way to store the data for the functions that use it). Each element of `ld_evd_list` is an eigen-dcomposition produced using `eigen`. These data are accompanied by a dataframe `snpdata` which includes name, position, LD-score, and allele frequency for each SNP. We have also stored LD-pruning information at a threshold of $r^2 < 0.1$ and $r^2 < 0.01$. 
 
 ```{r}
 dim(snpdata)
@@ -248,11 +250,15 @@ First we set up the simulation parameters. We will have 50 traits, 200k variants
 ```{r}
 set.seed(200)
 ntrait <- 50
+#ntrait <- 20
 nvar <- 200000
+#nvar <- 10000
 nfactor <- 12
+#nfactor <- 5
 N <- 50000
 overlap_prop <- 1
 pi_L <- pi_theta <- 5000/nvar
+#pi_L <- pi_theta <- 1000/nvar
 ```
 
 We will let the simulation function randomly generate $F$ with 3 "dense" factors (many non-zero elements) and 9 "sparse" factors (few non-zero elements). The simulation function needs to know the number of non-zero elements per factor and needs a function (`gF`) for generating non-zero elements.
