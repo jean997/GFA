@@ -19,8 +19,8 @@ plot_factors <- function(x, row_names, col_names, row_order, col_order,
             C = col_names[C] %>%
                 factor(., levels = col_names[col_order]))
   ggplot(data = meltx, aes(x=C, y=R, fill=value)) +
-    xlab(row_title) +
-    ylab(col_title) +
+    ylab(row_title) +
+    xlab(col_title) +
     geom_tile() +
     scale_fill_gradient2() +
     theme(axis.text.x = element_text(angle=90))
