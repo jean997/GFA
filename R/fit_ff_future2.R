@@ -29,7 +29,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
                    ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
                    ebnm_fn_L = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
                    init_fn = flashier::init.fn.default,
-                   fixed_truncate = Inf){
+                   fixed_truncate = Inf, duplicate_check_thresh = 0.5){
 
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
@@ -62,6 +62,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
       flash.add.greedy(Kmax = kmax, init.fn = init_fn, ebnm.fn = list(ebnm_fn_L, ebnm_fn_F) ) %>%
       flash.backfit(maxiter = max_iter, extrapolate = extrapolate)
     if(is.null(fit$flash.fit$maxiter.reached)){
+      fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
       ret <- gfa_wrapup2(fit, nullcheck = TRUE)
     }else{
       ret <- list(fit = fit, fixed_ix = c())
@@ -127,6 +128,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
          flash.fix.factors(., kset = n + (1:nf), mode=2) %>%
          flash.backfit(maxiter = max_iter, extrapolate=extrapolate)
   if(is.null(fit$flash.fit$maxiter.reached)){
+    fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
     ret <- gfa_wrapup2(fit, nullcheck = TRUE)
   }else{
     ret <- list(fit = fit)

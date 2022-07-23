@@ -20,7 +20,8 @@ fit_ff_update(
   ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
   ebnm_fn_L = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
   init_fn = flashier::init.fn.default,
-  fixed_truncate = Inf
+  fixed_truncate = Inf,
+  duplicate_check_thresh = 0.5
 )
 }
 \arguments{
