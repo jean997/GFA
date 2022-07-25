@@ -177,7 +177,7 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
 }
 
 #'@export
-est_L_flash2 <- function(Y, gfa_fit, tol = 1e-5){
+gfa_estL_posthoc <- function(Y, gfa_fit, tol = 1e-5){
   flash_fit <- gfa_fit$fit$flash.fit
   n_new <- nrow(Y)
   s <- 1/sqrt(ff.tau(flash_fit))
