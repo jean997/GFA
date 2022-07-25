@@ -128,6 +128,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
          flash.fix.factors(., kset = n + (1:nf), mode=2) %>%
          flash.backfit(maxiter = max_iter, extrapolate=extrapolate)
   if(is.null(fit$flash.fit$maxiter.reached)){
+    fit <- flash.nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
     ret <- gfa_wrapup2(fit, nullcheck = TRUE)
   }else{
