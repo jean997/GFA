@@ -19,6 +19,8 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       original_ix <- seq(ncol(D))
       D <- D[,-fixed_ix, drop=FALSE]
       non_fixed_ix = original_ix[-fixed_ix]
+    }else{
+      non_fixed_ix = seq(ncol(D))
     }
 
     Dn <- sumstatFactors:::norm_cols(D)
@@ -34,14 +36,17 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       dups <- filter(dups, w1 < w2) %>%
               arrange(-value)
       cat(dim(dups), "\n")
+      print(dups)
+      reset <- FALSE
       for(i in dups$Var1){
         cat(i, "\n")
         fit_rem <- flash.remove.factors(fit, kset = non_fixed_ix[i]) %>% flash.backfit()
-
         if(fit_rem$elbo > fit$elbo){
           cat("Removing factor ", non_fixed_ix[i], "\n")
           fit <- fit_rem
           reset <- TRUE
+        }else{
+          cat("Not removing factor ", non_fixed_ix[i], "\n")
         }
         if(reset) break
       }
