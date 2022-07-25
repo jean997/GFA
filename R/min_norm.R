@@ -52,7 +52,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     }
   }else if(k < 0){
     f_true <- cbind(f_true, matrix(0, nrow = M, ncol = -k))
-    true_ix <- c(true_ix, seq(k) + n_t)
+    true_ix <- c(true_ix, seq(-k) + n_t)
     if(l){
       l_true <- cbind(l_true, matrix(0, nrow = N, ncol = -k))
     }
