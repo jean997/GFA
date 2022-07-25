@@ -22,7 +22,7 @@
 #'be set to zero.
 #'
 #'@export
-fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
+gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
                    min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
                    max_iter = 1000,
                    extrapolate = TRUE,
@@ -64,7 +64,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     if(is.null(fit$flash.fit$maxiter.reached)){
       fit <- fit %>% flash.nullcheck(remove = TRUE)
       fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
-      ret <- gfa_wrapup2(fit, nullcheck = TRUE)
+      ret <- gfa_wrapup(fit, nullcheck = TRUE)
     }else{
       ret <- list(fit = fit, fixed_ix = c())
     }
@@ -131,7 +131,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   if(is.null(fit$flash.fit$maxiter.reached)){
     fit <- fit %>% flash.nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
-    ret <- gfa_wrapup2(fit, nullcheck = TRUE)
+    ret <- gfa_wrapup(fit, nullcheck = TRUE)
   }else{
     ret <- list(fit = fit)
   }
@@ -139,7 +139,7 @@ fit_ff_update <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
 }
 
 #'@export
-gfa_wrapup2 <- function(fit, nullcheck = TRUE){
+gfa_wrapup <- function(fit, nullcheck = TRUE){
   if(nullcheck){
     fit <- fit %>% flash.nullcheck(remove = TRUE)
   }
@@ -166,10 +166,10 @@ gfa_wrapup2 <- function(fit, nullcheck = TRUE){
 }
 
 #'@export
-gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
+gfa_rebackfit <- function(fit, extrapolate = FALSE, maxiter){
   fit <- fit %>% flash.backfit(maxiter = maxiter, extrapolate = extrapolate)
   if(is.null(fit$flash.fit$maxiter.reached)){
-    ret <- gfa_wrapup2(fit, nullcheck = TRUE)
+    ret <- gfa_wrapup(fit, nullcheck = TRUE)
   }else{
     ret <- list(fit = fit)
   }
@@ -177,8 +177,8 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
 }
 
 #'@export
-gfa_estL_posthoc <- function(Y, gfa_fit, tol = 1e-5){
-  flash_fit <- gfa_fit$fit$flash.fit
+gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
+  flash_fit <- fit$fit$flash.fit
   n_new <- nrow(Y)
   s <- 1/sqrt(ff.tau(flash_fit))
 
@@ -210,9 +210,9 @@ gfa_estL_posthoc <- function(Y, gfa_fit, tol = 1e-5){
   fit_new <- fit_new %>%
     flash.fix.factors(kset = seq(nfct), mode = 2) %>%
     flash.backfit(tol = tol)
-  if(length(gfa_fit$fixed_ix) > 0){
-    L_hat <- fit_new$L.pm[,-gfa_fit$fixed_ix ]
-    L_lfsr <- fit_new$L.lfsr[, -gfa_fit$fixed_ix]
+  if(length(fit$fixed_ix) > 0){
+    L_hat <- fit_new$L.pm[,-fit$fixed_ix ]
+    L_lfsr <- fit_new$L.lfsr[, -fit$fixed_ix]
   }else{
     L_hat <- fit_new$L.pm
     L_lfsr <- fit_new$L.lfsr
