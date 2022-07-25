@@ -16,6 +16,8 @@ plot_factors(
 }
 \arguments{
 \item{row_names}{Labels for rows}
+
+\item{col_names}{Labels for cols}
 }
 \description{
 Plot Factors from a matrix
