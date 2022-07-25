@@ -4,7 +4,7 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
   n_new <- nrow(Y)
   s <- 1/sqrt(ff.tau(flash_fit))
 
-  nfct <- fit$n.factors
+  nfct <- fit$fit$n.factors
   Lrand <- matrix(rnorm(n = n_new*nfct), nrow = n_new)
   g_ebnm <- list()
   fit_new <- flash.init(data = Y, S = s, var.type = NULL)
