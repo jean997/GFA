@@ -177,15 +177,15 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
 }
 
 #'@export
-est_L_flash2 <- function(Z_hat, fit, tol = 1e-5){
+est_L_flash2 <- function(Y, fit, tol = 1e-5){
   flash_fit <- fit$flash.fit
-  n_new <- nrow(Z_hat)
+  n_new <- nrow(Y)
   s <- 1/sqrt(ff.tau(flash_fit))
 
   nfct <- fit$n.factors
   Lrand <- matrix(rnorm(n = n_new*nfct), nrow = n_new)
   g_ebnm <- list()
-  fit_new <- flash.init(data = Z_hat, S = s, var.type = NULL)
+  fit_new <- flash.init(data = Y, S = s, var.type = NULL)
   for(i in seq(nfct)){
     # g for columns doesn't matter because they will always be fixed
     gL <- ff.g(flash_fit, 1)[[i]]
