@@ -87,6 +87,8 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   solution <- solution %>% arrange(-val)
   solution$est_ix <- hat_ix[solution$est_ix]
   solution$true_ix <- true_ix[solution$true_ix ]
+  solution$est_ix[solution$est_ix > n_h] <- NA
+  solution$true_ix[solution$true_ix > n_t] <- NA
 
   if(length(hat_single) + length(true_single) > 0){
     single_df <- data.frame(true_ix = c(rep(NA, length(hat_single)), true_single),
