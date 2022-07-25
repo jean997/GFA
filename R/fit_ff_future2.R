@@ -177,8 +177,8 @@ gfa_rebackfit2 <- function(fit, extrapolate = FALSE, maxiter){
 }
 
 #'@export
-est_L_flash2 <- function(Y, fit, tol = 1e-5){
-  flash_fit <- fit$flash.fit
+est_L_flash2 <- function(Y, gfa_fit, tol = 1e-5){
+  flash_fit <- gfa_fit$fit$flash.fit
   n_new <- nrow(Y)
   s <- 1/sqrt(ff.tau(flash_fit))
 
@@ -210,6 +210,14 @@ est_L_flash2 <- function(Y, fit, tol = 1e-5){
   fit_new <- fit_new %>%
     flash.fix.factors(kset = seq(nfct), mode = 2) %>%
     flash.backfit(tol = tol)
+  if(length(gfa_fit$fixed_ix) > 0){
+    L_hat <- fit_new$L.pm[,-gfa_fit$fixed_ix ]
+    L_lfsr <- fit_new$L.lfsr[, -gfa_fit$fixed_ix]
+  }else{
+    L_hat <- fit_new$L.pm
+    L_lfsr <- fit_new$L.lfsr
+  }
+  return(list(L_hat = L_hat, L_lfsr = L_lfsr))
 }
 
 
