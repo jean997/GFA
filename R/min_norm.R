@@ -40,6 +40,8 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     l_true <- l_true[,true_ix]
     l_hat <- l_hat[,hat_ix]
     l <- TRUE
+  }else{
+    l <- FALSE
   }
 
 
