@@ -14,7 +14,7 @@ gfa_fit(
   ridge_penalty = 0,
   min_ev = 0.001,
   max_lr_percent = 1,
-  lr_zero_thresh = 1e-10,
+  lr_zero_thresh = 0.001,
   max_iter = 1000,
   extrapolate = TRUE,
   ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),

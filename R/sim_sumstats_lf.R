@@ -205,6 +205,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
 
   #Figure out how much/how many replicates of supplied LD we need
   nblock <- length(R_LD)
+  l <- sapply(R_LD, function(e){length(e$values)})
   ld_size <- sum(l)
   full_reps <- floor(J/ld_size) # Recall l is list of block sizes
   remainder <- J  - full_reps*ld_size
@@ -218,6 +219,16 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   start_ix <- cumsum(c(1, l[-length(l)]))
   end_ix <- start_ix + l-1
 
+  #snp info
+  snp_info_full <- snp_info[c(rep(seq(ld_size), full_reps), seq(remainder)),]
+  if(full_reps == 0){
+    snp_info_full$rep <- rep(1, remainder)
+  }else{
+    snp_info_full$rep <- c(rep(seq(full_reps), each = ld_size), rep(full_reps + 1, remainder))
+  }
+  snp_info_full$SNP <- with(snp_info_full, paste0(SNP, ".", rep))
+  sx <- with(snp_info_full, sqrt(2*AF*(1-AF)))
+
   # Multiply errors by square root of LD matrix
   E_LD_Z <- lapply(seq_along(block_index), function(i){
     with(R_LD[[block_index[i]]], vectors %*% sqrt(diag(values)) %*% E_Z[start_ix[i]:end_ix[i], ])
@@ -229,15 +240,6 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   }) %>% do.call( rbind, .)
   Z_hat <- Z + E_LD_Z
 
-  #snp info
-  snp_info_full <- snp_info[c(rep(seq(ld_size), full_reps), seq(remainder)),]
-  if(full_reps == 0){
-    snp_info_full$rep <- rep(1, remainder)
-  }else{
-    snp_info_full$rep <- c(rep(seq(full_reps), each = ld_size), rep(full_reps + 1, remainder))
-  }
-  snp_info_full$SNP <- with(snp_info_full, paste0(SNP, ".", rep))
-  sx <- with(snp_info_full, sqrt(2*AF*(1-AF)))
 
   se_beta_hat <- matrix(1/sx) %*% matrix(1/sqrt(N), nrow = 1) # J by M
   beta_hat <- Z_hat*se_beta_hat
@@ -312,4 +314,34 @@ generate_F2 <- function(non_zero_by_factor,
 
 }
 
+#'@export
+sim_ld_prune <- function(dat, pvalue, R_LD, r2_thresh = 0.1, pval_thresh = 1){
+  if(missing(pvalue)){
+    p <- 2*pnorm(-abs(dat$beta_hat/dat$se_beta_hat))
+    pvalue <- apply(p, 1, min)
+  }
 
+  R_LD <- lapply(R_LD, function(e){e$vectors %*% diag(e$values) %*% t(e$vectors) })
+  thresh <- sqrt(r2_thresh)
+  combos <- expand.grid(block = unique(dat$snp_info$block),
+                        rep = unique(dat$snp_info$rep))
+  keep_list <- purrr::map2(combos$block, combos$rep, function(b, r){
+    ix_rem <- which(dat$snp_info$block == b & dat$snp_info$rep == r)
+    myld <- reshape2::melt(R_LD[[b]])
+    myld$ix1 <- ix_rem[myld$Var1]
+    myld$ix2 <- ix_rem[myld$Var2]
+    ix_keep <- c()
+    df_rem <- data.frame(ix = ix_rem, pval = pvalue[ix_rem]) %>%
+              arrange(pval)
+    df_rem <- filter(df_rem, pval < pval_thresh)
+    while(nrow(df_rem) > 0){
+      s <- df_rem$ix[1]
+      ix_keep <- c(ix_keep, s)
+      a <- filter(myld, (ix1 == s | ix2 == s) & abs(value) > thresh)
+      v <- unique(a$ix1, a$ix2)
+      df_rem <- filter(df_rem, !ix %in% v)
+    }
+    return(ix_keep)
+    }) %>% unlist()
+  return(keep_list)
+}
