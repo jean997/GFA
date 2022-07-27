@@ -191,7 +191,7 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
     se_beta_hat <- matrix(1/sx) %*% matrix(1/sqrt(N), nrow = 1) # J by M
     beta_hat <- (Z + E_Z)*se_beta_hat
     # Convert L and theta from standardized scale
-    L_mat <- ((1/sx)*matrix(1, nrow = J, ncol = M))*L_mat
+    L_mat <- ((1/sx)*matrix(1, nrow = J, ncol = K))*L_mat
     theta <- ((1/sx)*matrix(1, nrow = J, ncol = M))*theta
     beta_std <- beta
 
@@ -243,26 +243,27 @@ sim_sumstats_lf <- function(F_mat, N, J, h_2_trait, omega, h_2_factor,
   beta_hat <- Z_hat*se_beta_hat
 
   # Convert L and Theta to observed scale by dividing by se of genotypes
-  L_mat <- L_mat_direct <-  ((1/sx)*matrix(1, nrow = J, ncol = M))*L_mat
+  L_mat <- L_mat_direct <-  ((1/sx)*matrix(1, nrow = J, ncol = K))*L_mat
   theta <- theta_direct <- ((1/sx)*matrix(1, nrow = J, ncol = M))*theta
 
   # Transform L by LD matrix
-  L_mat <- L_mat/se_beta_hat
+  L_mat <- L_mat*sx # S^-inv L (the N will cancel)
   L_mat <- lapply(seq_along(block_index), function(i){
-    with(R_LD[[block_index[i]]], vectors %*% diag(values) %*% t(vectors) %*% L_mat[start_ix[i]:end_ix[i], ])
+    with(R_LD[[block_index[i]]],
+         vectors %*% diag(values) %*% t(vectors) %*% L_mat[start_ix[i]:end_ix[i], ])
   }) %>% do.call( rbind, .)
-  L_mat <- se_beta_hat*L_mat
+  L_mat <- L_mat/sx
 
   # Transform Theta by LD matrix
-  theta <- theta/se_beta_hat
+  theta <- theta*sx
   theta <- lapply(seq_along(block_index), function(i){
     with(R_LD[[block_index[i]]], vectors %*% diag(values) %*% t(vectors) %*% theta[start_ix[i]:end_ix[i], ])
   }) %>% do.call( rbind, .)
-  theta <- theta*se_beta_hat
+  theta <- theta/sx
 
   ret <- list(beta_hat =beta_hat, se_beta_hat = se_beta_hat, Z = Z,
               L_mat = L_mat, F_mat = F_mat, theta = theta,
-              L_mat_direct = L_mat, theta_direct = theta,
+              L_mat_direct = L_mat_direct, theta_direct = theta_direct,
               R_E = R_E, tau = tau, R = R, snp_info = snp_info_full)
   return(ret)
 }
