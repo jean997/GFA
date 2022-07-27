@@ -23,7 +23,7 @@
 #'
 #'@export
 gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
-                   min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-10,
+                   min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-3,
                    max_iter = 1000,
                    extrapolate = TRUE,
                    ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
@@ -51,7 +51,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     if(mode == "zscore"){
       S <- 1
     }else if(mode == "std" ){
-      S = t( (1/sqrt(N)) * t(matrix(1, nrow=nvar, ncol=ntrait)))
+      S = t((1/sqrt(N)) * matrix(1, nrow=ntrait, ncol=nvar))
     }
 
     #First initialize flash objects
@@ -87,36 +87,44 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat)
     return(ret)
   }
+  if(all(es$values - es$values[ntrait]) < lr_zero_thresh){
+    warning("R appears to be very close to the identity, you should rerun this command without it.")
+    fit <- NULL
+    Y <- NULL
+    F_hat <- NULL
+    L_hat <- NULL
+    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat)
+    return(ret)
+  }
 
   eS$values <- (eS$values + ridge_penalty)/(1 + ridge_penalty)
 
+
+
   lambda_min <- eS$values[ntrait]
   vals <- eS$values - lambda_min
-  if(max_lr_percent < 1){
+  if (max_lr_percent < 1) {
     vv <- cumsum(vals)/sum(vals)
     nmax <- min(which(vv > max_lr_percent)) - 1
   }else{
     nmax <- ntrait - 1
   }
   ix <- which(vals[seq(nmax)] > lr_zero_thresh)
-  if(length(ix) == 0) stop("Is supplied R diagonal or close to diagonal?")
 
-  W <- eS$vectors[,ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
+  W <-eS$vectors[, ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
   nf <- length(ix) # Number of fixed factors
 
   #Fitting
   # randomly initialize A
-  if(fixed_truncate == Inf){
+  if (fixed_truncate == Inf) {
     fixed_ebnm = as.ebnm.fn(prior_family = "normal",
-                            g_init = ashr::normalmix(pi = c(1), mean = c(0), sd = c(1)),
+                            g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                             fix_g = TRUE)
-    A_rand <- matrix(rnorm(n=nvar*nf, mean = 0, sd = 1), nrow=nvar, ncol=nf)
+    A_rand <- matrix(rnorm(n = nvar * nf, mean = 0, sd = 1), nrow = nvar, ncol = nf)
   }else{
     stop("Not implemented yet.")
-    fixed_pfam = prior.unimodal.symmetric(scale = 1, g_init=fixed_g, fix_g = TRUE)
-    A_rand <- matrix(runimix(n=nvar*nf, g = fixed_g), nrow=nvar, ncol=nf)
-    A2_rand <- matrix(rnorm(n=nvar*nf), nrow=nvar, ncol=nf)
   }
+
   #First initialize flash objects
 
   fit <-  flash.init(data = Y, S = sqrt(lambda_min), var.type = 2) %>%
