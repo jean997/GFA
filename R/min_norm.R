@@ -20,14 +20,14 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     i <- which(col_max_true > single_trait_thresh)
     true_single <- i
     cat("Removing ", length(i), " single trait factors from f_true\n")
-    f_true <- f_true[,-i]
+    f_true <- f_true[,-i, drop = FALSE]
     true_ix <- true_ix[-i]
   }
   if(any(col_max_hat > single_trait_thresh)){
     i <- which(col_max_hat > single_trait_thresh)
     hat_single <- i
     cat("Removing ", length(i), " single trait factors from f_hat\n")
-    f_hat <- f_hat[,-i]
+    f_hat <- f_hat[,-i, drop = FALSE]
     hat_ix <- hat_ix[-i]
   }
 
