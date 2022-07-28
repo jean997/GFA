@@ -84,16 +84,16 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     Y <- NULL
     F_hat <- NULL
     L_hat <- NULL
-    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat)
+    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat, re_run_id = TRUE)
     return(ret)
   }
-  if(all(eS$values - eS$values[ntrait]) < lr_zero_thresh){
+  if(all((eS$values - eS$values[ntrait]) < lr_zero_thresh)){
     warning("R appears to be very close to the identity, you should rerun this command without it.")
     fit <- NULL
     Y <- NULL
     F_hat <- NULL
     L_hat <- NULL
-    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat)
+    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat, re_run_id = TRUE)
     return(ret)
   }
 
