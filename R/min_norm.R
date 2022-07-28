@@ -23,6 +23,23 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     f_true <- f_true[,-i, drop = FALSE]
     true_ix <- true_ix[-i]
   }
+  if(n_h == 0){
+    solution <- data.frame(true_ix = true_ix, hat_ix = NA, val = 0 )
+    if( length(true_single) > 0){
+      single_df <- data.frame(true_ix =  true_single,
+                              est_ix = NA,
+                              val = NA)
+      solution <- bind_rows(solution, single_df)
+    }
+    frob_n <- length(true_ix)
+    hat_ix <- c()
+    ret <- list(solution = solution, val = frob_n, true_ix = true_ix, hat_ix = hat_ix)
+    if(!missing(l_hat)){
+      ret$frob_n_l <- frob_n
+    }
+    return(ret)
+  }
+
   if(any(col_max_hat > single_trait_thresh)){
     i <- which(col_max_hat > single_trait_thresh)
     hat_single <- i
