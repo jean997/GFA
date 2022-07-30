@@ -36,8 +36,8 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
     filter(trait1 <= trait2)
   vals <- map2_dbl(res$trait1, res$trait2, function(i, j){
     rg <- bigsnpr::snp_ldsc_rg(ld_score = ldscores, ld_size = ld_size,
-                               z1 = Z_hat[,i], z2 = Z_hat[,2],
-                               sample_size_1 = N[,1], sample_size_2 = N[,2],
+                               z1 = Z_hat[,i], z2 = Z_hat[,j],
+                               sample_size_1 = N[,i], sample_size_2 = N[,j],
                                blocks = NULL)
     return(rg[["int"]])
   })
