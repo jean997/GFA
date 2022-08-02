@@ -11,11 +11,13 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   f_hat <- norm_cols(f_hat)$A
   n_t <- ncol(f_true)
   n_h <- ncol(f_hat)
+
   col_max_true <- apply(abs(f_true), 2, max)
   col_max_hat <- apply(abs(f_hat), 2, max)
   hat_single <- true_single <- c()
   true_ix <- seq(n_t)
   hat_ix <- seq(n_h)
+
   if(any(col_max_true > single_trait_thresh)){
     i <- which(col_max_true > single_trait_thresh)
     true_single <- i
@@ -31,9 +33,13 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
                               val = NA)
       solution <- bind_rows(solution, single_df)
     }
-    frob_n <- length(true_ix)
+    frob_n <- opt_frob_n <- length(true_ix)
     hat_ix <- c()
-    ret <- list(solution = solution, val = frob_n, true_ix = true_ix, hat_ix = hat_ix)
+    ret <- list(solution = solution,
+                frob_n = frob_n,
+                true_ix = true_ix,
+                hat_ix = hat_ix,
+                opt_frob_n = opt_frob_n)
     if(!missing(l_hat)){
       ret$frob_n_l <- frob_n
     }
@@ -97,6 +103,13 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   if(l){
     frob_n_l <- sum((l_true - l_hat%*%Q)^2)
   }
+  if(k >= 0){
+    opt_fob_n <- frob_n
+  }else{
+    # If more estimated factors than true, choose the optimal number
+    opt_k <- n_t - length(true_single)
+    opt_frob_n <- sum((f_true[, 1:opt_k] - (f_hat %*% Q)[, 1:opt_k])^2)
+  }
 
   n <- ncol(d)
 
@@ -115,7 +128,11 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   }
 
 
-  ret <- list(solution = solution, val = frob_n, true_ix = true_ix, hat_ix = hat_ix)
+  ret <- list(solution = solution,
+              frob_n = frob_n,
+              true_ix = true_ix,
+              opt_frob_n = opt_frob_n,
+              hat_ix = hat_ix)
   if(return_Q){
     ret$Q <- Q
   }
