@@ -104,7 +104,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     frob_n_l <- sum((l_true - l_hat%*%Q)^2)
   }
   if(k >= 0){
-    opt_fob_n <- frob_n
+    opt_frob_n <- frob_n
   }else{
     # If more estimated factors than true, choose the optimal number
     opt_k <- n_t - length(true_single)
