@@ -5,24 +5,7 @@
 \title{Fit with fixed factors. This version is from March 2021 and explicitly only runs on
 either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.}
 \usage{
-gfa_fit(
-  Z_hat,
-  B_std,
-  N,
-  R,
-  kmax,
-  ridge_penalty = 0,
-  min_ev = 0.001,
-  max_lr_percent = 1,
-  lr_zero_thresh = 0.001,
-  max_iter = 1000,
-  extrapolate = TRUE,
-  ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
-  ebnm_fn_L = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
-  init_fn = flashier::init.fn.default,
-  fixed_truncate = Inf,
-  duplicate_check_thresh = 0.5
-)
+gfa_fit(Z_hat, B_std, N, R, params = gfa_default_parameters())
 }
 \arguments{
 \item{Z_hat}{A matrix of z-scores}

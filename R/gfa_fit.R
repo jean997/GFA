@@ -22,15 +22,16 @@
 #'be set to zero.
 #'
 #'@export
-gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
-                   min_ev = 1e-3, max_lr_percent = 1, lr_zero_thresh = 1e-3,
-                   max_iter = 1000,
-                   extrapolate = TRUE,
-                   ebnm_fn_F = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
-                   ebnm_fn_L = as.ebnm.fn(prior_family = "point_normal", optmethod = "nlm"),
-                   init_fn = flashier::init.fn.default,
-                   fixed_truncate = Inf, duplicate_check_thresh = 0.5){
+gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
 
+
+  default_params <- gfa_default_parameters()
+  for(n in names(default_params)){
+    if(is.null(params[[n]])) params[[n]] <- default_params[[n]]
+  }
+  for(n in names(params)){
+    if(! n %in% names(default_params)) stop("Unknown parameter ", n, " provided.")
+  }
 
   if(!missing(Z_hat) & !missing(B_std)) stop("Please supply only one of Z_hat and B_std")
   if(!missing(B_std) & missing(N)) stop("If using B_std, N is required.")
@@ -43,7 +44,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   }
   ntrait <- ncol(Y)
   nvar <- nrow(Y)
-  if(missing(kmax)) kmax <- 2*ntrait
+  if(is.null(params$kmax)) params$kmax <- 2*ntrait
 
 
   if(missing(R)){
@@ -59,14 +60,17 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
 
     # Add factors
     fit <- fit %>%
-      flash.add.greedy(Kmax = kmax, init.fn = init_fn, ebnm.fn = list(ebnm_fn_L, ebnm_fn_F) ) %>%
-      flash.backfit(maxiter = max_iter, extrapolate = extrapolate)
+      flash.add.greedy(Kmax = params$kmax,
+                       init.fn = params$init_fn,
+                       ebnm.fn = list(params$ebnm_fn_L, params$ebnm_fn_F) ) %>%
+      flash.backfit(maxiter = params$max_iter, extrapolate = params$extrapolate)
     if(is.null(fit$flash.fit$maxiter.reached)){
       fit <- fit %>% flash.nullcheck(remove = TRUE)
-      fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
+      fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
       ret <- gfa_wrapup(fit, nullcheck = TRUE)
+      ret$params <- params
     }else{
-      ret <- list(fit = fit, fixed_ix = c())
+      ret <- list(fit = fit, fixed_ix = c(), params = params)
     }
     return(ret)
   }
@@ -77,46 +81,35 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
     R <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
   }
   eS <- eigen(R)
-  if(!all(eS$values >  min_ev)) stop("All eigenvalues of R must be greater than", min_ev)
-  if(all(eS$values == 1)){
-    warning("R appears to be the identity, you should rerun this command without it.")
-    fit <- NULL
-    Y <- NULL
-    F_hat <- NULL
-    L_hat <- NULL
-    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat, re_run_id = TRUE)
-    return(ret)
-  }
+  if(!all(eS$values >  params$min_ev)) stop("All eigenvalues of R must be greater than", params$min_ev)
+
   if(all((eS$values - eS$values[ntrait]) < lr_zero_thresh)){
-    warning("R appears to be very close to the identity, you should rerun this command without it.")
-    fit <- NULL
-    Y <- NULL
-    F_hat <- NULL
-    L_hat <- NULL
-    ret <- list(fit=fit, Y = Y, L_hat = L_hat, F_hat = F_hat, re_run_id = TRUE)
-    return(ret)
+    warning("R appears to be the identity or very close to the identity, fitting model assuming R = I.")
+    if(mode == "std") res <- gfa_fit(B_std = B_std, N = N, params = params)
+    else res <- gfa_fit(Z_hat = Z_hat, params = params)
+    return(res)
   }
 
-  eS$values <- (eS$values + ridge_penalty)/(1 + ridge_penalty)
+  eS$values <- (eS$values + params$ridge_penalty)/(1 + params$ridge_penalty)
 
 
 
   lambda_min <- eS$values[ntrait]
   vals <- eS$values - lambda_min
-  if (max_lr_percent < 1) {
+  if (params$max_lr_percent < 1) {
     vv <- cumsum(vals)/sum(vals)
-    nmax <- min(which(vv > max_lr_percent)) - 1
+    nmax <- min(which(vv > params$max_lr_percent)) - 1
   }else{
     nmax <- ntrait - 1
   }
-  ix <- which(vals[seq(nmax)] > lr_zero_thresh)
+  ix <- which(vals[seq(nmax)] > params$lr_zero_thresh)
 
   W <-eS$vectors[, ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
   nf <- length(ix) # Number of fixed factors
 
   #Fitting
   # randomly initialize A
-  if (fixed_truncate == Inf) {
+  if (params$fixed_truncate == Inf) {
     fixed_ebnm = as.ebnm.fn(prior_family = "normal",
                             g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                             fix_g = TRUE)
@@ -128,20 +121,25 @@ gfa_fit <- function(Z_hat, B_std, N, R, kmax, ridge_penalty = 0,
   #First initialize flash objects
 
   fit <-  flash.init(data = Y, S = sqrt(lambda_min), var.type = 2) %>%
-    flash.add.greedy(Kmax = kmax, init.fn = init_fn, ebnm.fn = list(ebnm_fn_L, ebnm_fn_F) )
+    flash.add.greedy(Kmax = params$kmax,
+                     init.fn = params$init_fn,
+                     ebnm.fn = list(params$ebnm_fn_L, params$ebnm_fn_F) )
 
   #Next add in fixed factors.
   n <- fit$n.factors
   fit <- fit %>%
          flash.init.factors(., init = list(A_rand, W), ebnm.fn = fixed_ebnm) %>%
          flash.fix.factors(., kset = n + (1:nf), mode=2) %>%
-         flash.backfit(maxiter = max_iter, extrapolate=extrapolate)
+         flash.backfit(maxiter = params$max_iter,
+                       extrapolate=params$extrapolate)
+
   if(is.null(fit$flash.fit$maxiter.reached)){
     fit <- fit %>% flash.nullcheck(remove = TRUE)
-    fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = duplicate_check_thresh)
+    fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
     ret <- gfa_wrapup(fit, nullcheck = TRUE)
+    ret$params <- params
   }else{
-    ret <- list(fit = fit)
+    ret <- list(fit = fit, params = params)
   }
   return(ret)
 }
@@ -174,13 +172,15 @@ gfa_wrapup <- function(fit, nullcheck = TRUE){
 }
 
 #'@export
-gfa_rebackfit <- function(fit, extrapolate = FALSE, maxiter){
-  fit <- fit %>% flash.backfit(maxiter = maxiter, extrapolate = extrapolate)
+gfa_rebackfit <- function(fit, params){
+  fit <- fit %>% flash.backfit(maxiter = params$max_iter,
+                               extrapolate = params$extrapolate)
   if(is.null(fit$flash.fit$maxiter.reached)){
     ret <- gfa_wrapup(fit, nullcheck = TRUE)
   }else{
     ret <- list(fit = fit)
   }
+  ret$params <- params
   return(ret)
 }
 
