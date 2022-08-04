@@ -84,8 +84,8 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
 
   vals <- eS$values
 
-  if(!min(vals)/max(vals) < params$min_ev){
-    stop("Ratio of largest eigenvalue to smallest eigenvalue is smaller than ", params$min_ev)
+  if(min(vals)/max(vals) < params$min_ev){
+    stop("Ratio of smallest eigenvalue to largest eigenvalue is smaller than ", params$min_ev)
   }
 
   v <- sum((vals - min(vals))^2)/sum(vals^2)
