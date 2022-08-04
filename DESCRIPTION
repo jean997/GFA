@@ -1,6 +1,6 @@
 Package: sumstatFactors
 Title: Working package for development of Genetic Factor Analysis (GFA)
-Version: 0.1.2.0315
+Version: 0.1.2.0316
 Date: 2022-08-04
 Authors@R: 
     person(given = "Jean",

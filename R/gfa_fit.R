@@ -110,7 +110,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   }
 
 
-  W <-eS$vectors[, seq(nmax), drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = nmax)
+  W <-eS$vectors[, seq(nmax), drop = FALSE] %*% diag(sqrt(vals[seq(nmax)]), ncol = nmax)
   nf <- nmax # Number of fixed factors
 
   #Fitting
