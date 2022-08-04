@@ -83,7 +83,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   eS <- eigen(R)
   if(!all(eS$values >  params$min_ev)) stop("All eigenvalues of R must be greater than", params$min_ev)
 
-  if(all((eS$values - eS$values[ntrait]) < lr_zero_thresh)){
+  if(all((eS$values - eS$values[ntrait]) < params$lr_zero_thresh)){
     warning("R appears to be the identity or very close to the identity, fitting model assuming R = I.")
     if(mode == "std") res <- gfa_fit(B_std = B_std, N = N, params = params)
     else res <- gfa_fit(Z_hat = Z_hat, params = params)
