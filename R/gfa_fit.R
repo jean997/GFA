@@ -108,10 +108,10 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   }else{
     nmax <- ntrait - 1
   }
-  ix <- which(vals[seq(nmax)] > params$lr_zero_thresh)
 
-  W <-eS$vectors[, ix, drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = length(ix))
-  nf <- length(ix) # Number of fixed factors
+
+  W <-eS$vectors[, seq(nmax), drop = FALSE] %*% diag(sqrt(vals[ix]), ncol = nmax)
+  nf <- nmax # Number of fixed factors
 
   #Fitting
   # randomly initialize A
