@@ -3,7 +3,7 @@ gfa_default_parameters <- function(){
   list(
   kmax = NULL,
   ridge_penalty = 0,
-  min_ev = 1e-3,
+  min_ev = 1e-5,
   max_lr_percent = 0.99,
   lr_zero_thresh = 1e-3,
   max_iter = 1000,

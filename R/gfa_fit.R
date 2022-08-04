@@ -76,29 +76,32 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   }
 
   stopifnot(nrow(R) == ntrait & ncol(R) == ntrait)
-
-  eS <- eigen(R)
-  if(!all(eS$values >  params$min_ev)) stop("All eigenvalues of R must be greater than", params$min_ev)
-
   if(mode == "std"){
     stopifnot(length(N) == ntrait)
     R <- diag(1/sqrt(N)) %*% R %*% diag(1/sqrt(N))
-    eS <- eigen(R)
+  }
+  eS <- eigen(R)
+
+  vals <- eS$values
+
+  if(!min(vals)/max(vals) < params$min_ev){
+    stop("Ratio of largest eigenvalue to smallest eigenvalue is smaller than ", params$min_ev)
   }
 
-  if(all((eS$values - eS$values[ntrait]) < params$lr_zero_thresh)){
+  v <- sum((vals - min(vals))^2)/sum(vals^2)
+  if(v < params$lr_zero_thresh){
     warning("R appears to be the identity or very close to the identity, fitting model assuming R = I.")
     if(mode == "std") res <- gfa_fit(B_std = B_std, N = N, params = params)
     else res <- gfa_fit(Z_hat = Z_hat, params = params)
     return(res)
   }
 
-  eS$values <- (eS$values + params$ridge_penalty)/(1 + params$ridge_penalty)
+  vals <- (vals + params$ridge_penalty)/(1 + params$ridge_penalty)
 
 
 
-  lambda_min <- eS$values[ntrait]
-  vals <- eS$values - lambda_min
+  lambda_min <- vals[ntrait]
+  vals <- vals - lambda_min
   if (params$max_lr_percent < 1) {
     vv <- cumsum(vals)/sum(vals)
     nmax <- min(which(vv > params$max_lr_percent)) - 1
