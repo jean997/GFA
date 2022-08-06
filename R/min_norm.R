@@ -135,6 +135,8 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
               hat_ix = hat_ix)
   if(return_Q){
     ret$Q <- Q
+    ret$best_est <-  f_hat %*% Q
+    ret$best_true <- f_true
   }
   if(l){
     ret$frob_n_l <- frob_n_l
