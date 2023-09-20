@@ -6,14 +6,15 @@
 #'@param N Vector of sample sizes length equal to number of traits. N is only
 #'needed if using B_std.
 #'@param R Estimated residual correlation matrix
-#'@param kmax Maximum number of factors. Defaults to 2*ntraits for plain or ntraits
-#'if using the fixed factor correction.
-#'@param min_ev,max_lr_percent,lr_zero_thresh See details
-#'@param S_inf A vector supplying a series of variance inflation factors for fitting ebmf.
-#'S_inf should be decreasing and the last element should be 1.
-#'@param fixed_g Supply the prior for loadings of fixed factors.
+#'@param params List of parameters. For most users this can be left at the default values. See details.
 #'@return A list with elements fit, Y, L_hat, F_hat
 #'@details
+#'
+#'The params list includes:
+#'
+#'kmax, the maximum number of factors
+#'
+#'max_iter: maximum number of iterations
 #'
 #'min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
 #'where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
@@ -21,6 +22,17 @@
 #'to 1 making the approximation exact. Eigenvalues of (R-lambda I) that are less than lr_zero_thresh will
 #'be set to zero.
 #'
+#'ridge_penalty
+#'
+#'extrapolate: value of extrapolate passed to flash_backfit
+#'
+#'ebnm_fn_F, ebnm_fn_L
+#'
+#'init_fn
+#'
+#'fixed_truncate
+#'
+#'duplicate_check_thresh
 #'@export
 gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
 
@@ -56,16 +68,16 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
     }
 
     #First initialize flash objects
-    fit <-  flash.init(data = Y, S = S, var.type = 2)
+    fit <-  flash_init(data = Y, S = S, var_type = 2)
 
     # Add factors
     fit <- fit %>%
-      flash.add.greedy(Kmax = params$kmax,
-                       init.fn = params$init_fn,
-                       ebnm.fn = list(params$ebnm_fn_L, params$ebnm_fn_F) ) %>%
-      flash.backfit(maxiter = params$max_iter, extrapolate = params$extrapolate)
-    if(is.null(fit$flash.fit$maxiter.reached)){
-      fit <- fit %>% flash.nullcheck(remove = TRUE)
+      flash_greedy(Kmax = params$kmax,
+                  init_fn = params$init_fn,
+                  ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F) ) %>%
+      flash_backfit(maxiter = params$max_iter, extrapolate = params$extrapolate)
+    if(is.null(fit$flash_fit$maxiter.reached)){
+      fit <- fit %>% flash_nullcheck(remove = TRUE)
       fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
       ret <- gfa_wrapup(fit, nullcheck = TRUE)
       ret$params <- params
@@ -116,7 +128,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   #Fitting
   # randomly initialize A
   if (params$fixed_truncate == Inf) {
-    fixed_ebnm = as.ebnm.fn(prior_family = "normal",
+    fixed_ebnm = flash_ebnm(prior_family = "normal",
                             g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                             fix_g = TRUE)
     A_rand <- matrix(rnorm(n = nvar * nf, mean = 0, sd = 1), nrow = nvar, ncol = nf)
@@ -126,21 +138,21 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
 
   #First initialize flash objects
 
-  fit <-  flash.init(data = Y, S = sqrt(lambda_min), var.type = 2) %>%
-    flash.add.greedy(Kmax = params$kmax,
-                     init.fn = params$init_fn,
-                     ebnm.fn = list(params$ebnm_fn_L, params$ebnm_fn_F) )
+  fit <-  flash_init(data = Y, S = sqrt(lambda_min), var_type = 2) %>%
+    flash_greedy(Kmax = params$kmax,
+                  init_fn = params$init_fn,
+                  ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F) )
 
   #Next add in fixed factors.
-  n <- fit$n.factors
+  n <- fit$n_factors
   fit <- fit %>%
-         flash.init.factors(., init = list(A_rand, W), ebnm.fn = fixed_ebnm) %>%
-         flash.fix.factors(., kset = n + (1:nf), mode=2) %>%
-         flash.backfit(maxiter = params$max_iter,
+         flash_factors_init(., init = list(A_rand, W), ebnm_fn = fixed_ebnm) %>%
+         flash_factors_fix(., kset = n + (1:nf), which_dim = "factors") %>%
+         flash_backfit(maxiter = params$max_iter,
                        extrapolate=params$extrapolate)
 
-  if(is.null(fit$flash.fit$maxiter.reached)){
-    fit <- fit %>% flash.nullcheck(remove = TRUE)
+  if(is.null(fit$flash_fit$maxiter.reached)){
+    fit <- fit %>% flash_nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
     ret <- gfa_wrapup(fit, nullcheck = TRUE)
     ret$params <- params
@@ -153,16 +165,21 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
 #'@export
 gfa_wrapup <- function(fit, nullcheck = TRUE){
   if(nullcheck){
-    fit <- fit %>% flash.nullcheck(remove = TRUE)
+    fit <- fit %>% flash_nullcheck(remove = TRUE)
   }
-  fixed_ix <- fit$flash.fit$fix.dim %>% sapply(., function(x){!is.null(x)})
+  if(length(fit$flash_fit$fix.dim) == 0){
+    fixed_ix <- rep(FALSE, ncol(fit$F_pm))
+  }else{
+    fixed_ix <- fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)})
+  }
+
   if(any(fixed_ix)){
     fixed_ix <- which(fixed_ix)
-    F_hat <- fit$F.pm[,-fixed_ix, drop=FALSE]
-    L_hat <- fit$L.pm[, -fixed_ix, drop=FALSE]
+    F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
+    L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
   }else{
-    F_hat <- fit$F.pm
-    L_hat <- fit$L.pm
+    F_hat <- fit$F_pm
+    L_hat <- fit$L_pm
   }
   Yhat <- L_hat %*% t(F_hat)
   Lx <- colSums(L_hat^2)
@@ -179,9 +196,9 @@ gfa_wrapup <- function(fit, nullcheck = TRUE){
 
 #'@export
 gfa_rebackfit <- function(fit, params){
-  fit <- fit %>% flash.backfit(maxiter = params$max_iter,
+  fit <- fit %>% flash_backfit(maxiter = params$max_iter,
                                extrapolate = params$extrapolate)
-  if(is.null(fit$flash.fit$maxiter.reached)){
+  if(is.null(fit$flash_fit$maxiter.reached)){
     ret <- gfa_wrapup(fit, nullcheck = TRUE)
   }else{
     ret <- list(fit = fit)

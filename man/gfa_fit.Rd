@@ -17,15 +17,7 @@ needed if using B_std.}
 
 \item{R}{Estimated residual correlation matrix}
 
-\item{kmax}{Maximum number of factors. Defaults to 2*ntraits for plain or ntraits
-if using the fixed factor correction.}
-
-\item{min_ev, max_lr_percent, lr_zero_thresh}{See details}
-
-\item{S_inf}{A vector supplying a series of variance inflation factors for fitting ebmf.
-S_inf should be decreasing and the last element should be 1.}
-
-\item{fixed_g}{Supply the prior for loadings of fixed factors.}
+\item{params}{List of parameters. For most users this can be left at the default values. See details.}
 }
 \value{
 A list with elements fit, Y, L_hat, F_hat
@@ -35,9 +27,27 @@ Fit with fixed factors. This version is from March 2021 and explicitly only runs
 either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.
 }
 \details{
+The params list includes:
+
+kmax, the maximum number of factors
+
+max_iter: maximum number of iterations
+
 min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
 where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
 max_lr_percent specifies the proportion of variance of (R - lambda I) that will be retained. This defaults
 to 1 making the approximation exact. Eigenvalues of (R-lambda I) that are less than lr_zero_thresh will
 be set to zero.
+
+ridge_penalty
+
+extrapolate: value of extrapolate passed to flash_backfit
+
+ebnm_fn_F, ebnm_fn_L
+
+init_fn
+
+fixed_truncate
+
+duplicate_check_thresh
 }

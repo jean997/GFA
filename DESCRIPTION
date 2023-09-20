@@ -1,7 +1,7 @@
 Package: sumstatFactors
 Title: Working package for development of Genetic Factor Analysis (GFA)
-Version: 0.1.2.0317
-Date: 2022-08-06
+Version: 0.1.2.0319
+Date: 2023-09-20
 Authors@R: 
     person(given = "Jean",
            family = "Morrison",
@@ -11,7 +11,7 @@ Description: Simulates data and fits GFA
 License: What license it uses
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Imports: 
   flashier,
   dplyr, 

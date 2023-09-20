@@ -5,14 +5,18 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
   while(!done){
     cat("begin while\n")
     if(dim == 2){
-      D = fit$F.pm
+      D = fit$F_pm
     }else if(dim == 1){
-      D = fit$L.pm
+      D = fit$L_pm
     }
-    fixed_ix <- fit$flash.fit$fix.dim %>% sapply(., function(x){
-      if(is.null(x)) return(FALSE)
-      if(x == dim) return(TRUE)
-      return(FALSE)})
+    if(length(fit$flash_fit$fix.dim) == 0){
+      fixed_ix <- rep(FALSE, ncol(D))
+    }else{
+      fixed_ix <- fit$flash_fit$fix.dim %>% sapply(., function(x){
+          if(is.null(x)) return(FALSE)
+          if(x == dim) return(TRUE)
+          return(FALSE)})
+    }
 
     if(any(fixed_ix)){
       fixed_ix <- which(fixed_ix)
@@ -23,7 +27,7 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       non_fixed_ix = seq(ncol(D))
     }
 
-    Dn <- sumstatFactors:::norm_cols(D)
+    Dn <- norm_cols(D)
 
     d <- t(Dn$A) %*% Dn$A
     diag(d) <- 0
@@ -40,7 +44,7 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       reset <- FALSE
       for(i in dups$Var1){
         cat(i, "\n")
-        fit_rem <- flash.remove.factors(fit, kset = non_fixed_ix[i]) %>% flash.backfit()
+        fit_rem <- flash_factors_remove(fit, kset = non_fixed_ix[i]) %>% flash_backfit()
         if(fit_rem$elbo > fit$elbo){
           cat("Removing factor ", non_fixed_ix[i], "\n")
           fit <- fit_rem
