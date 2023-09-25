@@ -116,7 +116,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
   vals <- vals - lambda_min
   if (params$max_lr_percent < 1) {
     vv <- cumsum(vals)/sum(vals)
-    nmax <- min(which(vv > params$max_lr_percent)) - 1
+    nmax <- min(which(vv > params$max_lr_percent))
   }else{
     nmax <- ntrait - 1
   }
