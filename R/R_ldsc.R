@@ -34,7 +34,7 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
   }
 
   h2 <- lapply(1:M, function(m){
-    snp_ldsc(ld_score = ldscores, ld_size = ld_size, chi2 = Z_hat[,m]^2, sample_size = N[m], blocks = NULL)
+    snp_ldsc(ld_score = ldscores, ld_size = ld_size, chi2 = Z_hat[,m]^2, sample_size = N[,m], blocks = NULL)
   })
   res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
