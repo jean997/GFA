@@ -28,8 +28,7 @@
 #' @return Vector of 4 values (or only the first 2 if `blocks = NULL`):
 #'  - `[["int"]]`: LDSC regression intercept,
 #'  - `[["int_se"]]`: SE of this intercept,
-#'  - `[["h2"]]`: LDSC regression estimate of (SNP) heritability (also see
-#'    [coef_to_liab]),
+#'  - `[["h2"]]`: LDSC regression estimate of (SNP) heritability
 #'  - `[["h2_se"]]`: SE of this heritability estimate.
 #'
 #'
@@ -37,6 +36,8 @@
 #'
 ldsc_rg <- function(ld_score, ld_size, z1, z2, sample_size_1, sample_size_2,
                         blocks = 200,
+                        h2_1 = NULL,
+                        h2_2 = NULL,
                         intercept = NULL,
                         intercept_h2_1 = NULL,
                         intercept_h2_2 = NULL,
@@ -68,22 +69,24 @@ ldsc_rg <- function(ld_score, ld_size, z1, z2, sample_size_1, sample_size_2,
     h2_blocks <- NULL
   }
 
-  h2_1 <- snp_ldsc(ld_score, ld_size, z1^2,
+  if(!is.hull(h2_1)){
+    h2_1 <- snp_ldsc(ld_score, ld_size, z1^2,
                    sample_size_1,
                    blocks = h2_blocks,
                    chi2_thr1 = step1_chisq_max,
                    chi2_thr2 = chi2_thr2)
+  }
   pred_h2_1 <- h2_1[["int"]] + h2_1[["h2"]]*sample_size_1*ld_score/ld_size
 
 
-  h2_2 <- snp_ldsc(ld_score, ld_size, z2^2,
+  if(!is.null(h2_2)){
+    h2_2 <- snp_ldsc(ld_score, ld_size, z2^2,
                    sample_size_2,
                    blocks = h2_blocks,
                    chi2_thr1 = step1_chisq_max,
                    chi2_thr2 = chi2_thr2)
+  }
   pred_h2_2 <- h2_2[["int"]] + h2_2[["h2"]]*sample_size_2*ld_score/ld_size
-
-
 
   step1_index <- which(z1^2 < step1_chisq_max & z2^2 < step1_chisq_max)
 

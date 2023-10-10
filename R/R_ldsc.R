@@ -32,11 +32,17 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
     stopifnot(length(N) == M)
     N <- matrix(rep(N, each = J), nrow = J)
   }
+
+  h2 <- lapply(1:M, function(m){
+    snp_ldsc(ld_score = ldscores, ld_size = ld_size, chi2 = Z_hat[,m]^2, sample_size = N[m], blocks = NULL)
+  })
   res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
   vals <- map2_dbl(res$trait1, res$trait2, function(i, j){
+    if(i == j) return(h2[[i]][["int"]])
     rg <- ldsc_rg(ld_score = ldscores, ld_size = ld_size,
                                z1 = Z_hat[,i], z2 = Z_hat[,j],
+                               h2_1 = h2[[i]], h2_2 = h2[[j]],
                                sample_size_1 = N[,i], sample_size_2 = N[,j],
                                blocks = NULL)
     return(rg[["int"]])
