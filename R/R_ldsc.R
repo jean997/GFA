@@ -35,7 +35,7 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
   res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
   vals <- map2_dbl(res$trait1, res$trait2, function(i, j){
-    rg <- bigsnpr::snp_ldsc_rg(ld_score = ldscores, ld_size = ld_size,
+    rg <- ldsc_rg(ld_score = ldscores, ld_size = ld_size,
                                z1 = Z_hat[,i], z2 = Z_hat[,j],
                                sample_size_1 = N[,i], sample_size_2 = N[,j],
                                blocks = NULL)
