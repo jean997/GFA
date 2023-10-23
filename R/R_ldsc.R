@@ -21,7 +21,7 @@ R_ldsc <- function(Z_hat, ldscores, weights){
 }
 
 #'@export
-R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
+R_ldsc2 <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
   stopifnot(class(ldscores) == "numeric")
@@ -38,17 +38,20 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
   })
   res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
-  vals <- map2_dbl(res$trait1, res$trait2, function(i, j){
-    if(i == j) return(h2[[i]][["int"]])
+
+  vals <- map2(res$trait1, res$trait2, function(i, j){
+    if(i == j) return(h2[[i]])
     rg <- ldsc_rg(ld_score = ldscores, ld_size = ld_size,
-                               z1 = Z_hat[,i], z2 = Z_hat[,j],
-                               h2_1 = h2[[i]], h2_2 = h2[[j]],
-                               sample_size_1 = N[,i], sample_size_2 = N[,j],
-                               blocks = NULL)
-    return(rg[["int"]])
+            z1 = Z_hat[,i], z2 = Z_hat[,j],
+            h2_1 = h2[[i]], h2_2 = h2[[j]],
+            sample_size_1 = N[,i], sample_size_2 = N[,j],
+            blocks = NULL)
+    c(rg[["int"]], rg[["gencov"]])
   })
 
-  res$value <- vals
+  val_int <- map(vals, 1) %>% unlist()
+
+  res$value <- val_int
   res_copy <- filter(res, trait1 != trait2) %>%
     rename(n1c = trait2, n2c = trait1) %>%
     rename(trait1 = n1c, trait2 = n2c)
@@ -56,5 +59,21 @@ R_ldsc2 <- function(Z_hat, ldscores, ld_size, N){
   cov_mat <- bind_rows(res, res_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
   Re <- as.matrix(cov_mat[,-1])
-  return(Re)
+
+  if(!return_gencov){return(Re)}
+
+  res_gencov <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
+    filter(trait1 <= trait2)
+  res_gencov$value <- map(vals, 2) %>% unlist()
+  res_g_copy <- filter(res_gencov, trait1 != trait2) %>%
+    rename(n1c = trait2, n2c = trait1) %>%
+    rename(trait1 = n1c, trait2 = n2c)
+
+  gcov_mat <- bind_rows(res_gencov, res_g_copy)  %>%
+    reshape2::dcast(trait1 ~ trait2, value.var = "value")
+  Rg <- as.matrix(gcov_mat[,-1])
+  return(list("Re" = Re, "Rg" = Rg))
+
 }
+
+

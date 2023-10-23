@@ -69,7 +69,7 @@ ldsc_rg <- function(ld_score, ld_size, z1, z2, sample_size_1, sample_size_2,
     h2_blocks <- NULL
   }
 
-  if(!is.null(h2_1)){
+  if(is.null(h2_1)){
     h2_1 <- snp_ldsc(ld_score, ld_size, z1^2,
                    sample_size_1,
                    blocks = h2_blocks,
@@ -79,7 +79,7 @@ ldsc_rg <- function(ld_score, ld_size, z1, z2, sample_size_1, sample_size_2,
   pred_h2_1 <- h2_1[["int"]] + h2_1[["h2"]]*sample_size_1*ld_score/ld_size
 
 
-  if(!is.null(h2_2)){
+  if(is.null(h2_2)){
     h2_2 <- snp_ldsc(ld_score, ld_size, z2^2,
                    sample_size_2,
                    blocks = h2_blocks,
