@@ -25,8 +25,8 @@ loadings_gls <- function(X, S, R, F_hat){
       ftx <- t(F_hat) %*% diag(1/s) %*% Rinv %*% diag(1/s) %*% t(X[i,,drop=F])
       c(ftf_inv %*% ftx, sqrt(diag(ftf_inv)))
     }) %>% matrix(nrow = nvar, byrow = TRUE)
-    L <- L[, 1:nvar]
-    S <- L[, -(1:nvar)]
+    L <- LS[, 1:nfactor]
+    S <- LS[, -(1:nfactor)]
   }
   return(list("L" = L, "S" = S))
 }
