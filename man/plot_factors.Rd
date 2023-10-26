@@ -18,6 +18,14 @@ plot_factors(
 \item{row_names}{Labels for rows}
 
 \item{col_names}{Labels for cols}
+
+\item{row_order}{Order of rows}
+
+\item{col_order}{Order of columns}
+
+\item{row_title}{Title for horizontal axis}
+
+\item{col_title}{Title for vertical axis}
 }
 \description{
 Plot Factors from a matrix

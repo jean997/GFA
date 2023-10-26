@@ -7,7 +7,5 @@
 #' @import flashier
 #' @import dplyr readr reshape2 lpSolve
 #' @import purrr ggplot2
-#' @import viridis
-#' @import bigsnpr
 #' @name sumstatFactors
 NULL

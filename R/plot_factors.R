@@ -1,8 +1,10 @@
 #'@title Plot Factors from a matrix
 #'@param row_names Labels for rows
 #'@param col_names Labels for cols
-#'@param row_order
-#'@param col_order
+#'@param row_order Order of rows
+#'@param col_order Order of columns
+#'@param row_title Title for horizontal axis
+#'@param col_title Title for vertical axis
 #'@export
 plot_factors <- function(x, row_names, col_names, row_order, col_order,
                          row_title = "Trait", col_title = "Factor"){
