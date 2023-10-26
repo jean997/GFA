@@ -14,12 +14,15 @@ LazyData: true
 RoxygenNote: 7.2.3
 Imports: 
   flashier,
-  dplyr, 
-  readr, 
+  dplyr,
+  readr,
   reshape2,
   intervals,
-  purrr, 
-  ggplot2
+  purrr,
+  ggplot2,
+  bigsnpr,
+  lpSolve,
+  viridis
 Suggests: 
     rmarkdown,
     knitr
