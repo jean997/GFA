@@ -34,7 +34,8 @@
 #'
 #'duplicate_check_thresh
 #'@export
-gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
+gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters(),
+                    no_wrapup = FALSE){
 
 
   default_params <- gfa_default_parameters()
@@ -151,7 +152,7 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()){
          flash_backfit(maxiter = params$max_iter,
                        extrapolate=params$extrapolate)
 
-  if(is.null(fit$flash_fit$maxiter.reached)){
+  if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
     ret <- gfa_wrapup(fit, nullcheck = TRUE)
