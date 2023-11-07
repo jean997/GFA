@@ -128,14 +128,10 @@ gfa_fit <- function(Z_hat, B_std, N, R, params = gfa_default_parameters(),
 
   #Fitting
   # randomly initialize A
-  if (params$fixed_truncate == Inf) {
-    fixed_ebnm = flash_ebnm(prior_family = "normal",
+  fixed_ebnm = flash_ebnm(prior_family = "normal",
                             g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                             fix_g = TRUE)
-    A_rand <- matrix(rnorm(n = nvar * nf, mean = 0, sd = 1), nrow = nvar, ncol = nf)
-  }else{
-    stop("Not implemented yet.")
-  }
+  A_rand <- matrix(rnorm(n = nvar * nf, mean = 0, sd = 1), nrow = nvar, ncol = nf)
 
   #First initialize flash objects
 
