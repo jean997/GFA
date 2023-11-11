@@ -1,35 +1,37 @@
 #'@export
-gfa_wrapup <- function(fit, scale = NULL, nullcheck = TRUE){
+gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = TRUE){
   if(nullcheck){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
   }
-  if(length(fit$flash_fit$fix.dim) == 0){
-    fixed_ix <- rep(FALSE, ncol(fit$F_pm))
-  }else{
-    fixed_ix <- fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)})
-  }
 
-  if(any(fixed_ix)){
-    fixed_ix <- which(fixed_ix)
-    F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
-    L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
-  }else{
+
+  if(method == "noR" | method == "random_effect"){
     F_hat <- fit$F_pm
     L_hat <- fit$L_pm
+  }else if(method == "fixed_factors"){
+    fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
+    F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
+    L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
   }
+
   F_hat_est <- F_hat
   if(!is.null(scale)){
     F_hat <- F_hat*scale
   }
-  pve_trait <- pve_by_trait(L_hat, F_hat_est, fit$flash_fit$tau, sqrt(scale))
-#
-#   Yhat <- L_hat %*% t(F_hat)
-#   Lx <- colSums(L_hat^2)
-#   Fx <- colSums(F_hat^2)
-#   F_hat_scaled <- t(t(F_hat)/sqrt(Fx))
-#   L_hat_scaled <- t(t(L_hat)/sqrt(Lx))
-#   scale <- sqrt(Fx)*sqrt(Lx)
-  ret <- list(fit=fit, L_hat = L_hat, F_hat = F_hat,
+  if(ncol(F_hat) > 0){
+    hat_single <- find_single_trait(F_hat)
+    if(length(hat_single) > 0){
+      F_hat_single <- F_hat[,hat_single]
+      F_hat_multi <- F_hat[, -hat_single]
+    }else{
+      F_hat_single <- NULL
+      F_hat_multi <- F_hat
+    }
+  }
+  ret <- list(fit=fit, method = method,
+              L_hat = L_hat, F_hat = F_hat,
+              F_hat_single = F_hat_single,
+              F_hat_multi = F_hat_multi,
               scale = scale, F_hat_est = F_hat_est)
   return(ret)
 }

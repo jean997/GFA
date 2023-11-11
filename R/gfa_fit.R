@@ -61,7 +61,7 @@ gfa_fit <- function(Z_hat = NULL,
 
   method <- match.arg(method)
 
-  if(is.null(params$kmax)) params$kmax <- 2*dat$p
+  if(is.null(dat$params$kmax)) dat$params$kmax <- 2*dat$p
 
 
   if(is.null(dat$R)){
@@ -73,13 +73,16 @@ gfa_fit <- function(Z_hat = NULL,
     fit <- fit_gfa_re(dat)
   }
 
+  #fit$method <- method
   ## wrap up
   if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
-    fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
-    ret <- gfa_wrapup(fit, scale = dat$scale, nullcheck = FALSE)
+    #fit <- gfa_duplicate_check(fit, method = method,
+     #                          dim = 2, check_thresh = params$duplicate_check_thresh)
+    ret <- gfa_wrapup(fit, method = method,
+                      scale = dat$scale, nullcheck = FALSE)
     ret$params <- dat$params
-    ret$scale <- dat$scale
+    ret$gfa_pve <- pve2(ret)
   }else{
     ret <- list(fit = fit, params = dat$params, scale = dat$scale)
   }
@@ -92,7 +95,7 @@ fit_gfa_ff <- function(dat){
   vals <- eS$values - lambda_min
   if (dat$params$max_lr_percent < 1) {
     vv <- cumsum(vals)/sum(vals)
-    nmax <- min(which(vv > params$max_lr_percent))
+    nmax <- min(which(vv > dat$params$max_lr_percent))
   }else{
     nmax <- dat$p - 1
   }
@@ -103,7 +106,7 @@ fit_gfa_ff <- function(dat){
   fixed_ebnm = flash_ebnm(prior_family = "normal",
                           g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                           fix_g = TRUE)
-  A_rand <- matrix(rnorm(n = nvar * nf, mean = 0, sd = 1), nrow = nvar, ncol = nf)
+  A_rand <- matrix(rnorm(n = dat$n * nmax, mean = 0, sd = 1), nrow = dat$n, ncol = nmax)
 
   #First initialize flash objects
 
@@ -111,15 +114,23 @@ fit_gfa_ff <- function(dat){
     flash_greedy(Kmax = dat$params$kmax,
                  init_fn = dat$params$init_fn,
                  ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
+
+  k <- fit$n_factors
+  fit <- fit %>%
+    flash_factors_init(., init = list(A_rand, W), ebnm_fn = fixed_ebnm) %>%
+    flash_factors_fix(., kset = k + (1:nmax), which_dim = "factors") %>%
+    flash_backfit(maxiter = dat$params$max_iter,
+                  extrapolate=dat$params$extrapolate)
+  fit$method <- "fixed_factors"
   return(fit)
 
 }
 
 fit_gfa_re <- function(dat){
   fit <-  flash_init(data = dat$Y, S = 0, var_type = 2, re_cov = dat$R)
-  fit <- flashier:::update_random_effect(fit$flash_fit) %>%
-    flashier:::init.tau()
-  fit <- flashier:::set.obj(fit, flashier:::calc.obj(fit))
+  # fit <- flashier:::update_random_effect(fit$flash_fit) %>%
+  #   flashier:::init.tau()
+  # fit <- flashier:::set.obj(fit, flashier:::calc.obj(fit))
   fit <- fit %>% flash_greedy(Kmax = dat$params$kmax,
                               init_fn = dat$params$init_fn,
                               ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
@@ -127,6 +138,7 @@ fit_gfa_re <- function(dat){
   fit <- fit %>% flash_backfit(maxiter = dat$params$max_iter,
                                extrapolate=dat$params$extrapolate,
                                verbose = dat$params$verbose)
+  fit$method <- "random_effect"
   return(fit)
 }
 
@@ -140,4 +152,6 @@ fit_gfa_noR <- function(dat){
                  init_fn = dat$params$init_fn,
                  ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) ) %>%
     flash_backfit(maxiter = dat$params$max_iter, extrapolate = dat$params$extrapolate)
+  fit$method <- "noR"
+  return(fit)
 }

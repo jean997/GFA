@@ -53,16 +53,17 @@ gfa_set_data <- function(Y, scale = NULL, S = NULL, R = NULL, params = NULL){
 ## B_hat to z-scores and store the scale parametrs (1, sqrt(N2)/sqrt(N1), ...)
 
 get_scale_from_S <- function(S){
-  scale <- apply(S[,-1], 2, function(s){
+  trait_scale <- apply(S[,-1], 2, function(s){
     median(s/S[,1])
   })
-  scale <- c(1, scale)
-  return(scale)
+  trait_scale <- sqrt(c(1, scale))
+  #variant_scale <- apply( t(t(S)/trait_scale)  , 1, median)
+  return(trait_scale)
 }
 
 check_R <- function(R, p, params, tol = 1e-8){
   if(is.null(R)) return(R)
-  if(!Matrix::isSymmetric(M)){
+  if(!Matrix::isSymmetric(R)){
     stop(paste0(deparse(substitute(R)), " must be symmetric.\n"))
   }
   if(!ncol(R) == p){
@@ -97,7 +98,7 @@ check_args_znbs <- function(is_null_Z, is_null_N, is_null_B, is_null_S){
   if(!is_null_B & is_null_S){
     stop("If B_hat is supplied, S must also be supplied.")
   }
-  if(!is.null_Z & !is_null_S){
+  if(!is_null_Z & !is_null_S){
     stop("If Z_hat is supplied do not supply S")
   }
   if(!is_null_B & !is_null_N){

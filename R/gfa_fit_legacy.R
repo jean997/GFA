@@ -151,7 +151,7 @@ gfa_fit_legacy <- function(Z_hat, B_std, N, R, params = gfa_default_parameters()
   if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit, dim = 2, check_thresh = params$duplicate_check_thresh)
-    ret <- gfa_wrapup(fit, nullcheck = TRUE)
+    ret <- gfa_wrapup_legacy(fit, nullcheck = TRUE)
     ret$params <- params
   }else{
     ret <- list(fit = fit, params = params)
