@@ -1,7 +1,9 @@
 
 #'@title Cheater ld-score matrix. Fast but higher variance.
 #'@export
-R_ldsc_quick <- function(Z_hat, ldscores, weights){
+R_ldsc_quick <- function(Z_hat, ldscores, weights = 1/ldscores,
+                         make_well_conditioned = TRUE, cond_num = 1e5,
+                         return_cor = TRUE){
   M <- ncol(Z_hat)
   stopifnot(class(ldscores) == "numeric")
   stopifnot(length(ldscores) == nrow(Z_hat))
@@ -19,12 +21,24 @@ R_ldsc_quick <- function(Z_hat, ldscores, weights){
   cov_mat <- bind_rows(res, res_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
   Re <- as.matrix(cov_mat[,-1])
+
+
+  if(make_well_conditioned){
+    Re <- condition(Re, cond_num)
+  }
+
+  if(return_cor){
+    Re <- cov2cor(Re)
+  }
+
   return(Re)
 }
 
 #'@title Calculate matrix of error correlations using LD-score regression.
 #'@export
-R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE){
+R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
+                   make_well_conditioned = TRUE, cond_num = 1e5,
+                   return_cor = TRUE){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
   stopifnot(class(ldscores) == "numeric")
@@ -62,6 +76,15 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE){
   cov_mat <- bind_rows(res, res_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
   Re <- as.matrix(cov_mat[,-1])
+  colnames(Re) <- rownames(Re) <- NULL
+
+  if(make_well_conditioned){
+    Re <- condition(Re, cond_num)
+  }
+
+  if(return_cor){
+    Re <- cov2cor(Re)
+  }
 
   if(!return_gencov){return(Re)}
 
@@ -82,18 +105,15 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE){
 
 #'@title Calculate matrix of error correlations using p-value threshold method.
 #'@export
-R_pt <- function(B_hat, S_hat, N, p_val_thresh = 0.05, z_scores=FALSE){
+R_pt <- function(B_hat, S_hat, p_val_thresh = 0.05, return_cor = TRUE,
+                 make_well_conditioned = TRUE, cond_num = 1e5){
   ntrait <- ncol(B_hat)
   nvar <- nrow(B_hat)
   stopifnot(nrow(S_hat) == nvar & ncol(S_hat)==ntrait)
-  stopifnot(length(N)==ntrait)
 
   keep <- 2*pnorm(-abs(B_hat/S_hat)) > p_val_thresh
-  if(z_scores){
-    A <- B_hat/S_hat
-  }else{
-    A <- t( (1/sqrt(N)) *t(B_hat/S_hat))
-  }
+
+  A <- B_hat/S_hat
 
   R_df <- expand.grid(T1 = seq(ntrait), T2 = seq(ntrait)) %>%
     filter(T1 <= T2)
@@ -106,12 +126,32 @@ R_pt <- function(B_hat, S_hat, N, p_val_thresh = 0.05, z_scores=FALSE){
   R <- reshape2::acast(R_df, T1~T2, value.var = "r")
   R_lower <- reshape2::acast(R_df, T2~T1, value.var = "r")
   R[lower.tri(R)] <- R_lower[lower.tri(R)]
-  eig_R <- eigen(R)
-  if(any(eig_R$values < 0)){
-    eig_R$values <- pmin(eig_R$values, 0)
-    R <- eiag_R$vectors %*% diag(eig_R$values) %*% t(eig_R$vectors)
+
+  if(make_well_conditioned){
+    R <- condition(R, cond_num)
   }
+
+  if(return_cor){
+    R <- cov2cor(R)
+  }
+
   return(R)
 }
 
+#'@title Project matrix to nearest well conditioned positive definite matrix.
+#'@param R Matrix
+#'@param cond_num Maximum allowable condition number (max(eigenvalue)/min(eigenvalue))
+#'@export
+condition <- function(R, cond_num = 1e5){
+  eig_R <- eigen(R)
+  vals <- eig_R$values
+  illcond <- any(vals < 0) | max(vals)/min(vals) > cond_num
+  if(illcond){
+    warning(paset0(deparse(substitute(R)), " is either not positive definite or is illconditioned. Projecting to nearest well conditioned matrix."))
+    x <- (cond_num*min(vals) - max(vals))/(1-cond_num)
+    eig_R$values <- eig_R$values + x
+    R <- with(eig_R, tcrossprod(vectors, tcrossprod(vectors, diag(values))))
+  }
+  return(R)
+}
 
