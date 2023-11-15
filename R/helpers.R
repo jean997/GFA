@@ -13,7 +13,7 @@ gfa_set_data <- function(Y, scale = NULL, S = NULL, R = NULL, params = NULL){
       dat$scale <- rep(1, dat$p)
     }else{
       ## effect scale yes R
-      message("For now, with R and on effect scale,
+      message("For now, with R on effect scale,
               all I know how to do is convert to z-scores
               and store the scale parameter..\n")
       dat$scale <- get_scale_from_S(S)
@@ -69,17 +69,22 @@ check_R <- function(R, p, params, tol = 1e-8){
   if(!ncol(R) == p){
     stop("Dimension of R not compatible with data.")
   }
-  eMvals <- eigen(R, only.values = TRUE)$values
-  if(!all(eMvals >= -1*tol)){
-    stop(paste0(deparse(substitute(R)), " is not positive semi-definite.\n"))
-  }
   if(!all(abs(diag(R)-1) < tol)){
     stop(paste0(deparse(substitute(R)), " should be a correlation matrix."))
   }
 
   vals <- eigen(R, only.values = TRUE)$values
-  if(min(vals)/max(vals) < params$min_ev){
-    stop("Ratio of smallest eigenvalue to largest eigenvalue is smaller than ", params$min_ev)
+  if(!all(vals >= -1*tol)){
+    stop(paste0(deparse(substitute(R)), " is not positive definite. Project
+                to the nearest wellconditioned positive definite matrix using
+                condition(R)\n"))
+  }
+  if(max(vals)/min(vals) > params$cond_num){
+
+    stop( paset0(deparse(substitute(R)), " is illconditioned with condition number", max(vals)/min(vals),
+                 " and maximum allowable condition number ", params$cond_num,
+                 ". Either project to nearest well conditioned matrix using condition(R, params$cond_num) or choose a larger maximum condition
+         number using params = list(cond_num = x)."))
   }
 
   v <- sum((vals - min(vals))^2)/sum(vals^2)

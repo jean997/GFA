@@ -56,6 +56,7 @@ gfa_fit <- function(Z_hat = NULL,
   if(is.null(Z_hat)){
     dat <- gfa_set_data(Y = B_hat, scale = NULL, S = S, R = R, params = params)
   }else{
+    if(is.null(N)) N <- rep(1, ncol(Z_hat))
     dat <- gfa_set_data(Y = Z_hat, scale = sqrt(N), S = NULL, R = R, params = params)
   }
 
@@ -67,6 +68,7 @@ gfa_fit <- function(Z_hat = NULL,
   if(is.null(dat$R)){
     message("R is not supplied, fitting assuming full independence")
     fit <- fit_gfa_noR(dat)
+    method <- "noR"
   }else if(method == "fixed_factors"){
     fit <- fit_gfa_ff(dat)
   }else if(method == "random_effect"){
@@ -82,12 +84,12 @@ gfa_fit <- function(Z_hat = NULL,
     ret <- gfa_wrapup(fit, method = method,
                       scale = dat$scale, nullcheck = FALSE)
     ret$params <- dat$params
-    ret$gfa_pve <- pve2(ret)
   }else{
     ret <- list(fit = fit, params = dat$params, scale = dat$scale)
   }
   return(ret)
 }
+
 
 fit_gfa_ff <- function(dat){
   eS <- eigen(dat$R)

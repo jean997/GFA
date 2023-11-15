@@ -4,28 +4,27 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = TRUE){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
   }
 
+  F_hat <- fit$F_pm
+  L_hat <- fit$L_pm
 
-  if(method == "noR" | method == "random_effect"){
-    F_hat <- fit$F_pm
-    L_hat <- fit$L_pm
-  }else if(method == "fixed_factors"){
+  if(method == "fixed_factors"){
     fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
-    F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
-    L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
+    if(length(fixed_ix) > 0){
+      F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
+      L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
+    }
   }
-
   F_hat_est <- F_hat
   if(!is.null(scale)){
     F_hat <- F_hat*scale
   }
+  F_hat_multi <- F_hat
+  F_hat_single <- NULL
   if(ncol(F_hat) > 0){
     hat_single <- find_single_trait(F_hat)
     if(length(hat_single) > 0){
       F_hat_single <- F_hat[,hat_single]
       F_hat_multi <- F_hat[, -hat_single]
-    }else{
-      F_hat_single <- NULL
-      F_hat_multi <- F_hat
     }
   }
   ret <- list(fit=fit, method = method,
@@ -33,6 +32,9 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = TRUE){
               F_hat_single = F_hat_single,
               F_hat_multi = F_hat_multi,
               scale = scale, F_hat_est = F_hat_est)
+  if(ncol(F_hat) > 0){
+    ret$gfa_pve <- pve2(ret)
+  }
   return(ret)
 }
 

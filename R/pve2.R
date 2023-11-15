@@ -19,11 +19,15 @@ pve2 <- function(gfa_fit){
     }) |> matrix(nrow = p, byrow = FALSE)
 
     # variance from fixed factors (this is part of error)
-    fj <- sapply(fixed_ix, function(kk){
-      Vk <- flashier:::lowrank.expand(list(ef2[[1]][,kk,drop = F], ef2[[2]][,kk, drop = F]))
-      ## standardized effect scale total variance
-      colSums(Vk)/(gfa_fit$scale^2)
-    })|> matrix(nrow = p, byrow = FALSE)
+    if(length(fixed_ix) == 0){
+      fj_sums <- rep(0, p)
+    }else{
+      fj_sums <- sapply(fixed_ix, function(kk){
+        Vk <- flashier:::lowrank.expand(list(ef2[[1]][,kk,drop = F], ef2[[2]][,kk, drop = F]))
+        ## standardized effect scale total variance
+        colSums(Vk)/(gfa_fit$scale^2)
+      })|> matrix(nrow = p, byrow = FALSE) |> rowSums()
+    }
 
     tau <- flashier:::get.tau(gfa_fit$fit$flash_fit)
     stopifnot(length(tau) == p) # this should never fail
@@ -31,8 +35,8 @@ pve2 <- function(gfa_fit){
     fixed_tau <- flash_fit_get_fixed_tau(gfa_fit$fit$flash_fit)
     est_tau <- 1/((1/tau) - (1/fixed_tau))
 
-    error_var <- rowSums(fj) + (n/fixed_tau)/(gfa_fit$scale^2)
-    total_var <- rowSums(sj) + rowSums(fj) + (n/tau)/(gfa_fit$scale^2) ## this should be close to 1?
+    error_var <- fj_sums + (n/fixed_tau)/(gfa_fit$scale^2)
+    total_var <- rowSums(sj) + fj_sums + (n/tau)/(gfa_fit$scale^2) ## this should be close to 1?
 
     genet_var = rowSums(sj) + (n/est_tau)/(gfa_fit$scale^2)
     pve_j <- sj/genet_var
@@ -44,8 +48,9 @@ pve2 <- function(gfa_fit){
       ## standardized effect scale total variance
       colSums(Vk)/(gfa_fit$scale^2)
     }) |> matrix(nrow = p, byrow = FALSE)
+    est_tau <- flashier:::get.tau(gfa_fit$fit$flash_fit)
     error_var <- colSums(gfa_fit$fit$flash_fit$EB2)
-    genet_var <- rowSums(sj) + (n/flashier:::get.tau(gfa_fit$fit$flash_fit))
+    genet_var = rowSums(sj) + (n/est_tau)/(gfa_fit$scale^2)
     pve_j <- sj/genet_var
   }else if(gfa_fit$method == "noR"){
     est_ix <- 1:k
@@ -62,12 +67,12 @@ pve2 <- function(gfa_fit){
     est_tau <- 1/((1/tau) - (1/fixed_tau))
 
     error_var <-  (n/fixed_tau)/(gfa_fit$scale^2)
-    total_var <- rowSums(sj) + (n/tau)/(gfa_fit$scale^2) ## this should be close to 1?
+    #total_var <- rowSums(sj) + (n/tau)/(gfa_fit$scale^2)
 
     genet_var = rowSums(sj) + (n/est_tau)/(gfa_fit$scale^2)
     pve_j <- sj/genet_var
   }
-  return(list(geent_var = genet_var, error_var = error_var, pve = pve_j))
+  return(list(genet_var = genet_var, pve = pve_j))
 }
 
 
