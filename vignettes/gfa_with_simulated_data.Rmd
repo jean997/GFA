@@ -51,6 +51,7 @@ p <- plot_factors(myF, row_names = c("T3", "T2", "T1"), col_names = c("F1", "F2"
            axis.ticks = element_blank())
 p
 ```
+
 Next we simulate some data using the `sim_lf` function in `GWASBrewer` which simulates from the model
 
 $$
@@ -94,6 +95,7 @@ plot_factors(X, col_names = c("T1", "T2", "T3")) +
            panel.background = element_rect(fill = "white"),
            axis.ticks = element_blank())
 ```
+
 ### Fit GFA to simple data
 
 
@@ -156,6 +158,7 @@ fit_svd$v %>%
            axis.ticks = element_blank())
 
 ```
+
 The first SVD factor is a good estimate of true factor F2 but the subsequent columns do not correspond to true factors because they are constrained to be orthogonal to the first.
 
 
@@ -283,17 +286,19 @@ Z_hat_indep <- Z_hat[ix,]
 dim(Z_hat_indep)
 ```
 
-Finally, we can fit GFA using the estimated or true residual correlation matrix.
+Finally, we can fit GFA with or without adjustment for sample ovelap provided by the `R` argument. Recall that `R1` was estimated using LD-score regression.
 
 ```{r}
 fit1_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1, method = "fixed_factors")
-fit2_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2, method = "fixed_factors")
+fit0 <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat))
+```
 
+
+Below are some alternative settings using different versions of R and different methods:
+```{r, eval = FALSE}
+fit2_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2, method = "fixed_factors")
 fit1_re <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1, method = "random_effect")
 fit2_re <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2, method = "random_effect")
-
-fit0 <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat))
-
 fitoracle_ff <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat$R, method = "fixed_factors")
 fitoracle_re <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat$R, method = "random_effect")
 ```
@@ -305,7 +310,7 @@ min_norm(f_true = dat$F_mat, f_hat = fit1_ff$F_hat)$solution
 ```
 In the output, we can see that each true factor is matched by an estimated factor. The value in `val` gives the similarity between the true and estimated factors with 1 indicating a perfect match and 0 indicating no match at all. 
 
-If we compare these results with the results where we omitted the `R` argument, we can see that no adjusting for the nuisance correlation has resulted in thre extra factors being estimated that don't match any true factors. 
+If we compare these results with the results where we omitted the `R` argument, we can see that not adjusting for the nuisance correlation has resulted in thre extra factors being estimated that don't match any true factors. 
 
 ```{r}
 min_norm(f_true = dat$F_mat, f_hat = fit0$F_hat)$solution
@@ -337,7 +342,8 @@ p1 <- fit1_ff$F_hat %>%
 	   title  = element_text(size = 20),
 	   axis.text = element_text(size = 12),
   	legend.position = "none")
-gridExtra::grid.arrange(p0, p1, ncol = 2)
+p0
+p1
 ```
 
 
