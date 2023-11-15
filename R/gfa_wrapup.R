@@ -1,5 +1,5 @@
 #'@export
-gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = TRUE){
+gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   if(nullcheck){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
   }
@@ -15,9 +15,17 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = TRUE){
     }
   }
   F_hat_est <- F_hat
+  #L_hat_est <- L_hat
+
   if(!is.null(scale)){
-    F_hat <- F_hat*scale
+    F_hat <- F_hat/scale
   }
+  row_scale <- sqrt(colSums(F_hat^2))
+  F_hat <- t(t(F_hat)/row_scale)
+  L_hat <- t(t(L_hat)*row_scale)
+  #L_hat_est <- t(t(L_hat_est)*row_scale)
+  F_hat_est <- t(t(F_hat_est)/row_scale)
+
   F_hat_multi <- F_hat
   F_hat_single <- NULL
   if(ncol(F_hat) > 0){
@@ -51,6 +59,12 @@ gfa_rebackfit <- function(fit, params){
   return(ret)
 }
 
-
+### Scale notes:
+## Standardized Effect model
+## Bhatstd = L F^T + E
+## Zhat = Bhatstd*diag(sqrt(N)) = L ( diag(sqrt(N)) F)^T + E
+## So we have estimated F_hat_est = diag(sqrt(N)) F
+## To retrieve F, F_hat = F_hat_est/sqrt(N)
+## scale = sqrt(N)
 
 
