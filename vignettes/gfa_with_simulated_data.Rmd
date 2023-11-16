@@ -287,7 +287,7 @@ Z_hat_indep <- Z_hat[ix,]
 dim(Z_hat_indep)
 ```
 
-Finally, we can fit GFA with or without adjustment for sample ovelap provided by the `R` argument. Recall that `R1` was estimated using LD-score regression.
+Finally, we can fit GFA with or without adjustment for sample overlap provided by the `R` argument. Recall that `R1` was estimated using LD-score regression.
 
 ```{r}
 fit1_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1, method = "fixed_factors")
