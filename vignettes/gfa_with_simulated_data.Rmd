@@ -52,7 +52,7 @@ p <- plot_factors(myF, row_names = c("T3", "T2", "T1"), col_names = c("F1", "F2"
 p
 ```
 
-Next we simulate some data using the `sim_lf` function in `GWASBrewer` which simulates from the model
+Next we simulate some data using the `sim_lf` function in `GWASBrewer` which simulates from the GFA model,
 
 $$
 \hat{B} = LF^\top + \Theta + E
@@ -101,7 +101,7 @@ plot_factors(X, col_names = c("T1", "T2", "T3")) +
 
 In a typical GFA analysis, we would first estimate the correlation between effect estimates that is due to sample overlap. In our toy example, there is no sample overlap, so we will skip this step, but we will include it in the next example.
 
-To fit GFA to our toy data, we use the `gfa_fit` function. `gfa_fit` can take two types of input, either z-scores and sample size or effect estimates and standard errors. If you know the sample size for each GWAS, it is better to use z-scores and sample size. In either case, GFA will be fit using z-scores and the fitted factors will be re-scaled so that they are on the standardized trait scale. If z-scores are provided and no sample size is given, factors will still be estimated but will be left on the z-score scale. We will discuss scaling in greater detail in the next example.
+To fit GFA to our toy data, we use the `gfa_fit` function. `gfa_fit` can take two types of input, either z-scores and sample size or effect estimates and standard errors. If you know the sample size for each GWAS, it is better to use z-scores and sample size. In either case, GFA will be fit using z-scores and the fitted factors will be re-scaled so that they are on the standardized trait scale. If z-scores are provided and no sample size is given, factors can still be estimated but will be left on the z-score scale which depends on sample size and may not be interpretable. We will discuss scaling in greater detail in the third section.
 
 ```{r}
 Z_hat = with(dat, beta_hat/s_estimate)
@@ -117,7 +117,7 @@ The resulting fit object  contains the following items:
 - `L_hat`: Estimated variant-factor effects
 - `F_hat_single`: Subset of columns of `F_hat` corresponding to single-trait factors.
 - `F_hat_multi`: Columns of `F_hat` corresponding to multi-trait factors.
-- `F_hat_est`: estimated factors on the estimated (z-score) scale.
+- `F_hat_est`: estimated factors on the estimated (z-score) scale (usually not needed).
 - `gfa_pve`: An object containing `genet_var` and `pve`. `genet_var` is the trait heritability 
 explained by the fitted model. `pve` is the proportion of heritability for each trait (rows) explained by each factor (columns).
 - `scale`, `method`, `params` and `fit` are for internal use.
@@ -162,7 +162,7 @@ fit_svd$v %>%
 The first SVD factor is a good estimate of true factor F2 but the subsequent columns do not correspond to true factors because they are constrained to be orthogonal to the first.
 
 
-### More Complex Example
+## More Complex Example
 
 Next we will generate and analyze some more complicated data including LD and sample overlap. We use the LD pattern built into the `GWASBrewer` package which is estimated from chromosome 19 of the European subset of 1k Genomes.
 
@@ -189,32 +189,19 @@ diag(Nmat) <- diag(Nmat) + Nunique
 pi_L <- pi_theta <- 1000/nvar
 ```
 
-Next we generate a factor structure:
+Next we generate a factor structure. To do this we use the `generate_random_F` function in `GWASBrewer`. This function requires a sampling function for drawing factor-trait effects, the number of traits affected by each factor, the total trait heritability, the proportion of heritability of each trait explained by factors, and the heritability of the factors. For this example, we will generate factor structures until we find one where every trait is affected by at least one factor. 
             
 ```{r}    
+# sampling function
 g_F <- function(n){runif(n, -1, 1)}
 # number of traits affected by each factor
 nz_factor <- pmin(rpois(nfactor, 5)+1, ntrait)
 # heritability of each trait
 h2_trait <- runif(n=ntrait, 0.05, 0.3)
 # proportion of trait variance explained by factors
-#omega <- runif(n=ntrait, 0.5, 1)
-omega <- rep(1, ntrait)
+omega <- runif(n=ntrait, 0.5, 1)
 # heritability of each factor
 h2_factor <- runif(n=nfactor, 0.5, 1)
-```
-
-
-Finally, since GWAS samples overlap, we can provide the environmental correlation of the traits. This is the correlation of the environmental component of the trait not mediated by the factors. We will use a block correlation structure.
-```{r}
-Rblock <- matrix(0.5, 4, 4)
-diag(Rblock) <- 1
-R_E <- kronecker(diag(5), Rblock)
-```
-
-Now we are ready to generate data.
-
-```{r}
 done <- FALSE
 while(!done){
   #cat("going..")
@@ -224,18 +211,31 @@ while(!done){
   x <- rowSums(myF^2)
   if(all(x > 0)) done <- TRUE
 }
-dat <-  sim_lf(F_mat = myF, N=Nmat, J=nvar, h2_trait = h2_trait,
+```
+
+
+Since GWAS samples overlap, we can provide the environmental correlation of the traits. This is the correlation of the environmental component of the trait that is not mediated by the factors. For our example, we will use a block correlation structure.
+```{r}
+Rblock <- matrix(0.5, 4, 4)
+diag(Rblock) <- 1
+R_E <- kronecker(diag(5), Rblock)
+```
+
+Now we are ready to generate data.
+
+```{r}
+dat2 <-  sim_lf(F_mat = myF, N=Nmat, J=nvar, h2_trait = h2_trait,
             omega = omega, h2_factor = h2_factor,
             pi_L = rep(pi_L, nfactor), pi_theta = pi_theta,
             R_E = R_E, 
             R_LD = ld_mat_list, af = AF, 
             est_s = TRUE) 
-dat <- GWASBrewer:::calc_ld_scores(dat, ld_mat_list)
+dat2 <- GWASBrewer:::calc_ld_scores(dat2, ld_mat_list)
 ```
 We can take a look at the generated true factor structure.
 
 ```{r}
-p <- dat$F_mat %>%
+p <- dat2$F_mat %>%
 	sumstatFactors:::norm_cols() %>%
 	with(., A) %>%
   plot_factors(.) +
@@ -253,35 +253,36 @@ p <- dat$F_mat %>%
 p
 ```
 
-The simulated data also contains some objects describing the trait covariance. The traits are scaled to have a total variance of 1. `dat$Sigma_G` gives the genetic variance-covariance matrix, so the diagonal of this matrix gives the heritability. `dat$Sigma_E` gives the environmental variance-covariance matrix, so the total trait correlation is `dat$Sigma_E + dat$Sigma_G`. Useful for our purposes, `dat$R` gives the residual correlation of the effect estiamtes which is equal to `dat$trait_cor` with elements scaled by the proportion of overlap between GWAS.
+The simulated data also contains some objects describing the trait covariance. The traits are scaled to have a total variance of 1. `dat$Sigma_G` gives the genetic variance-covariance matrix, so the diagonal of this matrix gives the heritability. `dat$Sigma_E` gives the environmental variance-covariance matrix, so the total trait correlation is `dat$Sigma_E + dat$Sigma_G`. Useful for our purposes, `dat$R` gives the residual correlation of the effect estimates which is equal to `dat$trait_cor` with elements scaled by the proportion of overlap between GWAS.
 
 
-### Fit GFA to Simulated Data
+### Estimate Correlation from Factor Overlap
 
 Since we have sample overlap, we should estimate the residual correlation. We can do this using either `R_ldsc` or `R_pt` to use the LD-score regression or p-value thresholding methods. For the LD-score regression method, we need to provide LD scores which were computed by `GWASBrewer`. 
 
 ```{r}
-Z_hat <- with(dat, beta_hat/s_estimate)
-ldscores <- dat$snp_info$l2
+Z_hat <- with(dat2, beta_hat/s_estimate)
+ldscores <- dat2$snp_info$l2
 R1 <- R_ldsc(Z_hat, ldscores = ldscores, ld_size = nrow(Z_hat), N = diag(Nmat)) 
-R2 <- with(dat, R_pt(beta_hat, s_estimate, p_val_thresh = 0.05)) 
+R2 <- with(dat2, R_pt(beta_hat, s_estimate, p_val_thresh = 0.05)) 
 ```
 
-We can take a look at the estimated $R$ and the true $R$. The LD-score method gives a more accurate estimate but takes longer to compute.
+We can take a look at the estimated $R$ vs the true $R$. The LD-score method gives a more accurate estimate but takes longer to compute.
 
 ```{r}
-plot_factors(dat$R) + theme(axis.title =  element_blank()) + ggtitle("True R")
+plot_factors(dat2$R) + theme(axis.title =  element_blank()) + ggtitle("True R")
 plot_factors(R2) + theme(axis.title =  element_blank()) + ggtitle("Estimated R - p threshold")
-plot(dat$R, R2, xlab = "True Correlation", ylab = "Estimated Correlation - p threshold")
+plot(dat2$R, R2, xlab = "True Correlation", ylab = "Estimated Correlation - p threshold")
 abline(0, 1)
-plot(dat$R, R1, xlab = "True Correlation", ylab = "Estimated Correlation - LDSC")
+plot(dat2$R, R1, xlab = "True Correlation", ylab = "Estimated Correlation - LDSC")
 abline(0, 1)
 ```
+### Fit GFA
 
-Next, we need to obtain an independent (LD-pruned) set of variants. We can use `GWASBrewer` to find this for the simulated data set.
+To fit GFA,  we need to obtain an independent (LD-pruned) set of variants. We can use `GWASBrewer` to find this for the simulated data set. Note that we **should not** threshold on p-value. It is ok to prioritize variants by minimum p-value for LD pruning, but here we just prune randomly.
 
 ```{r}
-ix <- sim_ld_prune(dat, R_LD = ld_mat_list, r2_thresh = 0.01)
+ix <- sim_ld_prune(dat2, R_LD = ld_mat_list, r2_thresh = 0.01)
 Z_hat_indep <- Z_hat[ix,]
 dim(Z_hat_indep)
 ```
@@ -306,45 +307,142 @@ fitoracle_re <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat$R, method 
 In this example, we get nearly identical results using either estimate of R or the truth and using either the `fixed_factors` or `random_effect` estimation method. With any of these settings, we are able to accurately recover all five factors. We can see this by using the `min_norm` function which compares an estimated factor matrix to a true factor matrix by rotating estimated matrix (re-ordering the columns) to give the minimum frobenious norm. 
 
 ```{r}
-min_norm(f_true = dat$F_mat, f_hat = fit1_ff$F_hat)$solution
+min_norm(f_true = dat2$F_mat, f_hat = fit1_ff$F_hat)$solution
 ```
 In the output, we can see that each true factor is matched by an estimated factor. The value in `val` gives the similarity between the true and estimated factors with 1 indicating a perfect match and 0 indicating no match at all. 
 
-If we compare these results with the results where we omitted the `R` argument, we can see that not adjusting for the nuisance correlation has resulted in thre extra factors being estimated that don't match any true factors. 
+If we compare these results with the results where we omitted the `R` argument, we can see that not adjusting for the nuisance correlation has resulted in four extra factors being estimated that don't match any true factors. 
 
 ```{r}
-min_norm(f_true = dat$F_mat, f_hat = fit0$F_hat)$solution
+min_norm(f_true = dat2$F_mat, f_hat = fit0$F_hat)$solution
 ```
-If we plot the factors estimated with and without the correction for overlapping samples, we can see that the factor structure of the "extra" factors mimics the structure of the environmental correlation. We can also see that some of the "matching" factors estimated in `fit0` are also contaminated with some of the structure of the environmental correlation.
+If we plot the factors estimated with and without the correction for overlapping samples, we can see that the factor structure of the "extra" factors mimics the structure of the environmental correlation. We can also see that some of the "matching" factors estimated in `fit0` are also contaminated with some of the structure of the environmental correlation. Here we plot only the multi-trait factors.
 ```{r}
-p0 <- fit0$F_hat %>% 
+p0 <- fit0$F_hat_multi %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
   xlab("Mediator") +
   ylab("Trait") +
-  ggtitle("Without Sample Overlap Correction") +
-  theme(axis.text.x = element_text(angle = 0),
-           panel.background = element_rect(fill = "white"),
-           axis.ticks = element_blank(), 
-	   title  = element_text(size = 20),
-	   axis.text = element_text(size = 12),
-  	legend.position = "none")
+  ggtitle("Without Sample Overlap Correction") 
 
-p1 <- fit1_ff$F_hat %>% 
+p1 <- fit1_ff$F_hat_multi %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
   xlab("Mediator") +
   ylab("Trait") +
-  ggtitle("With Sample Overlap Correction") +
-  theme(axis.text.x = element_text(angle = 0),
-           panel.background = element_rect(fill = "white"),
-           axis.ticks = element_blank(), 
-	   title  = element_text(size = 20),
-	   axis.text = element_text(size = 12),
-  	legend.position = "none")
+  ggtitle("With Sample Overlap Correction") 
 p0
 p1
 ```
 
+## Understanding Scaling Within and Between Factors
+
+The underlying model used by GFA is that standardized variant-trait effects can be decomposed as
+
+$$
+\hat{B}^{(std)} = L F^{T} + \Theta + E,
+$$
+where $\hat{B}^{(std)}$ is an $n \times p$ matrix of standardized variant-trait associations, $L$ is an $n \times k$ matrix of variant-factor (aka variant-mediator) effects, $F$ is a $p \times k$ matrix of factor-trait effects, $\Theta$ is a matrix of direct variant-trait effects, and $E$ is a matrix of measurement errors. Since the variant-trait associations are standardized, in this representation, the effects in $F$ are on the standardized effect scale. For example, if the first column of $F$ is $(1, 2, 0)$, this means that for each unit increase in the first mediator, there is a 1 sd increase in trait 1, a 2 sd increase in trait 2 and no change in trait 3. It is important to note that the scale of the inferred mediator is arbitrary. We could multiply the first column of $L$ by 2 and the first column of $F$ by $1/2$ have an equivalent result. This means that we can only interpret factor effects relative to other effects in the same column. So an appropriate interpretation of the factor $(1, 2, 0)$ would be that the first factor has an effect on trait 2 that is twice as big as its effect on trait 1 in units of trait standard deviations. For plotting convenience, in our output, we always scale the factors so that the columns of $F$ have norm 1.
+
+Typically, GWAS do not report results on the standardized scale. If we were to fit our model using unstandardized results, factor-trait effects would be in units of the analyzed GWAS trait which are sometimes unknown and cannot be easily compared across traits. Fortunately, we can use the fact that $\hat{\beta}^{(std)}_{i,j} \approx \hat{\beta}_{i,j}/(\hat{s}_{i,j}\sqrt{N}_{j}) = \hat{z}_{i,j}/\sqrt{N}_{j}$, where $N_j$ is the sample size for trait $j$, $\hat{\beta}_{i,j}$ is the GWAS effect estimate and $\hat{s}_{i,j}$ is the GWAS standard error. 
+
+GFA's default mode is to fit the model using $z$-scores and then transform the estimated factor matrix to the standardized trait scale. Let $W$ by the $p\times p$ diagonal matrix with diagonal elements $\sqrt{N}_1, \dots, \sqrt{N}_p$. From our model above,
+
+$$
+\hat{Z} = \hat{B}^{(std)}W = L (WF)^\top + \Theta W + E W\\
+= L \tilde{F}^T + \tilde{\Theta} + \tilde{E}
+$$
+
+In the GFA object, the `F_hat_est` matrix is the estimate of $\tilde{F} = W F$ (effects on the $z$-score scale) and `F_hat` is an estimate of $F$. In the case that the sample size is not known, GFA can guess the relative scaling by looking at the relative size of standard errors across traits. GFA will use Median($\hat{s}_{i,1}/\hat{s}_{i,j}$) as an estimate of $\sqrt{N}_j/\sqrt{N}_1$. These relative sample sizes are sufficient to obtain an estimate of $F$ from an estimate of $\tilde{F}$, since the absolute scale of each column is arbitrary. 
+
+Note that the columns of `F_hat` are scaled to have norm 1 and the columns of `L_hat` and `F_hat_est` are scaled accordingly. This means that `L_hat %*% t(F_hat)` gives an estimate of the standardized variant-trait effects mediated by factors and `L_hat %*% t(F_hat_est)` gives an estimate of the component of $z$-scores due to effects mediated by factors. 
+
+GFA can also be run with `mode = "b-std"`, in which case the model will be fit using standardized effects directly, so `F_hat_est` and `F_hat` will be the same. This method gives very similar results to fitting with $z$-scores and then transforming but is slightly slower.
 
 
+We can see the difference between the $z$-score and standardized trait scale using an extreme example. We will repeat our toy example but use very different sample sizes for the three traits, $30,000$, $120,000$, and $30,000$. First we simulate data:
+
+```{r}
+set.seed(1001)
+myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
+N <- c(30000, 120000, 30000)
+dat <- GWASBrewer::sim_lf(F_mat = myF, N = N, J = 10000, h2_trait = rep(0.5, 3),
+                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1, est_s = TRUE)
+```
+
+Next, fit GFA:
+
+```{r}
+Z_hat = with(dat, beta_hat/s_estimate)
+fit_toy2 <- gfa_fit(Z_hat = Z_hat, N = N)
+```
+
+
+We will scale the columns of the true $F$ and the $z$-score scale estimated $F$ (`F_hat_est`) to have columns with norm 1 so that everything is easy to compare. This is already done for `F_hat`.  First, we can see that the standardized effect scale estimate `F_hat`, is fairly close to the truth, with one additional single trait factor (recall that the order and sign of columns is arbitarary).
+```{r}
+scale_cols <- function(X){
+  t(t(X)/sqrt(colSums(X^2)))
+}
+fit_toy2$F_hat
+scale_cols(dat$F_mat)
+```
+
+On the other hand, the $z$-score scale estimate is noticeably different. The first estimated factor in `F_hat`
+is a good representation of the first true factor, with similar sized
+effects in the same direction on traits 2 and 3 and almost no effect on the first trait. However, in `F_hat_est`, 
+on the $z$-score scale, the effect of the first factor is much larger on trait 2 than on trait 3. This is purely an artifact 
+of the fact that trait 2 had much larger sample size than traits 1 and 3. 
+```{r}
+scale_cols(fit_toy2$F_hat_est)
+```
+
+For this reason, we always suggest using and interpreting `F_hat` rather than `F_hat_est`.
+
+
+## Percent of Heritability Explained
+
+
+In the returned object `gfa_pve` contains two elements, a vector, `genet_var` and a matrix `pve`. 
+The `genet_var` vector gives the total heritability explained by the variants that GFA was fit with
+according to the fitted model. In most cases, this is an underestimate of the total trait heritability
+because GFA is only fit with an LD-pruned subset of variants. We don't recommend GFA as 
+an ideal heritability estimation tool. The more interesting object is `pve` which has dimension traits by 
+inferred factors and gives for each trait, the proportion of heritability explained by that factor. 
+We have found that even though the model does not capture all of the total heritability, our estimates of
+proportion of heritability explained by each factor are fairly close to the truth when factors match. 
+
+In the example from the second section, we plot the proportion of variance explained matrix:
+```{r}
+p1 <- fit1_ff$gfa_pve$pve %>% 
+  plot_factors(.) +
+  scale_fill_gradientn(colors = c("white", rev(viridis(3)))) +
+  xlab("Mediator") +
+  ylab("Trait")
+```
+
+Since it is simulated data, we can also compare our estimated proportion of heritability
+explained with the true heritability explained by each factor.
+```{r}
+sim_calc_pve <- function(dat){
+  sj <- sapply(1:ncol(dat$F_mat), function(kk){
+     compute_h2(b_joint = with(dat, L_mat_joint[,kk,drop = F] %*% t(F_mat[,kk, drop = F])), 
+                geno_scale = "allele", 
+                af = AF, 
+                R_LD = ld_mat_list)
+    }) |> matrix(nrow = nrow(dat$F_mat), byrow = FALSE)
+  return(sj/dat$h2)
+}
+pve_true <- sim_calc_pve(dat2)
+
+## order true pve and estimated pve so they can be compared
+sol <- min_norm(f_hat = fit1_ff$F_hat, 
+                       f_true = dat2$F_mat)$solution
+order_true <- sol$true_ix
+order_est <- sol$est_ix
+pve_est <- fit1_ff$gfa_pve$pve[, order_est]
+pve_true <- pve_true[, order_true]
+plot(pve_true, pve_est)
+abline(0, 1)
+```
+
+In this example, our proportions of heritability explained tend to be a little lower than the truth but are generally fairly close.
