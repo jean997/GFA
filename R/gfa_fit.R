@@ -39,6 +39,7 @@ gfa_fit <- function(Z_hat = NULL,
                     R = NULL,
                     params = gfa_default_parameters(),
                     method = c("fixed_factors", "random_effect"),
+                    mode = c("z-score", "b-std"),
                     no_wrapup = FALSE, override = FALSE){
 
 
@@ -50,14 +51,14 @@ gfa_fit <- function(Z_hat = NULL,
   for(n in names(params)){
     if(! n %in% names(default_params)) stop("Unknown parameter ", n, " provided.")
   }
-
+  mode <- match.arg(mode)
   ## process inputs
   check_args_znbs(is.null(Z_hat), is.null(N), is.null(B_hat), is.null(S))
   if(is.null(Z_hat)){
-    dat <- gfa_set_data(Y = B_hat, scale = NULL, S = S, R = R, params = params)
+    dat <- gfa_set_data(Y = B_hat, scale = NULL, S = S, R = R, params = params, mode = mode)
   }else{
     if(is.null(N)) N <- rep(1, ncol(Z_hat))
-    dat <- gfa_set_data(Y = Z_hat, scale = sqrt(N), S = NULL, R = R, params = params)
+    dat <- gfa_set_data(Y = Z_hat, scale = sqrt(N), S = NULL, R = R, params = params, mode = mode)
   }
 
   method <- match.arg(method)

@@ -31,8 +31,8 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   if(ncol(F_hat) > 0){
     hat_single <- find_single_trait(F_hat)
     if(length(hat_single) > 0){
-      F_hat_single <- F_hat[,hat_single]
-      F_hat_multi <- F_hat[, -hat_single]
+      F_hat_single <- F_hat[,hat_single,drop = F]
+      F_hat_multi <- F_hat[, -hat_single, drop = F]
     }
   }
   ret <- list(fit=fit, method = method,

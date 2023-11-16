@@ -30,11 +30,16 @@ pve2 <- function(gfa_fit){
     }
 
     tau <- flashier:::get.tau(gfa_fit$fit$flash_fit)
-    stopifnot(length(tau) == p) # this should never fail
-    # error component of tau
-    fixed_tau <- flash_fit_get_fixed_tau(gfa_fit$fit$flash_fit)
-    est_tau <- 1/((1/tau) - (1/fixed_tau))
-
+    if(inherits(tau, "matrix")){
+      stopifnot(nrow(tau) == n & ncol(tau) == p) # should never fail
+      S2 <- gfa_fit$fit$flash_fit$given.S2
+      est_tau <- 1/((1/tau) - S2)
+    }else{
+      stopifnot(length(tau) == p) # this should never fail
+      # error component of tau
+      fixed_tau <- flash_fit_get_fixed_tau(gfa_fit$fit$flash_fit)
+      est_tau <- 1/((1/tau) - (1/fixed_tau))
+    }
     error_var <- fj_sums + (n/fixed_tau)/(gfa_fit$scale^2)
     total_var <- rowSums(sj) + fj_sums + (n/tau)/(gfa_fit$scale^2) ## this should be close to 1?
 
@@ -60,16 +65,25 @@ pve2 <- function(gfa_fit){
       ## standardized effect scale total variance
       colSums(Vk)/(gfa_fit$scale^2)
     }) |> matrix(nrow = p, byrow = FALSE)
-    tau <- flashier:::get.tau(gfa_fit$fit$flash_fit)
-    stopifnot(length(tau) == p) # this should never fail
-    # error component of tau
-    fixed_tau <- flash_fit_get_fixed_tau(gfa_fit$fit$flash_fit)
-    est_tau <- 1/((1/tau) - (1/fixed_tau))
 
-    error_var <-  (n/fixed_tau)/(gfa_fit$scale^2)
+    tau <- flashier:::get.tau(gfa_fit$fit$flash_fit)
+    if(inherits(tau, "matrix")){
+      stopifnot(nrow(tau) == n & ncol(tau) == p) # should never fail
+      S2 <- gfa_fit$fit$flash_fit$given.S2
+      error_var <-  colSums(S2)/(gfa_fit$scale^2)
+      tau_var <- colSums(1/tau)
+      gvar_tau <- tau_var - error_var
+    }else{
+      stopifnot(length(tau) == p) # this should never fail
+      # error component of tau
+      fixed_tau <- flash_fit_get_fixed_tau(gfa_fit$fit$flash_fit)
+      est_tau <- 1/((1/tau) - (1/fixed_tau))
+      error_var <-  (n/fixed_tau)/(gfa_fit$scale^2)
+      gvar_tau <- (n/est_tau)/(gfa_fit$scale^2)
+    }
     #total_var <- rowSums(sj) + (n/tau)/(gfa_fit$scale^2)
 
-    genet_var = rowSums(sj) + (n/est_tau)/(gfa_fit$scale^2)
+    genet_var = rowSums(sj) + gvar_tau
     pve_j <- sj/genet_var
   }
   return(list(genet_var = genet_var, pve = pve_j))
