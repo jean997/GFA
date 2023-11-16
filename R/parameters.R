@@ -2,7 +2,6 @@
 gfa_default_parameters <- function(){
   list(
   kmax = NULL,
-  ridge_penalty = 0,
   cond_num = 1e5,
   max_lr_percent = 0.99,
   lr_zero_thresh = 1e-3,
@@ -11,8 +10,7 @@ gfa_default_parameters <- function(){
   ebnm_fn_F = flash_ebnm(prior_family = "point_normal", optmethod = "nlm"),
   ebnm_fn_L = flash_ebnm(prior_family = "point_normal", optmethod = "nlm"),
   init_fn = flash_greedy_init_default,
-  duplicate_check_thresh = 0.6,
-  verbose = 2
+  duplicate_check_thresh = 0.6
   )
 
 }

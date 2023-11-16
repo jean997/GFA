@@ -4,7 +4,16 @@
 \alias{R_ldsc}
 \title{Calculate matrix of error correlations using LD-score regression.}
 \usage{
-R_ldsc(Z_hat, ldscores, ld_size, N, return_gencov = FALSE)
+R_ldsc(
+  Z_hat,
+  ldscores,
+  ld_size,
+  N,
+  return_gencov = FALSE,
+  make_well_conditioned = TRUE,
+  cond_num = 1e+05,
+  return_cor = TRUE
+)
 }
 \description{
 Calculate matrix of error correlations using LD-score regression.

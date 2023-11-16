@@ -4,7 +4,14 @@
 \alias{R_ldsc_quick}
 \title{Cheater ld-score matrix. Fast but higher variance.}
 \usage{
-R_ldsc_quick(Z_hat, ldscores, weights)
+R_ldsc_quick(
+  Z_hat,
+  ldscores,
+  weights = 1/ldscores,
+  make_well_conditioned = TRUE,
+  cond_num = 1e+05,
+  return_cor = TRUE
+)
 }
 \description{
 Cheater ld-score matrix. Fast but higher variance.
