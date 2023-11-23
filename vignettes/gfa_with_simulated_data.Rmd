@@ -185,7 +185,7 @@ Nmat <- matrix(30000, nrow = ntrait, ncol = ntrait)
 Nunique <- ceiling(runif(n = 20, min = 0, max = 20000))
 diag(Nmat) <- diag(Nmat) + Nunique
 
-# prorportion of effect variants
+# proportion of effect variants
 pi_L <- pi_theta <- 1000/nvar
 ```
 
