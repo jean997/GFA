@@ -47,13 +47,18 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
 }
 
 #'@export
-gfa_rebackfit <- function(fit, params){
-  fit <- fit %>% flash_backfit(maxiter = params$max_iter,
+gfa_rebackfit <- function(gfa_fit, params){
+  method <- gfa_fit$fit$method
+  scale <- gfa_fit$scale
+  fit <- gfa_fit$fit %>% flash_backfit(maxiter = params$max_iter,
                                extrapolate = params$extrapolate)
+  fit$method <- method
   if(is.null(fit$flash_fit$maxiter.reached)){
-    ret <- gfa_wrapup(fit, nullcheck = TRUE)
+    ret <- gfa_wrapup(fit, method = method,
+                      scale = scale, nullcheck = TRUE)
+    ret$params <- params
   }else{
-    ret <- list(fit = fit)
+    ret <- list(fit = fit, params = params, scale = scale, method = method)
   }
   ret$params <- params
   return(ret)
