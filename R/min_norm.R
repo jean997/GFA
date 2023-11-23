@@ -17,7 +17,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
 
   true_single <- find_single_trait(f_true, single_trait_thresh)
   if(length(true_single) > 0){
-    cat("Removing ", length(true_singel), " single trait factors from f_true\n")
+    cat("Removing ", length(true_single), " single trait factors from f_true\n")
     f_true <- f_true[,-true_single, drop = FALSE]
     true_ix <- true_ix[-true_single]
   }
