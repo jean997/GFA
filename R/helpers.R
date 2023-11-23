@@ -71,7 +71,8 @@ check_R <- function(R, p, params, tol = 1e-8){
     stop("Dimension of R not compatible with data.")
   }
   if(!all(abs(diag(R)-1) < tol)){
-    stop(paste0(deparse(substitute(R)), " should be a correlation matrix."))
+    #stop(paste0(deparse(substitute(R)), " should be a correlation matrix."))
+    warning("R has values different from 1 on the diagonal. This is ok.")
   }
 
   vals <- eigen(R, only.values = TRUE)$values
