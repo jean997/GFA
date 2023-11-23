@@ -1,5 +1,5 @@
 #'@export
-gfa_duplicate_check <- function(fit, method, dim = 2, check_thresh = 0.5){
+gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
   if(!dim %in% c(1, 2)) stop("dim must be 1 or 2 in gfa_duplicate_check.\n")
   done <- FALSE
   while(!done){
