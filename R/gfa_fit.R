@@ -45,6 +45,8 @@
 #'@export
 gfa_fit <- function(Z_hat = NULL,
                     N = NULL,
+                    N_case = NULL,
+                    pop_prev = NULL,
                     B_hat = NULL,
                     S = NULL,
                     R = NULL,
@@ -66,11 +68,38 @@ gfa_fit <- function(Z_hat = NULL,
   ## process inputs
   check_args_znbs(is.null(Z_hat), is.null(N), is.null(B_hat), is.null(S))
   if(is.null(Z_hat)){
-    dat <- gfa_set_data(Y = B_hat, scale = NULL, S = S, R = R, params = params, mode = mode)
+    Z_hat <- B_hat/S
+    scale <- get_scale_from_S(S)
+    if(!is.null(pop_prev)){
+      if(!length(pop_prev) == length(scale)){
+        stop(paste0("pop_prev did not have expected length ", length(scale)))
+      }
+      ix <- which(!is.na(pop_prev))
+      scale[ix] <- scale[ix]/dnorm(qnorm(pop_prev[ix], lower.tail = TRUE))
+    }
   }else{
-    if(is.null(N)) N <- rep(1, ncol(Z_hat))
-    dat <- gfa_set_data(Y = Z_hat, scale = sqrt(N), S = NULL, R = R, params = params, mode = mode)
+    if(is.null(N)){
+      warning("Sample size not provided. Factor effects will be on the z-score scale which is sensitive to sample size.")
+      N <- rep(1, ncol(Z_hat))
+    }else if(!is.null(N_case)){
+      if(is.null(pop_prev)){
+        stop("If supplying N_case, please also supply pop_prev")
+      }
+      p <- ncol(Z_hat)
+      if(!length(N) == p  & length(N_case) == p & length(pop_prev) == p){
+        stop(paste0("N, N_case, and pop_prev do not all have expected length ", p))
+      }
+      scale <- sqrt(N)
+      ix <- which(!is.na(N_case))
+      scale[ix] <- binary_const(N = N[ix], N_case = N_case[ix], pop_prev = pop_prev[ix])
+    }else{
+      if(!length(N) == p ){
+        stop(paste0("N does not have expected length ", p))
+      }
+      scale <- sqrt(N)
+    }
   }
+  dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params, mode = mode)
 
   method <- match.arg(method)
 

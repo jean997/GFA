@@ -1,28 +1,17 @@
 
-gfa_set_data <- function(Y, scale = NULL, S = NULL, R = NULL, params = NULL, mode = "z-score"){
+gfa_set_data <- function(Y, scale, R = NULL, params = NULL, mode = "z-score"){
   if(!inherits(Y, "matrix")){
     stop("Data must have class matrix.\n")
   }
-  if(!is.null(scale) & !is.null(S)) stop("Something wrong, this shouldn't happen.")
   mode <- match.arg(mode, c("z-score", "b-std"))
   dat <- list(n = nrow(Y), p = ncol(Y))
   R <- check_R(R, dat$p, params)
-  if(!is.null(S)){
-    # Y is effects and S is SEs
-    scale <- get_scale_from_S(S)
-    Y <- Y/S
-  }else if(is.null(scale)){
-    if(mode == "b-std"){
-      stop("Cannot have b-std mode with missing sample size.")
-    }
-    scale <- rep(1, dat$p)
-    warning("No sample sizes or standard errors provided. Results will be on z-score scale.")
-  }else{
-    stopifnot(inherits(scale, "numeric"))
-    if(!length(scale) == dat$p){
+
+  stopifnot(inherits(scale, "numeric"))
+  if(!length(scale) == dat$p){
       stop(paste0("Length of ", deparse(substitute(scale)), " does not match number of columns of data."))
-    }
   }
+
   if(mode == "z-score"){
     dat$Y <- Y
     dat$scale <- scale
@@ -45,13 +34,38 @@ gfa_set_data <- function(Y, scale = NULL, S = NULL, R = NULL, params = NULL, mod
 
 ## jean notes on scale:
 ## if Y is z-scores, then we estimate F on z-score scale
-## and then convert back by multiplying each column of F
-## by sqrt(N)
+## and then convert back by dividing each column of F by sqrt(N)
+## For binary traits, we need to divide each column of F by
+## sqrt(N*P*(1-P))/C(K) where P = N_case/N and
+## C(K) = K*(1-K)/dnorm(qnorm(K, lower.tail = F))
+## and K = population prevalence.
+binary_const <- function(N, N_case, pop_prev){
+  if(any(is.na(N))){
+    stop("Illegal missing values in N")
+  }
+  if(any(is.na(N_case))){
+    stop("Illegal missing values in N_case")
+  }
+  if(any(is.na(pop_prev))){
+    stop("Illegal missing values in pop_prev")
+  }
+  P <- N_case/N
+  if(!all(P < 1)){
+    stop("Some of N_case are bigger than N\n")
+  }
+  const <- sqrt(N*P*(1-P))/dnorm(qnorm(pop_prev, lower.tail = TRUE))
+  return(const)
+}
+
+
 ## The scale object will always contain the vector we
-## need to multiply cols of F by to get to trait scale.
+## need to divide cols of F by to get to trait scale/liability scale.
 ## If S is provided, find the scale by looking at ratios of sds
-## sp/s1 \apprix sqrt(N_1)/sqrt(N_p). One option is to convert
-## B_hat to z-scores and store the scale parametrs (1, sqrt(N2)/sqrt(N1), ...)
+## sp/s1 \approx sqrt(N_1)sqrt(Var Y_p)/sqrt(N_p)*sqrt(Var Y_1) for cont or
+## sp/s1 \approx sqrt(N_1)/sqrt(N_p*P_p*(1-P_p)) for p binary 1 cont
+## sp/s1 \qpprox sqrt(N_)
+## We fit with z-scores and use scale
+## (1, sqrt(N2)/sqrt(N1), ...) \approx (1, median(s1)/median(s2), ...)
 
 get_scale_from_S <- function(S){
   scale <- apply(S[,-1], 2, function(s){
