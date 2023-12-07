@@ -147,7 +147,7 @@ condition <- function(R, cond_num = 1e5){
   vals <- eig_R$values
   illcond <- any(vals < 0) | max(vals)/min(vals) > cond_num
   if(illcond){
-    warning(paset0(deparse(substitute(R)), " is either not positive definite or is illconditioned. Projecting to nearest well conditioned matrix."))
+    warning(paste0(deparse(substitute(R)), " is either not positive definite or is illconditioned. Projecting to nearest well conditioned matrix."))
     x <- (cond_num*min(vals) - max(vals))/(1-cond_num)
     eig_R$values <- eig_R$values + x
     R <- with(eig_R, tcrossprod(vectors, tcrossprod(vectors, diag(values))))
