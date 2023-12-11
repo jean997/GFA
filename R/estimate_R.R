@@ -37,7 +37,7 @@ R_ldsc_quick <- function(Z_hat, ldscores, weights = 1/ldscores,
 #'@title Calculate matrix of error correlations using LD-score regression.
 #'@export
 R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
-                   make_well_conditioned = TRUE, cond_num = 1e5,
+                   make_well_conditioned = TRUE, cond_num = 1e5-1,
                    return_cor = TRUE){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
