@@ -36,7 +36,7 @@ plot_factors <- function(x, row_names, col_names, row_order, col_order,
 plot_factors_bars <- function(x, trait_names, factor_names, trait_order, which_factors = "all"){
   if(is.null(x)) return(NULL)
   if(missing(names)) names <- trait_order <-  seq(nrow(x))
-  if(missing(factor_names)) factor_names <- paset0("Factor ", seq(ncol(x)))
+  if(missing(factor_names)) factor_names <- paste0("Factor ", seq(ncol(x)))
   if(which_factors == "all") which_factors = seq(ncol(x))
   stopifnot(is.numeric(which_factors))
   X <- data.frame(x[,which_factors])
