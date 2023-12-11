@@ -78,6 +78,7 @@ gfa_fit <- function(Z_hat = NULL,
       scale[ix] <- scale[ix]/dnorm(qnorm(pop_prev[ix], lower.tail = TRUE))
     }
   }else{
+    p <- ncol(Z_hat)
     if(is.null(N)){
       warning("Sample size not provided. Factor effects will be on the z-score scale which is sensitive to sample size.")
       N <- rep(1, ncol(Z_hat))
@@ -85,7 +86,6 @@ gfa_fit <- function(Z_hat = NULL,
       if(is.null(pop_prev)){
         stop("If supplying N_case, please also supply pop_prev")
       }
-      p <- ncol(Z_hat)
       if(!length(N) == p  & length(N_case) == p & length(pop_prev) == p){
         stop(paste0("N, N_case, and pop_prev do not all have expected length ", p))
       }
