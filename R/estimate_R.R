@@ -57,7 +57,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     filter(trait1 <= trait2)
 
   vals <- map2(res$trait1, res$trait2, function(i, j){
-    if(i == j) return(h2[[i]])
+    if(i == j) return(c(h2[[i]], 1))
     rg <- ldsc_rg(ld_score = ldscores, ld_size = ld_size,
             z1 = Z_hat[,i], z2 = Z_hat[,j],
             h2_1 = h2[[i]], h2_2 = h2[[j]],
@@ -99,6 +99,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
   Rg <- as.matrix(gcov_mat[,-1])
 
+  ###
   res_gencor <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
   res_gencor$value <- map(vals, 3) %>% unlist()
