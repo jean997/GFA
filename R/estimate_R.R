@@ -63,7 +63,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
             h2_1 = h2[[i]], h2_2 = h2[[j]],
             sample_size_1 = N[,i], sample_size_2 = N[,j],
             blocks = NULL)
-    c(rg[["int"]], rg[["gencov"]])
+    c(rg[["int"]], rg[["gencov"]], rg[["gencorr"]])
   })
 
   val_int <- map(vals, 1) %>% unlist()
@@ -98,7 +98,19 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
   gcov_mat <- bind_rows(res_gencov, res_g_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
   Rg <- as.matrix(gcov_mat[,-1])
-  return(list("Re" = Re, "Rg" = Rg))
+
+  res_gencor <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
+    filter(trait1 <= trait2)
+  res_gencor$value <- map(vals, 3) %>% unlist()
+  res_g_copy <- filter(res_gencor, trait1 != trait2) %>%
+    rename(n1c = trait2, n2c = trait1) %>%
+    rename(trait1 = n1c, trait2 = n2c)
+
+  gcor_mat <- bind_rows(res_gencor, res_g_copy)  %>%
+    reshape2::dcast(trait1 ~ trait2, value.var = "value")
+  Rgcor <- as.matrix(gcov_mat[,-1])
+
+  return(list("Re" = Re, "Rg" = Rg, "Rgcor" = Rgcor))
 
 }
 
