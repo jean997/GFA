@@ -153,7 +153,7 @@ condition <- function(R, cond_num = 1e5, corr = FALSE){
     R <- with(eig_R, tcrossprod(vectors, tcrossprod(vectors, diag(values))))
   }
   if(corr){
-    R <- cov2cor(corr)
+    R <- cov2cor(R)
   }
   return(R)
 }
