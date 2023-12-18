@@ -142,7 +142,7 @@ R_pt <- function(B_hat, S_hat, p_val_thresh = 0.05, return_cor = TRUE,
 #'@param R Matrix
 #'@param cond_num Maximum allowable condition number (max(eigenvalue)/min(eigenvalue))
 #'@export
-condition <- function(R, cond_num = 1e5){
+condition <- function(R, cond_num = 1e5, corr = FALSE){
   eig_R <- eigen(R)
   vals <- eig_R$values
   illcond <- any(vals < 0) | max(vals)/min(vals) > cond_num
@@ -151,6 +151,9 @@ condition <- function(R, cond_num = 1e5){
     x <- (cond_num*min(vals) - max(vals))/(1-cond_num)
     eig_R$values <- eig_R$values + x
     R <- with(eig_R, tcrossprod(vectors, tcrossprod(vectors, diag(values))))
+  }
+  if(corr){
+    R <- cov2cor(corr)
   }
   return(R)
 }
