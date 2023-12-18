@@ -109,7 +109,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
 
   gcor_mat <- bind_rows(res_gencor, res_g_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
-  Rgcor <- as.matrix(gcov_mat[,-1])
+  Rgcor <- as.matrix(gcor_mat[,-1])
 
   return(list("Re" = Re, "Rg" = Rg, "Rgcor" = Rgcor))
 
