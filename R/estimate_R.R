@@ -52,7 +52,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
 
   h2 <- lapply(1:M, function(m){
     ix <- which(!is.na(Z_hat[,m]))
-    snp_ldsc(ld_score = ldscores[ix], ld_size = ld_size, chi2 = Z_hat[ix,m]^2, sample_size = N[,m], blocks = NULL)
+    snp_ldsc(ld_score = ldscores[ix], ld_size = ld_size, chi2 = Z_hat[ix,m]^2, sample_size = N[ix,m], blocks = NULL)
   })
   res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     filter(trait1 <= trait2)
@@ -63,7 +63,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     rg <- ldsc_rg(ld_score = ldscores[ix], ld_size = ld_size,
             z1 = Z_hat[ix,i], z2 = Z_hat[ix,j],
             h2_1 = h2[[i]], h2_2 = h2[[j]],
-            sample_size_1 = N[,i], sample_size_2 = N[,j],
+            sample_size_1 = N[ix,i], sample_size_2 = N[ix,j],
             blocks = NULL)
     c(rg[["int"]], rg[["gencov"]], rg[["gencorr"]])
   })
