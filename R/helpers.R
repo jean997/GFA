@@ -68,7 +68,8 @@ binary_const <- function(N, N_case, pop_prev){
 ## (1, sqrt(N2)/sqrt(N1), ...) \approx (1, median(s1)/median(s2), ...)
 
 get_scale_from_S <- function(S){
-  scale <- apply(S[,-1], 2, function(s){
+  if(ncol(S) == 1) return(1)
+  scale <- apply(S[,-1, drop = FALSE], 2, function(s){
     median(S[,1]/s) ## relative to sample size
   })
   scale <- c(1, scale)
