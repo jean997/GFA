@@ -75,13 +75,14 @@ gfa_fit <- function(Z_hat = NULL,
         stop(paste0("pop_prev did not have expected length ", length(scale)))
       }
       ix <- which(!is.na(pop_prev))
-      scale[ix] <- scale[ix]/dnorm(qnorm(pop_prev[ix], lower.tail = TRUE))
+      if(length(ix) > 0) scale[ix] <- scale[ix]/dnorm(qnorm(pop_prev[ix], lower.tail = TRUE))
     }
   }else{
     p <- ncol(Z_hat)
     if(is.null(N)){
       warning("Sample size not provided. Factor effects will be on the z-score scale which is sensitive to sample size.")
       N <- rep(1, ncol(Z_hat))
+      scale <- sqrt(N)
     }else if(!is.null(N_case)){
       if(is.null(pop_prev)){
         stop("If supplying N_case, please also supply pop_prev")
@@ -91,7 +92,7 @@ gfa_fit <- function(Z_hat = NULL,
       }
       scale <- sqrt(N)
       ix <- which(!is.na(N_case))
-      scale[ix] <- binary_const(N = N[ix], N_case = N_case[ix], pop_prev = pop_prev[ix])
+      if(length(ix) > 0) scale[ix] <- binary_const(N = N[ix], N_case = N_case[ix], pop_prev = pop_prev[ix])
     }else{
       if(!length(N) == p ){
         stop(paste0("N does not have expected length ", p))
