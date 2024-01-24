@@ -11,7 +11,7 @@ R_ldsc(
   N,
   return_gencov = FALSE,
   make_well_conditioned = TRUE,
-  cond_num = 1e+05,
+  cond_num = 1e+05 - 1,
   return_cor = TRUE
 )
 }

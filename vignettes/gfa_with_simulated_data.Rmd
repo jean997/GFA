@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(sumstatFactors)
+library(GFA)
 library(GWASBrewer)
 library(dplyr)
 library(ggplot2)
@@ -33,7 +33,7 @@ Please note that this package is under development. Please let Jean know if you 
 
 ### Simulate simple data
 
-This example is shown in Figure 2 of the paper. We start by constructing the true factor structure. We then plot the structure using the `plot_factors` function in `sumstatFactors` which will turn a matrix into a heatmap. 
+This example is shown in Figure 2 of the paper. We start by constructing the true factor structure. We then plot the structure using the `plot_factors` function in `GFA` which will turn a matrix into a heatmap. 
 
 ```{r, warning=FALSE}
 set.seed(100)
@@ -236,7 +236,7 @@ We can take a look at the generated true factor structure.
 
 ```{r}
 p <- dat2$F_mat %>%
-	sumstatFactors:::norm_cols() %>%
+	GFA:::norm_cols() %>%
 	with(., A) %>%
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +

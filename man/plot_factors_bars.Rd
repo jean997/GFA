@@ -9,7 +9,7 @@ plot_factors_bars(
   trait_names,
   factor_names,
   trait_order,
-  which_factors = "all"
+  which_factors = seq(ncol(x))
 )
 }
 \description{

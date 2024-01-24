@@ -4,7 +4,7 @@
 \alias{condition}
 \title{Project matrix to nearest well conditioned positive definite matrix.}
 \usage{
-condition(R, cond_num = 1e+05)
+condition(R, cond_num = 1e+05, corr = FALSE)
 }
 \arguments{
 \item{R}{Matrix}

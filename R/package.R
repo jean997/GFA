@@ -1,11 +1,11 @@
-#' sumstatFactors
+#' GFA
 #'
-#' Helper package for experimenting with factor decomposition of summary statistics.
+#' Genetic Factor Analaysis
 #'
 #' @docType package
 #' @author Jean Morrison <jvmorr@umich.edu>
 #' @import flashier
 #' @import dplyr readr reshape2 lpSolve
 #' @import purrr ggplot2
-#' @name sumstatFactors
+#' @name GFA
 NULL

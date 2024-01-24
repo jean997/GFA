@@ -7,6 +7,8 @@
 gfa_fit(
   Z_hat = NULL,
   N = NULL,
+  N_case = NULL,
+  pop_prev = NULL,
   B_hat = NULL,
   S = NULL,
   R = NULL,
