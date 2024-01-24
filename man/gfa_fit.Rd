@@ -2,52 +2,71 @@
 % Please edit documentation in R/gfa_fit.R
 \name{gfa_fit}
 \alias{gfa_fit}
-\title{Fit with fixed factors. This version is from March 2021 and explicitly only runs on
-either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.}
+\title{Genetic Factor Analysis}
 \usage{
-gfa_fit(Z_hat, B_std, N, R, params = gfa_default_parameters())
+gfa_fit(
+  Z_hat = NULL,
+  N = NULL,
+  B_hat = NULL,
+  S = NULL,
+  R = NULL,
+  params = gfa_default_parameters(),
+  method = c("fixed_factors", "random_effect"),
+  mode = c("z-score", "b-std"),
+  no_wrapup = FALSE
+)
 }
 \arguments{
-\item{Z_hat}{A matrix of z-scores}
+\item{Z_hat}{A matrix of z-scores with rows for variants and columns for traits.}
 
-\item{B_std}{A matrix of standardized effects. Supply only one of B_std or Z_hat}
+\item{N}{Vector of sample sizes length equal to number of traits. If not provided,
+N will default to the vector of 1's and the factor matrix will be returned on the "z-score scale".}
 
-\item{N}{Vector of sample sizes length equal to number of traits. N is only
-needed if using B_std.}
+\item{B_hat}{A matrix of GWAS effect estimates. B_hat is an alternative to Z_hat (only provide one of these).
+If using B_hat, you must also provide S.}
 
-\item{R}{Estimated residual correlation matrix}
+\item{S}{If using B_hat, provide the corresponding matrix of standard errors.}
+
+\item{R}{Estimated residual correlation matrix. This can be produced for example using R_ldsc or R_pt.}
 
 \item{params}{List of parameters. For most users this can be left at the default values. See details.}
+
+\item{method}{Either "fixed_factors" or "random_effect". "random_effect" is experimental. See details.}
+
+\item{mode}{Either "z-score" or "b-std". See details.}
 }
 \value{
-A list with elements fit, Y, L_hat, F_hat
+A list with elements L_hat and F_hat for estimated variant-factor and factor-trait effects, gfa_pve
+which contains the proportion of heritability explained by each factor, and some other objects useful internally.
 }
 \description{
-Fit with fixed factors. This version is from March 2021 and explicitly only runs on
-either z-scores or standardized effects. This function replaces both fit_ff and fit_plain.
+Genetic Factor Analysis
 }
 \details{
-The params list includes:
+The method argument can be either fixed_factors or random_effect. These are different methods
+for fitting the GFA model. The random_effect method requires installing a fork of the flashier
+package using `install_github("jean997/flashier", ref = "random-effect")`. Most users can
+stick with the fixed_factors method.
 
-kmax, the maximum number of factors
+The mode option tells GFA to either fit using z-scores as the outcome and
+then convert the factor matrix to the standardized scale (mode = "z-score")
+or to fit directly using standardized
+effect estimates as the outcome (mode = "b-std"). These give
+very similar results and the z-score mode is faster and so recommended.
 
-max_iter: maximum number of iterations
 
-min_ev, max_lr_percent, lr_zero_thresh: We are approximating the matrix R as VDV^T + lambda I
-where lambda is the smallest eigenvalue of R. min_ev specifies the smallest acceptable value of lambda.
-max_lr_percent specifies the proportion of variance of (R - lambda I) that will be retained. This defaults
-to 1 making the approximation exact. Eigenvalues of (R-lambda I) that are less than lr_zero_thresh will
-be set to zero.
+The params list includes the following elements which can be modified.
+Most users will not need to modify any of these, except possibly `max_iter`.
 
-ridge_penalty
+kmax: Maximum number of factors. Defaults to twice the number of traits
 
-extrapolate: value of extrapolate passed to flash_backfit
+cond_num: Maximum allowable condition number for R. Defaults to 1e5.
 
-ebnm_fn_F, ebnm_fn_L
+max_iter: Maximum number of iterations. Defaults to 1000.
 
-init_fn
+extrapolate: Passed to flashier, defaults to TRUE
 
-fixed_truncate
+ebnm_fn_F and ebnm_fn_L: Prior families for factors and loadings. Defaults to point-normal.
 
-duplicate_check_thresh
+init_fn: Flashier initialization function.
 }

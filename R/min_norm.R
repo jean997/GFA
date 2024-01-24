@@ -12,19 +12,17 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   n_t <- ncol(f_true)
   n_h <- ncol(f_hat)
 
-  col_max_true <- apply(abs(f_true), 2, max)
-  col_max_hat <- apply(abs(f_hat), 2, max)
-  hat_single <- true_single <- c()
   true_ix <- seq(n_t)
   hat_ix <- seq(n_h)
 
-  if(any(col_max_true > single_trait_thresh)){
-    i <- which(col_max_true > single_trait_thresh)
-    true_single <- i
-    cat("Removing ", length(i), " single trait factors from f_true\n")
-    f_true <- f_true[,-i, drop = FALSE]
-    true_ix <- true_ix[-i]
+  true_single <- find_single_trait(f_true, single_trait_thresh)
+  if(length(true_single) > 0){
+    cat("Removing ", length(true_single), " single trait factors from f_true\n")
+    f_true <- f_true[,-true_single, drop = FALSE]
+    true_ix <- true_ix[-true_single]
   }
+
+  ## no factors estimated
   if(n_h == 0){
     solution <- data.frame(true_ix = true_ix, hat_ix = NA, val = 0 )
     if( length(true_single) > 0){
@@ -46,12 +44,11 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     return(ret)
   }
 
-  if(any(col_max_hat > single_trait_thresh)){
-    i <- which(col_max_hat > single_trait_thresh)
-    hat_single <- i
-    cat("Removing ", length(i), " single trait factors from f_hat\n")
-    f_hat <- f_hat[,-i, drop = FALSE]
-    hat_ix <- hat_ix[-i]
+  hat_single <- find_single_trait(f_hat, single_trait_thresh)
+  if(length(hat_single) > 0){
+    cat("Removing ", length(hat_single), " single trait factors from f_hat\n")
+    f_hat <- f_hat[,-hat_single, drop = FALSE]
+    hat_ix <- hat_ix[-hat_single]
   }
 
   if(!missing(l_true) & !missing(l_hat)){
@@ -82,9 +79,6 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
       l_true <- cbind(l_true, matrix(0, nrow = N, ncol = -k))
     }
   }
-
-
-
 
   d <- t(f_true) %*% f_hat
   d[abs(d) < thresh ] <- 0
@@ -149,4 +143,11 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
 norm_cols <- function(A){
   w <- colSums(A^2)
   return(list("A" = t(t(A)/sqrt(w)), "w" = w))
+}
+
+find_single_trait <- function(f, st_thresh = 0.95){
+  f_norm <- norm_cols(f)$A
+  col_max <- apply(abs(f_norm), 2, max)
+  i <- which(col_max > st_thresh)
+  return(i)
 }
