@@ -53,7 +53,7 @@ binary_const <- function(N, N_case, pop_prev){
   if(!all(P < 1)){
     stop("Some of N_case are bigger than N\n")
   }
-  const <- sqrt(N*P*(1-P))/dnorm(qnorm(pop_prev, lower.tail = TRUE))
+  const <- sqrt(N*P*(1-P))*dnorm(qnorm(pop_prev, lower.tail = TRUE))/(pop_prev*(1-pop_prev))
   return(const)
 }
 
