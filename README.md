@@ -18,4 +18,4 @@ browseVignettes("GFA")
 
 ## Pipeline
 
-We have written a Snakemake pipeline that implements all of the steps of a GFA analysis and requires only input of configuration parameters and a spreadsheet of data files. This pipeline can be found at 
+We have written a Snakemake pipeline that implements all of the steps of a GFA analysis and requires only input of configuration parameters and a spreadsheet of data files. This pipeline can be found at https://github.com/jean997/gfa_pipeline
