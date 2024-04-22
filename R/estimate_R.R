@@ -34,17 +34,19 @@ R_ldsc_quick <- function(Z_hat, ldscores, weights = 1/ldscores,
   return(Re)
 }
 
-#'@title Calculate matrix of error correlations using LD-score regression.\
+#'@title Calculate matrix of error correlations using LD-score regression.
 #'@param Z_hat matrix of z-scores
 #'@param ldscores vector of ldscores
 #'@param ld_size Number of variants used to compute ldscores
 #'@param N vector of sample sizes, length equal to number of columns of Z_hat
 #'@param return_gencov If TRUE, the function will return genetic covariance in addition to residual covariance/correlation.
-#'@param make_well_conditioned If TRUE, residual covariance will be projected to the nearest positivie definite
+#'@param make_well_conditioned If TRUE, residual covariance will be projected to the nearest positive definite
 #'matrix with condition number at least cond_num
 #'@param cond_num Condition number used if make_well_conditioned = TRUE
-#'@param blocks If not NULL, use jackknife to estimate the standard error of estiamtes.
+#'@param blocks If not NULL, use jackknife to estimate the standard error of estimates.
 #'@param ncores Number of cores to use for jackknifing
+#'@return A list with some or all of the following elements. Se: Estimate of residual covariance Ve: Variance of Se.
+#' Sg: genetic covariance Vg: Variance fo Sg. Rg: Genetic correlation, VRg: Variance of Rg.
 #'@export
 R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
                    make_well_conditioned = TRUE, cond_num = 1e5-1,
@@ -143,7 +145,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     colnames(ret$Rg) <- rownames(ret$Rg) <- NULL
   }
   if(!is.null(blocks)){
-    res$value <- val_resid_ve
+    res$value <- val_resid_ve^2
     res_copy <- filter(res, trait1 != trait2) %>%
       rename(n1c = trait2, n2c = trait1) %>%
       rename(trait1 = n1c, trait2 = n2c)
@@ -154,7 +156,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     colnames(ret$Ve) <- rownames(ret$Ve) <- NULL
     if(return_gencov){
       ## genetic covariance matrix
-      res$value <- val_gencov_ve
+      res$value <- val_gencov_ve^2
       res_copy <- filter(res, trait1 != trait2) %>%
         rename(n1c = trait2, n2c = trait1) %>%
         rename(trait1 = n1c, trait2 = n2c)
@@ -166,7 +168,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
 
 
       ## genetic correlation matrix
-      res$value <- val_gencor_ve
+      res$value <- val_gencor_ve^2
       res_copy <- filter(res, trait1 != trait2) %>%
         rename(n1c = trait2, n2c = trait1) %>%
         rename(trait1 = n1c, trait2 = n2c)
