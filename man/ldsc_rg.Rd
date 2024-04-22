@@ -11,7 +11,7 @@ ldsc_rg(
   z2,
   sample_size_1,
   sample_size_2,
-  blocks = 200,
+  blocks = NULL,
   h2_1 = NULL,
   h2_2 = NULL,
   intercept = NULL,
@@ -19,8 +19,7 @@ ldsc_rg(
   intercept_h2_2 = NULL,
   step1_chisq_max = 30,
   chi2_thr2 = Inf,
-  ncores = 1,
-  h2_se = FALSE
+  ncores = 1
 )
 }
 \arguments{
