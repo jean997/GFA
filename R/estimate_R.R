@@ -77,7 +77,8 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
     ix <- which(!is.na(Z_hat[,i]) & !is.na(Z_hat[,j]))
     rg <- ldsc_rg(ld_score = ldscores[ix], ld_size = ld_size,
             z1 = Z_hat[ix,i], z2 = Z_hat[ix,j],
-            h2_1 = h2[[i]], h2_2 = h2[[j]],
+            #h2_1 = h2[[i]], h2_2 = h2[[j]],
+            h2_1 = NULL, h2_2 = NULL,
             sample_size_1 = N[ix,i], sample_size_2 = N[ix,j],
             blocks = blocks,
             ncores = ncores)
@@ -93,7 +94,7 @@ R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
 
   Se <- bind_rows(res, res_copy)  %>%
     reshape2::dcast(trait1 ~ trait2, value.var = "value")
-  Se <- as.matrix(cov_mat[,-1])
+  Se <- as.matrix(Se[,-1])
   colnames(Se) <- rownames(Se) <- NULL
 
   if(make_well_conditioned){
