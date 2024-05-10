@@ -9,6 +9,7 @@
 #'@param chrom Chromosome column (optional)
 #'@param pos Position column (optional)
 #'@param p_value p-value column (optional)
+#'@param AF  Allele Frequency column (optional)
 #'@param sample_size  Sample size column (optional) or an integer
 #'@param compute_pval Logical, compute the p-value using a normal approximation if missing? Defaults to TRUE.
 #'@param output_file File to write out formatted data. If missing formatted data will be returned.
@@ -21,7 +22,7 @@
 #'aligned so that A is the effect allele. This is ready to be used with gwas_merge with formatted = TRUE.
 #'@export
 gwas_format <- function(X, snp, beta_hat, se, A1, A2,
-                        chrom, pos, p_value,
+                        chrom, pos, p_value, AF,
                         sample_size, output_file, compute_pval = TRUE){
 
   if(missing(snp) | missing(beta_hat) | missing(se) | missing(A1) | missing(A2)){
@@ -52,6 +53,13 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   }else{
     p_val_missing <- FALSE
   }
+  if(missing(AF)){
+    X <- mutate(X, AF = NA)
+    AF <- "AF"
+  }else if(is.na(AF)){
+    X <- mutate(X, AF = NA)
+    AF <- "AF"
+  }
   if(missing(sample_size)){
     X <- mutate(X, sample_size = NA)
     sample_size <- "sample_size"
@@ -62,7 +70,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     X <- mutate(X, sample_size = sample_size)
     sample_size <- "sample_size"
   }
-  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, AF, sample_size)
   X <- X %>%
       select(keep_cols)%>%
       rename(snp = snp,
@@ -73,6 +81,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
             chrom = chrom,
             pos = pos,
             p_value = p_value,
+            AF = AF,
             sample_size = sample_size) %>%
       mutate(A1 = toupper(A1),
              A2 = toupper(A2))
@@ -108,7 +117,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   X <- align_beta(X, "beta_hat", TRUE)
 
 
-  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, AF, sample_size)
 
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
