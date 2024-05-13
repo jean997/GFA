@@ -137,7 +137,7 @@ read_standard_format <- function(file, ...){
 }
 
 #Flip signs and strabds so that allele 1 is allways A
-align_beta <- function(X, beta_hat_name, upper=TRUE){
+align_beta <- function(X, beta_hat_name, AF_name, upper=TRUE){
   flp = c("A" = "T", "G" = "C", "T" = "A",
           "C" = "G", "a"  = "t", "t" = "a",
           "c" = "g", "g" = "c")
@@ -151,17 +151,21 @@ align_beta <- function(X, beta_hat_name, upper=TRUE){
                     A2flp = case_when(flip_strand ~ flp[A2],
                                       TRUE ~ A2),
                     temp = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
-                                     TRUE ~ -1*get(beta_hat_name))) %>%
+                                     TRUE ~ -1*get(beta_hat_name)),
+                    temp_AF = case_when(A1flp == "A" | A1flp == "a" ~ get(AF_name),
+                                        TRUE ~ 1-get(AF_name)) %>%
     select(-A1, -A2) %>%
     mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
                           TRUE ~ A2flp),
            A2 = case_when(A1flp == "A" | A1flp=="a" ~ A2flp,
                           TRUE ~ A1flp)) %>%
     select(-A1flp, -A2flp, -flip_strand)
-  ix <- which(names(X)==beta_hat_name)
-  X <- X[,-ix]
-  ix <- which(names(X) == "temp")
-  names(X)[ix] <- beta_hat_name
+  ix_beta_hat <- which(names(X) == beta_hat_name)
+  X <- X[,-ix_beta_hat]
+  ix_AF <- which(names(X) == AF_name)
+  X <- X[,-ix_AF]
+  names(X)[which(names(X) == "temp")] <- beta_hat_name                  
+  names(X)[which(names(X) == "temp_AF")] <- AF_name             
   return(X)
 }
 
