@@ -114,7 +114,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   cat("Removed ", n-nrow(X), " variants with ambiguous strand.\n")
 
   cat("Flipping strand and effect allele so A1 is always A\n")
-  X <- align_beta(X, "beta_hat", TRUE)
+  X <- align_beta(X, "beta_hat", "AF", TRUE)
 
 
   X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, AF, sample_size)
@@ -153,7 +153,7 @@ align_beta <- function(X, beta_hat_name, AF_name, upper=TRUE){
                     temp = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
                                      TRUE ~ -1*get(beta_hat_name)),
                     temp_AF = case_when(A1flp == "A" | A1flp == "a" ~ get(AF_name),
-                                        TRUE ~ 1-get(AF_name)) %>%
+                                        TRUE ~ 1-get(AF_name))) %>%
     select(-A1, -A2) %>%
     mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
                           TRUE ~ A2flp),
