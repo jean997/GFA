@@ -9,6 +9,7 @@
 #'@param chrom Chromosome column (optional)
 #'@param pos Position column (optional)
 #'@param p_value p-value column (optional)
+#'@param AF  Allele Frequency column (optional)
 #'@param sample_size  Sample size column (optional) or an integer
 #'@param compute_pval Logical, compute the p-value using a normal approximation if missing? Defaults to TRUE.
 #'@param output_file File to write out formatted data. If missing formatted data will be returned.
@@ -21,7 +22,7 @@
 #'aligned so that A is the effect allele. This is ready to be used with gwas_merge with formatted = TRUE.
 #'@export
 gwas_format <- function(X, snp, beta_hat, se, A1, A2,
-                        chrom, pos, p_value,
+                        chrom, pos, p_value, AF,
                         sample_size, output_file, compute_pval = TRUE){
 
   if(missing(snp) | missing(beta_hat) | missing(se) | missing(A1) | missing(A2)){
@@ -52,6 +53,13 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   }else{
     p_val_missing <- FALSE
   }
+  if(missing(AF)){
+    X <- mutate(X, AF = NA)
+    AF <- "AF"
+  }else if(is.na(AF)){
+    X <- mutate(X, AF = NA)
+    AF <- "AF"
+  }
   if(missing(sample_size)){
     X <- mutate(X, sample_size = NA)
     sample_size <- "sample_size"
@@ -62,7 +70,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     X <- mutate(X, sample_size = sample_size)
     sample_size <- "sample_size"
   }
-  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, AF, sample_size)
   X <- X %>%
       select(keep_cols)%>%
       rename(snp = snp,
@@ -73,6 +81,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
             chrom = chrom,
             pos = pos,
             p_value = p_value,
+            AF = AF,
             sample_size = sample_size) %>%
       mutate(A1 = toupper(A1),
              A2 = toupper(A2))
@@ -105,10 +114,10 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   cat("Removed ", n-nrow(X), " variants with ambiguous strand.\n")
 
   cat("Flipping strand and effect allele so A1 is always A\n")
-  X <- align_beta(X, "beta_hat", TRUE)
+  X <- align_beta(X, "beta_hat", "AF", TRUE)
 
 
-  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, AF, sample_size)
 
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
@@ -128,7 +137,7 @@ read_standard_format <- function(file, ...){
 }
 
 #Flip signs and strabds so that allele 1 is allways A
-align_beta <- function(X, beta_hat_name, upper=TRUE){
+align_beta <- function(X, beta_hat_name, AF_name, upper=TRUE){
   flp = c("A" = "T", "G" = "C", "T" = "A",
           "C" = "G", "a"  = "t", "t" = "a",
           "c" = "g", "g" = "c")
@@ -142,17 +151,21 @@ align_beta <- function(X, beta_hat_name, upper=TRUE){
                     A2flp = case_when(flip_strand ~ flp[A2],
                                       TRUE ~ A2),
                     temp = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
-                                     TRUE ~ -1*get(beta_hat_name))) %>%
+                                     TRUE ~ -1*get(beta_hat_name)),
+                    temp_AF = case_when(A1flp == "A" | A1flp == "a" ~ get(AF_name),
+                                        TRUE ~ 1-get(AF_name))) %>%
     select(-A1, -A2) %>%
     mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
                           TRUE ~ A2flp),
            A2 = case_when(A1flp == "A" | A1flp=="a" ~ A2flp,
                           TRUE ~ A1flp)) %>%
     select(-A1flp, -A2flp, -flip_strand)
-  ix <- which(names(X)==beta_hat_name)
-  X <- X[,-ix]
-  ix <- which(names(X) == "temp")
-  names(X)[ix] <- beta_hat_name
+  ix_beta_hat <- which(names(X) == beta_hat_name)
+  X <- X[,-ix_beta_hat]
+  ix_AF <- which(names(X) == AF_name)
+  X <- X[,-ix_AF]
+  names(X)[which(names(X) == "temp")] <- beta_hat_name                  
+  names(X)[which(names(X) == "temp_AF")] <- AF_name             
   return(X)
 }
 
