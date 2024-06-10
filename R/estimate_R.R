@@ -48,9 +48,15 @@ R_ldsc_quick <- function(Z_hat, ldscores, weights = 1/ldscores,
 #'@return A list with some or all of the following elements. Se: Estimate of residual covariance Ve: Variance of Se.
 #' Sg: genetic covariance Vg: Variance fo Sg. Rg: Genetic correlation, VRg: Variance of Rg.
 #'@export
-R_ldsc <- function(Z_hat, ldscores, ld_size, N, return_gencov = FALSE,
-                   make_well_conditioned = TRUE, cond_num = 1e5-1,
-                   return_cor = FALSE, blocks = NULL, ncores = 1){
+R_ldsc <- function(Z_hat,
+                   ldscores,
+                   ld_size,
+                   N,
+                   return_gencov = FALSE,
+                   make_well_conditioned = TRUE,
+                   cond_num = 1e5-1,
+                   blocks = NULL,
+                   ncores = 1){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
   stopifnot(class(ldscores) == "numeric")
