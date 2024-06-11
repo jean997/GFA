@@ -15,6 +15,7 @@ gwas_format(
   pos,
   p_value,
   sample_size,
+  allele_freq,
   output_file,
   compute_pval = TRUE
 )

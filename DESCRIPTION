@@ -7,11 +7,11 @@ Authors@R:
            family = "Morrison",
            role = c("aut", "cre"),
            email = "jvmorr@umich.edu")
-Description:  Fits genetic factor analysis
+Description: Fits genetic factor analysis
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
   flashier,
   dplyr, 

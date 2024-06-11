@@ -2,6 +2,7 @@
 % Please edit documentation in R/package.R
 \docType{package}
 \name{GFA}
+\alias{GFA-package}
 \alias{GFA}
 \title{GFA}
 \description{

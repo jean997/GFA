@@ -12,7 +12,6 @@ R_ldsc(
   return_gencov = FALSE,
   make_well_conditioned = TRUE,
   cond_num = 1e+05 - 1,
-  return_cor = FALSE,
   blocks = NULL,
   ncores = 1
 )
