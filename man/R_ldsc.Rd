@@ -12,8 +12,33 @@ R_ldsc(
   return_gencov = FALSE,
   make_well_conditioned = TRUE,
   cond_num = 1e+05 - 1,
-  return_cor = TRUE
+  blocks = NULL,
+  ncores = 1
 )
+}
+\arguments{
+\item{Z_hat}{matrix of z-scores}
+
+\item{ldscores}{vector of ldscores}
+
+\item{ld_size}{Number of variants used to compute ldscores}
+
+\item{N}{vector of sample sizes, length equal to number of columns of Z_hat}
+
+\item{return_gencov}{If TRUE, the function will return genetic covariance in addition to residual covariance/correlation.}
+
+\item{make_well_conditioned}{If TRUE, residual covariance will be projected to the nearest positive definite
+matrix with condition number at least cond_num}
+
+\item{cond_num}{Condition number used if make_well_conditioned = TRUE}
+
+\item{blocks}{If not NULL, use jackknife to estimate the standard error of estimates.}
+
+\item{ncores}{Number of cores to use for jackknifing}
+}
+\value{
+A list with some or all of the following elements. Se: Estimate of residual covariance Ve: Variance of Se.
+Sg: genetic covariance Vg: Variance fo Sg. Rg: Genetic correlation, VRg: Variance of Rg.
 }
 \description{
 Calculate matrix of error correlations using LD-score regression.

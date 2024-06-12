@@ -22,7 +22,8 @@
 #'@export
 gwas_format <- function(X, snp, beta_hat, se, A1, A2,
                         chrom, pos, p_value,
-                        sample_size, output_file, compute_pval = TRUE){
+                        sample_size, allele_freq,
+                        output_file, compute_pval = TRUE){
 
   if(missing(snp) | missing(beta_hat) | missing(se) | missing(A1) | missing(A2)){
     stop("snp, beta_hat, se, A1, and A2 are required.\n")
@@ -41,6 +42,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     X <- mutate(X, pos = NA)
     pos <- "pos"
   }
+
   if(missing(p_value)){
     X <- mutate(X, p_value = NA)
     p_value <- "p_value"
@@ -52,6 +54,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   }else{
     p_val_missing <- FALSE
   }
+
   if(missing(sample_size)){
     X <- mutate(X, sample_size = NA)
     sample_size <- "sample_size"
@@ -62,9 +65,19 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     X <- mutate(X, sample_size = sample_size)
     sample_size <- "sample_size"
   }
-  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+
+  if(missing(allele_freq)){
+    X <- mutate(X, af = NA)
+    allele_freq <- "af"
+  }else if(is.na(allele_freq)){
+    X <- mutate(X, af = NA)
+    allele_freq <- "af"
+  }
+
+  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, allele_freq)
+
   X <- X %>%
-      select(keep_cols)%>%
+      select(all_of(keep_cols))%>%
       rename(snp = snp,
             beta_hat =beta_hat,
             se = se,
@@ -73,7 +86,8 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
             chrom = chrom,
             pos = pos,
             p_value = p_value,
-            sample_size = sample_size) %>%
+            sample_size = sample_size,
+            allele_freq = allele_freq) %>%
       mutate(A1 = toupper(A1),
              A2 = toupper(A2))
 
@@ -105,10 +119,10 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   cat("Removed ", n-nrow(X), " variants with ambiguous strand.\n")
 
   cat("Flipping strand and effect allele so A1 is always A\n")
-  X <- align_beta(X, "beta_hat", TRUE)
+  X <- align_beta(X, "beta_hat", "allele_freq", TRUE)
 
 
-  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size)
+  X <- X %>% select(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, allele_freq)
 
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
@@ -120,15 +134,15 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
 
 }
 
-#'@export
-read_standard_format <- function(file, ...){
-  dat <- read_tsv(file, col_types=list(chrom="c",pos="i", A1 = "c", A2 = "c",
-                       beta_hat="d", se = "d", p_value ="d", sample_size="d"), ...)
-  return(dat)
-}
 
-#Flip signs and strabds so that allele 1 is allways A
-align_beta <- function(X, beta_hat_name, upper=TRUE){
+# read_standard_format <- function(file, ...){
+#   dat <- read_tsv(file, col_types=list(chrom="c",pos="i", A1 = "c", A2 = "c",
+#                        beta_hat="d", se = "d", p_value ="d", sample_size="d"), ...)
+#   return(dat)
+# }
+
+#Flip signs and strands so that allele 1 is always A
+align_beta <- function(X, beta_hat_name, af_name, upper=TRUE){
   flp = c("A" = "T", "G" = "C", "T" = "A",
           "C" = "G", "a"  = "t", "t" = "a",
           "c" = "g", "g" = "c")
@@ -137,22 +151,37 @@ align_beta <- function(X, beta_hat_name, upper=TRUE){
   }else{
     X <- X %>% mutate( flip_strand = A1 == "t" | A2 == "t")
   }
+  if(missing(af_name)){
+    X <- mutate(X, af = NA)
+    af_name <- "tempaf"
+    af_missing <- TRUE
+  }else{
+    af_missing <- FALSE
+  }
+
   X <- X %>% mutate(A1flp = case_when(flip_strand ~ flp[A1],
                                       TRUE ~ A1),
                     A2flp = case_when(flip_strand ~ flp[A2],
                                       TRUE ~ A2),
-                    temp = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
-                                     TRUE ~ -1*get(beta_hat_name))) %>%
+                    # afflp = case_when(flip_strand ~ 1-get(af_name),
+                    #                    TRUE ~ get(af_name)),
+                    tempbh = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
+                                     TRUE ~ -1*get(beta_hat_name)),
+                    tempaf = case_when(A1flp == "A" | A1flp == "a" ~ get(af_name),
+                                       TRUE ~ 1-get(af_name))) %>%
     select(-A1, -A2) %>%
+    select(-all_of(c(af_name, beta_hat_name))) %>%
     mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
                           TRUE ~ A2flp),
            A2 = case_when(A1flp == "A" | A1flp=="a" ~ A2flp,
                           TRUE ~ A1flp)) %>%
     select(-A1flp, -A2flp, -flip_strand)
-  ix <- which(names(X)==beta_hat_name)
-  X <- X[,-ix]
-  ix <- which(names(X) == "temp")
+
+  ix <- which(names(X)== "tempbh")
   names(X)[ix] <- beta_hat_name
+  ix <- which(names(X)== "tempaf")
+  names(X)[ix] <- af_name
+  if(af_missing) X <- select(X, -tempaf)
   return(X)
 }
 
