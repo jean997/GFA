@@ -69,7 +69,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   if(missing(allele_freq)){
     X <- mutate(X, af = NA)
     allele_freq <- "af"
-  }else if(is.na(sample_size)){
+  }else if(is.na(allele_freq)){
     X <- mutate(X, af = NA)
     allele_freq <- "af"
   }
