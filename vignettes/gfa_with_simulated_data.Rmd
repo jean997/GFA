@@ -25,18 +25,18 @@ library(viridis)
 
 ## Introduction
 
-In this vignette we will simulate two toy data sets and analyze them with GFA. The first toy data set is very simple and is the example shown in Figure 2 of the paper. The second toy data set is a more complex. It includes more traits, a more complicated factor structure, and data are simulated with LD. For the second data set, we will compare results with and without environmental correlation due to overlapping samples. 
+In this vignette we will simulate two toy data sets and analyze them with GFA. The first toy data set is very simple and is the example shown in Figure 1 of the paper. The second toy data set is more complex. It includes more traits, a more complicated factor structure, and data are simulated with LD. For the second data set, we will compare results with and without accounting for correlation due to overlapping samples. 
 
-Please note that this package is under development. Please let Jean know if you find that this vignette is broken. 
 
 ## Simple Example
 
 ### Simulate simple data
 
-This example is shown in Figure 2 of the paper. We start by constructing the true factor structure. We then plot the structure using the `plot_factors` function in `GFA` which will turn a matrix into a heatmap. 
+We will start by constructing and plotting the true factor structure. GFA includes a convenience function `plot_factors` for plotting matrices as heatmaps. 
 
 ```{r, warning=FALSE}
 set.seed(100)
+# True factor structure
 myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
 
 myF <- apply(myF, 2, function(x){x/sqrt(sum(x^2))})
@@ -62,8 +62,14 @@ $F$ is the factor structure, $L$ is the randomly generated matrix of variant-fac
 Our first example is a toy example designed to have a very strong signal that can be seen visually, but we don't consider these parameters realistic. We use three traits that each have a heritability of 0.5, GWAS sample size of $50,000$, and 80\% of trait heritability explained by the two factors. We generate 10k independent SNPs (no LD). $L$ and $\Theta$ both have 10% non-zero elements. There is no overlap between the GWAS samples.
 
 ```{r}
-dat <- GWASBrewer::sim_lf(F_mat = myF, N = 50000, J = 10000, h2_trait = rep(0.5, 3),
-                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1, est_s = TRUE)
+dat <- GWASBrewer::sim_lf(F_mat = myF, 
+                          N = 50000, 
+                          J = 10000, 
+                          h2_trait = rep(0.5, 3),
+                          omega = rep(0.8, 3), 
+                          pi_L = rep(0.1,2), 
+                          pi_theta = 0.1, 
+                          est_s = TRUE)
 
 ```
 
@@ -99,19 +105,21 @@ plot_factors(X, col_names = c("T1", "T2", "T3")) +
 ### Fit GFA to simple data
 
 
-In a typical GFA analysis, we would first estimate the correlation between effect estimates that is due to sample overlap. In our toy example, there is no sample overlap, so we will skip this step, but we will include it in the next example.
+In a typical GFA analysis of real data, the next step is to estimate the nuisance correlation matrix. In our toy example, there is no sample overlap, so we will skip this step, but we will include it in the next example.
 
-To fit GFA to our toy data, we use the `gfa_fit` function. `gfa_fit` can take two types of input, either z-scores and sample size or effect estimates and standard errors. If you know the sample size for each GWAS, it is better to use z-scores and sample size. In either case, GFA will be fit using z-scores and the fitted factors will be re-scaled so that they are on the standardized trait scale. If z-scores are provided and no sample size is given, factors can still be estimated but will be left on the z-score scale which depends on sample size and may not be interpretable. We will discuss scaling in greater detail in the third section.
+To fit GFA to our toy data, we use the `gfa_fit` function. `gfa_fit` can take two types of input, either z-scores and sample size or effect estimates and standard errors. If you know the sample size for each GWAS, it is better to use z-scores and sample size. In either case, GFA will be fit using z-scores and the fitted factors will be re-scaled so that they are on the standardized trait scale. If z-scores are provided and no sample size is given, factors can still be estimated, but will be left on the z-score scale which depends on sample size and may not be interpretable. We will discuss scaling in greater detail later in this vignette.
 
 ```{r}
 Z_hat = with(dat, beta_hat/s_estimate)
-fit_toy <- gfa_fit(Z_hat = Z_hat, N = rep(50000, 3))
+fit_toy <- gfa_fit(Z_hat = Z_hat, 
+                   N = rep(50000, 3))
 ```
+
 ```{r}
 names(fit_toy)
 ```
 
-The resulting fit object  contains the following items:
+The resulting fit object  contains the following elements:
 
 - `F_hat`: estimated factor structure on standardized trait scale
 - `L_hat`: Estimated variant-factor effects
@@ -136,7 +144,7 @@ fit_toy$F_hat %>%
            axis.ticks = element_blank())
 ```
 
-The factors capture the truth quite well. Note that our estimated factors are in a different order than the original. It is important to keep in mind that the ordering of the factors is arbitrary.  We also have a third factor that effects (almost) only trait 2. This captures direct effects on trait 2 that are not mediated by the factors. For convenience, GFA will try to identify these single trait factors and separate them, dividing `F_hat` into `F_single` and `F_multi` as described above. GFA is not restricted to produce a number of factors equal to the number of traits. That is a coincidence in this example.
+The factors capture the truth quite well. Note that our estimated factors are in a different order than the original. It is important to keep in mind that the ordering of the factors is arbitrary. The sign of each column is also arbitrary.  We also have a third factor that effects (almost) only trait 2. This captures direct effects on trait 2 that are not mediated by the factors. For convenience, GFA will try to identify these single trait factors and separate them, dividing `F_hat` into `F_single` and `F_multi` as described above. GFA is not restricted to produce a number of factors equal to the number of traits. This occurs in this example by coincidence.
 
 For comparison we can try svd applied to z-scores for the most significant variants which decomposes $\hat{Z}$ as $UDV^\top$ . Here the equivalent estimate to our factors estimate is $V$. Note that it is always best to run GFA on all variants or an LD-pruned subset and not on the most significant.
 
@@ -172,7 +180,7 @@ data("ld_mat_list")
 length(ld_mat_list)
 ```
 
-First we set up the simulation parameters. We will have 20 traits, 100k variants, and 5 unobserved factors. The GWAS sample size for the 20 traits will range between 30k and 50k with 30k samples common to GWAS of all traits. The proportion of non-zero effects are set so that on average, there are 1k SNPs affecting each factor and 1k SNPs affecting each trait directly. 
+First we set up the simulation parameters. We will have 20 traits, 100k variants, and 5 unobserved factors. The GWAS sample size for the 20 traits will range between 30k and 50k with 30k samples common to GWAS of all traits. The proportion of non-zero effects are set so that, on average, there are 1k SNPs affecting each factor and 1k SNPs affecting each trait directly. 
 
 ```{r}
 set.seed(201)
@@ -214,7 +222,7 @@ while(!done){
 ```
 
 
-Since GWAS samples overlap, we can provide the environmental correlation of the traits. This is the correlation of the environmental component of the trait that is not mediated by the factors. For our example, we will use a block correlation structure.
+Since GWAS samples overlap, the environmental correlation of the traits will affect the final GWAS estimates. Since each of our factors has some environmental component, some of the trait environmental correlation is mediated by factors. We can specify the correlation of the environmental components of the traits is not mediated by the factors. For our example, we will use a block correlation structure.
 ```{r}
 Rblock <- matrix(0.5, 4, 4)
 diag(Rblock) <- 1
@@ -256,7 +264,7 @@ p
 The simulated data also contains some objects describing the trait covariance. The traits are scaled to have a total variance of 1. `dat$Sigma_G` gives the genetic variance-covariance matrix, so the diagonal of this matrix gives the heritability. `dat$Sigma_E` gives the environmental variance-covariance matrix, so the total trait correlation is `dat$Sigma_E + dat$Sigma_G`. Useful for our purposes, `dat$R` gives the residual correlation of the effect estimates which is equal to `dat$trait_cor` with elements scaled by the proportion of overlap between GWAS.
 
 
-### Estimate Correlation from Factor Overlap
+### Estimate Nuisance Correlation
 
 Since we have sample overlap, we should estimate the residual correlation. We can do this using either `R_ldsc` or `R_pt` to use the LD-score regression or p-value thresholding methods. For the LD-score regression method, we need to provide LD scores which were computed by `GWASBrewer`. 
 
@@ -271,12 +279,17 @@ We can take a look at the estimated $R$ vs the true $R$. The LD-score method giv
 
 ```{r}
 plot_factors(dat2$R) + theme(axis.title =  element_blank()) + ggtitle("True R")
+plot_factors(R1$Se) + theme(axis.title =  element_blank()) + ggtitle("Estimated R - LDSC")
 plot_factors(R2) + theme(axis.title =  element_blank()) + ggtitle("Estimated R - p threshold")
 plot(dat2$R, R2, xlab = "True Correlation", ylab = "Estimated Correlation - p threshold")
 abline(0, 1)
-plot(dat2$R, R1, xlab = "True Correlation", ylab = "Estimated Correlation - LDSC")
+plot(dat2$R, R1$Se, xlab = "True Correlation", ylab = "Estimated Correlation - LDSC")
 abline(0, 1)
 ```
+
+The LDSC estimate is closer to the truth, but GFA is not very sensitive to this difference.
+
+
 ### Fit GFA
 
 To fit GFA,  we need to obtain an independent (LD-pruned) set of variants. We can use `GWASBrewer` to find this for the simulated data set. Note that we **should not** threshold on p-value. It is ok to prioritize variants by minimum p-value for LD pruning, but here we just prune randomly.
@@ -287,48 +300,55 @@ Z_hat_indep <- Z_hat[ix,]
 dim(Z_hat_indep)
 ```
 
-Finally, we can fit GFA with or without adjustment for sample overlap provided by the `R` argument. Recall that `R1` was estimated using LD-score regression.
+Finally, we can fit GFA with or without adjustment for sample overlap provided by the `R` argument. Recall that `R1` was estimated using LD-score regression and `R2` was estimated using p-value thresholding.
 
 ```{r}
-fit1_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1, method = "fixed_factors")
 fit0 <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat))
+fit1 <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1$Se)
+fit2 <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2)
 ```
 
-
-Below are some alternative settings using different versions of R and different methods:
-```{r, eval = FALSE}
-fit2_ff <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2, method = "fixed_factors")
-fit1_re <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R1, method = "random_effect")
-fit2_re <- gfa_fit(Z_hat = Z_hat_indep, N = diag(Nmat),  R = R2, method = "random_effect")
-fitoracle_ff <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat$R, method = "fixed_factors")
-fitoracle_re <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat$R, method = "random_effect")
-```
-
-In this example, we get nearly identical results using either estimate of R or the truth and using either the `fixed_factors` or `random_effect` estimation method. With any of these settings, we are able to accurately recover all five factors. We can see this by using the `min_norm` function which compares an estimated factor matrix to a true factor matrix by rotating estimated matrix (re-ordering the columns) to give the minimum frobenious norm. 
+We can compare these results to fitting GFA using the true nuisance correlation matrix,
 
 ```{r}
-min_norm(f_true = dat2$F_mat, f_hat = fit1_ff$F_hat)$solution
+fitoracle <- gfa_fit(Z_hat  = Z_hat_indep, N = diag(Nmat), R = dat2$R)
 ```
-In the output, we can see that each true factor is matched by an estimated factor. The value in `val` gives the similarity between the true and estimated factors with 1 indicating a perfect match and 0 indicating no match at all. 
 
-If we compare these results with the results where we omitted the `R` argument, we can see that not adjusting for the nuisance correlation has resulted in four extra factors being estimated that don't match any true factors. 
+In this example, we get nearly identical results using either estimate of R or the truth. With any of these settings, we are able to accurately recover all five factors. We can see this by using the `min_norm` function which compares two factor matrices finding the rotation, $Q$ that minimized the frobenious norm $\vert \vert F_1 - Q F_2 \vert \vert_{F}$. The `min_norm` function will report which factors match between the matrices, how well they match, as well as the overall frobenious norm. A frobenious norm of 0 means the matrices are exactly the same. The value of the frobenious norm can be roughly interpreted as the number of factors in $F_2$ with no match in $F_1$ plus the number of factors in $F_1$ with no match in $F_2$, with partial scores for partially matching factors. 
+
+
+For example, we can first compare the true factor structure to our first GFA estimate. This shows that all five factors were recovered with very high correlation. The value in the `val` column of the `solution` element is equal to the normalized inner product of the two factors, approximately equal to the correlation.
 
 ```{r}
-min_norm(f_true = dat2$F_mat, f_hat = fit0$F_hat)$solution
+min_norm(f_true = dat2$F_mat, f_hat = fit1$F_hat)
 ```
-If we plot the factors estimated with and without the correction for overlapping samples, we can see that the factor structure of the "extra" factors mimics the structure of the environmental correlation. We can also see that some of the "matching" factors estimated in `fit0` are also contaminated with some of the structure of the environmental correlation. Here we plot only the multi-trait factors.
+
+Looking at the frobenious norm values, we can see that all GFA estimates that included the nuisance correlation were very similar.
+```{r}
+min_norm(f_true = dat2$F_mat, f_hat = fit1$F_hat)$frob_n
+min_norm(f_true = dat2$F_mat, f_hat = fit2$F_hat)$frob_n
+min_norm(f_true = dat2$F_mat, f_hat = fitoracle$F_hat)$frob_n
+```
+
+If we compare these results with the results where we omitted the `R` argument, we can see that not adjusting for the nuisance correlation has resulted in four extra factors being estimated that don't match any true factors. The correlation between the matching factors is also slightly lower than in the result where we did account for sample overlap. The two factors given scores of NA are single trait factors and don't count towards the overall forbenious norm score. The value in `opt_frob_n` shows the best score achievable by selecting only a subset of the estimated factors. We can see that, even if we knew which factors to remove, we would still have a worse match than achieved by the method which accounts for sample overlap.
+
+```{r}
+min_norm(f_true = dat2$F_mat, f_hat = fit0$F_hat)
+```
+
+Plotting the factors estimated with and without the correction for overlapping samples, shows that the factor structure of the extra factors mimics the structure of the environmental correlation. We can also see that some of the matching factors estimated in `fit0` are contaminated with some of the structure of the environmental correlation. Here we plot only the multi-trait factors.
 ```{r}
 p0 <- fit0$F_hat_multi %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
-  xlab("Mediator") +
+  xlab("Factor") +
   ylab("Trait") +
   ggtitle("Without Sample Overlap Correction") 
 
-p1 <- fit1_ff$F_hat_multi %>% 
+p1 <- fit1$F_hat_multi %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
-  xlab("Mediator") +
+  xlab("Factor") +
   ylab("Trait") +
   ggtitle("With Sample Overlap Correction") 
 p0
@@ -337,90 +357,35 @@ p1
 
 ## Understanding Scaling Within and Between Factors
 
-The underlying model used by GFA is that standardized variant-trait effects can be decomposed as
+If data is supplied as z-scores and sample sizes, the effects in `F_hat` will be returned are on the standardized effect scale. For example, if the first column of `F_hat` was equal to $(1, 2, 0)$, this would mean that, for each unit increase in the first factor, there is a 1 sd increase in trait 1, a 2 sd increase in trait 2 and no change in trait 3. However the scale of the inferred factor is arbitrary, so a factor $(1, 2, 0)$ is equivalent to a factor $(0.1, 0.2, 0)$. This means that an appropriate interpretation of the factor $(1, 2, 0)$ is that the first factor has an effect on trait 2 that is twice as big as its effect on trait 1 **in units of trait standard deviations**. For plotting convenience, in our output, we always scale the factors so that the columns of `F_hat` have norm 1. 
 
-$$
-\hat{B}^{(std)} = L F^{T} + \Theta + E,
-$$
-where $\hat{B}^{(std)}$ is an $n \times p$ matrix of standardized variant-trait associations, $L$ is an $n \times k$ matrix of variant-factor (aka variant-mediator) effects, $F$ is a $p \times k$ matrix of factor-trait effects, $\Theta$ is a matrix of direct variant-trait effects, and $E$ is a matrix of measurement errors. Since the variant-trait associations are standardized, in this representation, the effects in $F$ are on the standardized effect scale. For example, if the first column of $F$ is $(1, 2, 0)$, this means that for each unit increase in the first mediator, there is a 1 sd increase in trait 1, a 2 sd increase in trait 2 and no change in trait 3. It is important to note that the scale of the inferred mediator is arbitrary. We could multiply the first column of $L$ by 2 and the first column of $F$ by $1/2$ have an equivalent result. This means that we can only interpret factor effects relative to other effects in the same column. So an appropriate interpretation of the factor $(1, 2, 0)$ would be that the first factor has an effect on trait 2 that is twice as big as its effect on trait 1 in units of trait standard deviations. For plotting convenience, in our output, we always scale the factors so that the columns of $F$ have norm 1.
+If only z-scores and no sample sizes are provided, the effects in `F_hat` will be returned are on the z-score scale, proportional to trait standard deviation divided times square root of sample size. Since sample size is a study design parameter, these effects are not immediately interpretable, but could be converted to the standardized trait scale by dividing each row of `F_hat` by the square root of the sample size for the corresponding trait. 
 
-Typically, GWAS do not report results on the standardized scale. If we were to fit our model using unstandardized results, factor-trait effects would be in units of the analyzed GWAS trait which are sometimes unknown and cannot be easily compared across traits. Fortunately, we can use the fact that $\hat{\beta}^{(std)}_{i,j} \approx \hat{\beta}_{i,j}/(\hat{s}_{i,j}\sqrt{N}_{j}) = \hat{z}_{i,j}/\sqrt{N}_{j}$, where $N_j$ is the sample size for trait $j$, $\hat{\beta}_{i,j}$ is the GWAS effect estimate and $\hat{s}_{i,j}$ is the GWAS standard error. 
-
-GFA's default mode is to fit the model using $z$-scores and then transform the estimated factor matrix to the standardized trait scale. Let $W$ by the $p\times p$ diagonal matrix with diagonal elements $\sqrt{N}_1, \dots, \sqrt{N}_p$. From our model above,
-
-$$
-\hat{Z} = \hat{B}^{(std)}W = L (WF)^\top + \Theta W + E W\\
-= L \tilde{F}^T + \tilde{\Theta} + \tilde{E}
-$$
-
-In the GFA object, the `F_hat_est` matrix is the estimate of $\tilde{F} = W F$ (effects on the $z$-score scale) and `F_hat` is an estimate of $F$. In the case that the sample size is not known, GFA can guess the relative scaling by looking at the relative size of standard errors across traits. GFA will use Median($\hat{s}_{i,1}/\hat{s}_{i,j}$) as an estimate of $\sqrt{N}_j/\sqrt{N}_1$. These relative sample sizes are sufficient to obtain an estimate of $F$ from an estimate of $\tilde{F}$, since the absolute scale of each column is arbitrary. 
-
-Note that the columns of `F_hat` are scaled to have norm 1 and the columns of `L_hat` and `F_hat_est` are scaled accordingly. This means that `L_hat %*% t(F_hat)` gives an estimate of the standardized variant-trait effects mediated by factors and `L_hat %*% t(F_hat_est)` gives an estimate of the component of $z$-scores due to effects mediated by factors. 
-
-GFA can also be run with `mode = "b-std"`, in which case the model will be fit using standardized effects directly, so `F_hat_est` and `F_hat` will be the same. This method gives very similar results to fitting with $z$-scores and then transforming but is slightly slower.
-
-
-We can see the difference between the $z$-score and standardized trait scale using an extreme example. We will repeat our toy example but use very different sample sizes for the three traits, $30,000$, $120,000$, and $30,000$. First we simulate data:
-
-```{r}
-set.seed(1001)
-myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
-N <- c(30000, 120000, 30000)
-dat <- GWASBrewer::sim_lf(F_mat = myF, N = N, J = 10000, h2_trait = rep(0.5, 3),
-                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1, est_s = TRUE)
-```
-
-Next, fit GFA:
-
-```{r}
-Z_hat = with(dat, beta_hat/s_estimate)
-fit_toy2 <- gfa_fit(Z_hat = Z_hat, N = N)
-```
-
-
-We will scale the columns of the true $F$ and the $z$-score scale estimated $F$ (`F_hat_est`) to have columns with norm 1 so that everything is easy to compare. This is already done for `F_hat`.  First, we can see that the standardized effect scale estimate `F_hat`, is fairly close to the truth, with one additional single trait factor (recall that the order and sign of columns is arbitarary).
-```{r}
-scale_cols <- function(X){
-  t(t(X)/sqrt(colSums(X^2)))
-}
-fit_toy2$F_hat
-scale_cols(dat$F_mat)
-```
-
-On the other hand, the $z$-score scale estimate is noticeably different. The first estimated factor in `F_hat`
-is a good representation of the first true factor, with similar sized
-effects in the same direction on traits 2 and 3 and almost no effect on the first trait. However, in `F_hat_est`, 
-on the $z$-score scale, the effect of the first factor is much larger on trait 2 than on trait 3. This is purely an artifact 
-of the fact that trait 2 had much larger sample size than traits 1 and 3. 
-```{r}
-scale_cols(fit_toy2$F_hat_est)
-```
-
-For this reason, we always suggest using and interpreting `F_hat` rather than `F_hat_est`.
-
+If effect estimates and standard errors are supplied, the the effects in `F_hat` will be returned on the natural scale, i.e. the scale of the trait used in GWAS. Alternatively, if effects on the natural scale are desired, GFA can be fit using z-scores, and then effects can be transformed. Supplying data as z-scores and sample size or as effect estimates and standard errors should give nearly identical results up to trait scaling.
 
 ## Percent of Heritability Explained
 
 
-In the returned object `gfa_pve` contains two elements, a vector, `genet_var` and a matrix `pve`. 
-The `genet_var` vector gives the total heritability explained by the variants that GFA was fit with
-according to the fitted model. In most cases, this is an underestimate of the total trait heritability
+The `gfa_pve` element of the GFA results object contains two elements, a vector, `genet_var` and a matrix `pve`. 
+The `genet_var` vector gives the proportion of trait variance explained by the variants that GFA was fit with
+according to the fitted model. This is an estimate of the heritability attributable to the variants in the model. 
+In most cases, this is an underestimate of the total trait heritability
 because GFA is only fit with an LD-pruned subset of variants. We don't recommend GFA as 
 an ideal heritability estimation tool. The more interesting object is `pve` which has dimension traits by 
 inferred factors and gives for each trait, the proportion of heritability explained by that factor. 
 We have found that even though the model does not capture all of the total heritability, our estimates of
-proportion of heritability explained by each factor are fairly close to the truth when factors match. 
+proportion of heritability explained by each factor are close to the truth. 
 
-In the example from the second section, we plot the proportion of variance explained matrix:
+Using results from the second example, we plot the proportion of variance explained matrix:
 ```{r}
-p1 <- fit1_ff$gfa_pve$pve %>% 
+p1 <- fit1$gfa_pve$pve %>% 
   plot_factors(.) +
   scale_fill_gradientn(colors = c("white", rev(viridis(3)))) +
-  xlab("Mediator") +
+  xlab("Factor") +
   ylab("Trait")
 ```
 
-Since it is simulated data, we can also compare our estimated proportion of heritability
+We can compare our estimated proportion of heritability
 explained with the true heritability explained by each factor.
 ```{r}
 sim_calc_pve <- function(dat){
@@ -435,14 +400,14 @@ sim_calc_pve <- function(dat){
 pve_true <- sim_calc_pve(dat2)
 
 ## order true pve and estimated pve so they can be compared
-sol <- min_norm(f_hat = fit1_ff$F_hat, 
-                       f_true = dat2$F_mat)$solution
+sol <- min_norm(f_hat = fit1$F_hat, 
+                f_true = dat2$F_mat)$solution
 order_true <- sol$true_ix
 order_est <- sol$est_ix
-pve_est <- fit1_ff$gfa_pve$pve[, order_est]
+pve_est <- fit1$gfa_pve$pve[, order_est]
 pve_true <- pve_true[, order_true]
 plot(pve_true, pve_est)
 abline(0, 1)
 ```
 
-In this example, our proportions of heritability explained tend to be a little lower than the truth but are generally fairly close.
+In this example, our estimated proportions of heritability explained tend to be lower than the truth, but are generally fairly close.
