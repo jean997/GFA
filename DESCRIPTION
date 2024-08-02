@@ -27,3 +27,4 @@ Suggests:
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
+URL: https://jean997.github.io/GFA/
