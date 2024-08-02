@@ -76,7 +76,7 @@ R_ldsc <- function(Z_hat,
     filter(trait1 <= trait2)
 
   vals <- map2(res$trait1, res$trait2, function(i, j){
-    cat(i, j, "\n")
+    #cat(i, j, "\n")
     # if(i == j){
     #   ix <- which(!is.na(Z_hat[,i]))
     #   h2 <- snp_ldsc(ld_score = ldscores[ix], ld_size = ld_size, chi2 = Z_hat[ix,i]^2, sample_size = N[ix,i], blocks = blocks)
