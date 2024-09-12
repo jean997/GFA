@@ -383,6 +383,7 @@ p1 <- fit1$gfa_pve$pve %>%
   scale_fill_gradientn(colors = c("white", rev(viridis(3)))) +
   xlab("Factor") +
   ylab("Trait")
+p1
 ```
 
 We can compare our estimated proportion of heritability
