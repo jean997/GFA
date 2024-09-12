@@ -30,3 +30,24 @@ loadings_gls <- function(X, S, R, F_hat){
   }
   return(list("L" = L, "S" = S))
 }
+
+
+#'@export
+gfa_loadings_gls <- function(beta_hat, S, fit){
+
+  if(!fit$mode == "z-score"){
+    stop("mode must be z-score to use this function.\n")
+  }
+
+  X <- beta_hat/S
+  if(is.null(fit$R)){
+    myR <- diag(fit$fit$residual_sd^2)
+  }else{
+    myR <- gfa_fit$R + diag(fit$fit$residual_sd^2 - 1)
+  }
+  myS <- matrix(1, nrow = nrow(X), ncol = ncol(X))
+  myF <- fit$F_hat*it$scale ## put scale back in because we are using z-scores
+  ret <- loadings_gls(X = X, S = myS, R = myR, F_hat = myF)
+  ret$P <- 2*pnorm(-abs(ret$L/ret$S))
+  return(ret)
+}

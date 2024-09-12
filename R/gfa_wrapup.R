@@ -61,6 +61,8 @@ gfa_rebackfit <- function(gfa_fit, params){
     ret <- list(fit = fit, params = params, scale = scale, method = method)
   }
   ret$params <- params
+  ret$mode <- fit$mode
+  ret$R <- fit$R
   return(ret)
 }
 

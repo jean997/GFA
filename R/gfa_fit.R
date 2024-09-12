@@ -122,12 +122,17 @@ gfa_fit <- function(Z_hat = NULL,
   if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
     fit <- fit %>% flash_nullcheck(remove = TRUE, tol = -Inf) # this will only remove 0 fators
     fit <- gfa_duplicate_check(fit,
-                               dim = 2, check_thresh = params$duplicate_check_thresh)
+                               dim = 2,
+                               check_thresh = params$duplicate_check_thresh)
     ret <- gfa_wrapup(fit, method = method,
                       scale = dat$scale, nullcheck = TRUE)
+    ret$mode <- mode
+    ret$R <- dat$R
     ret$params <- dat$params
   }else{
-    ret <- list(fit = fit, params = dat$params, scale = dat$scale)
+    ret <- list(fit = fit,
+                params = dat$params, scale = dat$scale,
+                mode = mode, R = dat$R)
   }
   return(ret)
 }

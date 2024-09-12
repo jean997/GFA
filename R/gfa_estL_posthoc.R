@@ -34,10 +34,12 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
     flash_backfit(tol = tol)
   if(length(fit$fixed_ix) > 0){
     L_hat <- fit_new$L_pm[,-fit$fixed_ix ]
+    L_psd <- fit_new$L_psd[, -fit$fixed_ix]
     L_lfsr <- fit_new$L_lfsr[, -fit$fixed_ix]
   }else{
     L_hat <- fit_new$L_pm
+    L_psd <- fit_new$L_psd
     L_lfsr <- fit_new$L_lfsr
   }
-  return(list(L_hat = L_hat, L_lfsr = L_lfsr))
+  return(list(L_hat = L_hat, L_psd = L_psd, L_lfsr = L_lfsr))
 }
