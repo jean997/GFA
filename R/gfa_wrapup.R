@@ -48,21 +48,26 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
 
 #'@export
 gfa_rebackfit <- function(gfa_fit, params){
-  method <- gfa_fit$fit$method
+  method <- gfa_fit$method
   scale <- gfa_fit$scale
   fit <- gfa_fit$fit %>% flash_backfit(maxiter = params$max_iter,
                                extrapolate = params$extrapolate)
   fit$method <- method
   if(is.null(fit$flash_fit$maxiter.reached)){
+    fit <- fit %>% flash_nullcheck(remove = TRUE) #, tol = -Inf) # this will only remove 0 factors
+    fit <- gfa_duplicate_check(fit,
+                               dim = 2,
+                               check_thresh = params$duplicate_check_thresh)
     ret <- gfa_wrapup(fit, method = method,
-                      scale = scale, nullcheck = TRUE)
+                      scale = dat$scale, nullcheck = FALSE)
     ret$params <- params
+    ret$mode <- fit$mode
+    ret$R <- fit$R
   }else{
-    ret <- list(fit = fit, params = params, scale = scale, method = method)
+    ret <- list(fit = fit,
+                params = dat$params, scale = dat$scale,
+                mode = fit$mode, R = fit$R)
   }
-  ret$params <- params
-  ret$mode <- fit$mode
-  ret$R <- fit$R
   return(ret)
 }
 

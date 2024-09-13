@@ -53,7 +53,9 @@ gfa_fit <- function(Z_hat = NULL,
                     params = gfa_default_parameters(),
                     method = c("fixed_factors", "random_effect"),
                     mode = c("z-score", "b-std"),
-                    no_wrapup = FALSE){
+                    no_wrapup = FALSE,
+                    F_init = NULL,
+                    fix_F = FALSE){
 
 
   ## process parameters
@@ -101,6 +103,8 @@ gfa_fit <- function(Z_hat = NULL,
     }
   }
   dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params, mode = mode)
+  dat$F_init <- F_init
+  dat$fix_F <- fix_F
 
   method <- match.arg(method)
 
@@ -151,18 +155,37 @@ fit_gfa_ff <- function(dat){
   W <-eS$vectors[, seq(nmax), drop = FALSE] %*% diag(sqrt(vals[seq(nmax)]), ncol = nmax)
   #nf <- nmax # Number of fixed factors
   #Fitting
+  fit <-  flash_init(data = dat$Y, S = sqrt(lambda_min), var_type = 2)
+  ## First initialize non-fixed factors.
+  ## Add initial F if not null
+  if(!is.null(dat$F_init)){
+    ## Initialize L randomly
+    Rinv <- solve(dat$R)
+    ftf_inv <- solve(t(dat$F_init) %*% Rinv %*% dat$F_init)
+    ftx <- t(dat$F_init) %*% Rinv %*% t(dat$Y)
+    L_init <- t(ftf_inv %*% ftx)
+
+    fit <- fit %>%
+      flash_factors_init(., init = list(L_init, dat$F_init), ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F))
+    if(dat$fix_F){
+      fit <- fit %>%
+        flash_factors_fix(., kset = 1:ncol(dat$F_init), which_dim = "factors")
+    }
+  }
+  if(!dat$fix_F){
+    ## Otherwise add greedy factors
+    fit <-  fit %>%
+      flash_greedy(Kmax = dat$params$kmax,
+                   init_fn = dat$params$init_fn,
+                   ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
+  }
+
+  ## Add fixed factors for R
   # randomly initialize A
   fixed_ebnm = flash_ebnm(prior_family = "normal",
                           g_init = ashr::normalmix(pi = c(1),mean = c(0),sd = c(1)),
                           fix_g = TRUE)
   A_rand <- matrix(rnorm(n = dat$n * nmax, mean = 0, sd = 1), nrow = dat$n, ncol = nmax)
-
-  #First initialize flash objects
-
-  fit <-  flash_init(data = dat$Y, S = sqrt(lambda_min), var_type = 2) %>%
-    flash_greedy(Kmax = dat$params$kmax,
-                 init_fn = dat$params$init_fn,
-                 ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
 
   k <- fit$n_factors
   fit <- fit %>%
@@ -195,11 +218,32 @@ fit_gfa_noR <- function(dat){
   #First initialize flash objects
   fit <-  flash_init(data = dat$Y, S = dat$S, var_type = 2)
 
+  ## First initialize non-fixed factors.
+  ## Add initial F if not null
+  if(!is.null(dat$F_init)){
+    ## Initialize L randomly
+    Rinv <- solve(dat$R)
+    ftf_inv <- solve(t(dat$F_init) %*% Rinv %*% dat$F_init)
+    ftx <- t(dat$F_init) %*% Rinv %*% t(dat$Y)
+    L_init <- t(ftf_inv %*% ftx)
+
+    fit <- fit %>%
+      flash_factors_init(., init = list(L_init, dat$F_init), ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F))
+    if(dat$fix_F){
+      fit <- fit %>%
+        flash_factors_fix(., kset = 1:ncol(dat$F_init), which_dim = "factors")
+    }
+  }
+  if(!dat$fix_F){
+    ## Otherwise add greedy factors
+    fit <-  fit %>%
+      flash_greedy(Kmax = dat$params$kmax,
+                   init_fn = dat$params$init_fn,
+                   ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
+  }
+
   # Add factors
   fit <- fit %>%
-    flash_greedy(Kmax = dat$params$kmax,
-                 init_fn = dat$params$init_fn,
-                 ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) ) %>%
     flash_backfit(maxiter = dat$params$max_iter, extrapolate = dat$params$extrapolate)
   fit$method <- "noR"
   return(fit)
