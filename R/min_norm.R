@@ -23,7 +23,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   }
 
   ## no factors estimated
-  if(n_h == 0){
+  if(n_h == 0 & length(true_ix) > 0){
     solution <- data.frame(true_ix = true_ix, hat_ix = NA, val = 0 )
     if( length(true_single) > 0){
       single_df <- data.frame(true_ix =  true_single,
@@ -50,6 +50,24 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     f_hat <- f_hat[,-hat_single, drop = FALSE]
     hat_ix <- hat_ix[-hat_single]
   }
+
+  ## No true factors
+  if(length(true_ix) ==0){
+    if(length(hat_ix) == 0){
+      ret <- list(solution = NULL, frob_n = 0, true_ix = NA, hat_ix = NA,
+                  opt_frob_n = 0)
+    }else{
+      ret <- list(solution = data.frame(true_ix = NA, hat_ix = hat_ix, val = 0),
+                  frob_n = length(hat_ix),
+                  true_ix = NA, hat_ix = hat_ix,
+                  opt_frob_n = 0)
+    }
+    return(ret)
+  }
+
+
+
+
 
   if(!missing(l_true) & !missing(l_hat)){
     stopifnot(ncol(l_true) == n_t & ncol(l_hat) == n_h)
