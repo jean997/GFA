@@ -4,16 +4,22 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
                      return_Q = FALSE){
 
   M <- nrow(f_true)
-  stopifnot(nrow(f_hat) == M)
+
+  if(!is.null(f_hat)){
+    stopifnot(nrow(f_hat) == M)
+    f_hat <- norm_cols(f_hat)$A
+    n_h <- ncol(f_hat)
+    hat_ix <- seq(n_h)
+  }else{
+    n_h <- 0
+  }
+
 
   #pre-processing
   f_true <- norm_cols(f_true)$A
-  f_hat <- norm_cols(f_hat)$A
   n_t <- ncol(f_true)
-  n_h <- ncol(f_hat)
 
   true_ix <- seq(n_t)
-  hat_ix <- seq(n_h)
 
   true_single <- find_single_trait(f_true, single_trait_thresh)
   if(length(true_single) > 0){
@@ -23,7 +29,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   }
 
   ## no factors estimated
-  if(n_h == 0 & length(true_ix) > 0){
+  if(n_h == 0  & length(true_ix) > 0){
     solution <- data.frame(true_ix = true_ix, est_ix = NA, val = 0 )
     if( length(true_single) > 0){
       single_df <- data.frame(true_ix =  true_single,
@@ -36,8 +42,8 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
     ret <- list(solution = solution,
                 frob_n = frob_n,
                 true_ix = true_ix,
-                hat_ix = hat_ix,
-                opt_frob_n = opt_frob_n)
+                hat_ix = hat_ix)
+                #opt_frob_n = opt_frob_n)
     if(!missing(l_hat)){
       ret$frob_n_l <- frob_n
     }
@@ -54,13 +60,11 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   ## No true factors
   if(length(true_ix) ==0){
     if(length(hat_ix) == 0){
-      ret <- list(solution = NULL, frob_n = 0, true_ix = NA, est_ix = NA,
-                  opt_frob_n = 0)
+      ret <- list(solution = NULL, frob_n = 0, true_ix = NA, est_ix = NA)
     }else{
       ret <- list(solution = data.frame(true_ix = NA, est_ix = hat_ix, val = 0),
                   frob_n = length(hat_ix),
-                  true_ix = NA, hat_ix = hat_ix,
-                  opt_frob_n = 0)
+                  true_ix = NA, hat_ix = hat_ix)
     }
     return(ret)
   }
@@ -115,13 +119,13 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   if(l){
     frob_n_l <- sum((l_true - l_hat%*%Q)^2)
   }
-  if(k >= 0){
-    opt_frob_n <- frob_n
-  }else{
-    # If more estimated factors than true, choose the optimal number
-    opt_k <- n_t - length(true_single)
-    opt_frob_n <- sum((f_true[, 1:opt_k] - (f_hat %*% Q)[, 1:opt_k])^2)
-  }
+  # if(k >= 0){
+  #   opt_frob_n <- frob_n
+  # }else{
+  #   # If more estimated factors than true, choose the optimal number
+  #   opt_k <- n_t - length(true_single)
+  #   opt_frob_n <- sum((f_true[, 1:opt_k] - (f_hat %*% Q)[, 1:opt_k])^2)
+  # }
 
   n <- ncol(d)
 
@@ -143,7 +147,7 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   ret <- list(solution = solution,
               frob_n = frob_n,
               true_ix = true_ix,
-              opt_frob_n = opt_frob_n,
+              #opt_frob_n = opt_frob_n,
               hat_ix = hat_ix)
   if(return_Q){
     ret$Q <- Q
