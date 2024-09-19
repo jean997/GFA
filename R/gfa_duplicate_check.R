@@ -27,7 +27,7 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       non_fixed_ix = seq(ncol(D))
     }
 
-    Dn <- norm_cols(D)
+    Dn <- GFA:::norm_cols(D)
 
     d <- t(Dn$A) %*% Dn$A
     diag(d) <- 0
@@ -48,6 +48,9 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
         if(fit_rem$elbo > fit$elbo){
           cat("Removing factor ", non_fixed_ix[i], "\n")
           fit <- fit_rem
+          if(any(fit$flash_fit$is.zero)){
+            fit <- flash_nullcheck(fit, tol = -Inf)
+          }
           reset <- TRUE
         }else{
           cat("Not removing factor ", non_fixed_ix[i], "\n")
