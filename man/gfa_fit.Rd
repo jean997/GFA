@@ -15,7 +15,9 @@ gfa_fit(
   params = gfa_default_parameters(),
   method = c("fixed_factors", "random_effect"),
   mode = c("z-score", "b-std"),
-  no_wrapup = FALSE
+  no_wrapup = FALSE,
+  F_init = NULL,
+  fix_F = FALSE
 )
 }
 \arguments{

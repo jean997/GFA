@@ -43,7 +43,7 @@ gfa_loadings_gls <- function(beta_hat, S, fit){
   if(is.null(fit$R)){
     myR <- diag(fit$fit$residual_sd^2)
   }else{
-    myR <- gfa_fit$R + diag(fit$fit$residual_sd^2 - 1)
+    myR <- fit$R + diag(fit$fit$residual_sd^2 - 1)
   }
   myS <- matrix(1, nrow = nrow(X), ncol = ncol(X))
   myF <- fit$F_hat*it$scale ## put scale back in because we are using z-scores

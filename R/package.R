@@ -1,8 +1,8 @@
 #' GFA
 #'
-#' Genetic Factor Analaysis
+#' Genetic Factor Analysis
 #'
-#' @docType package
+#' @docType _PACKAGE
 #' @author Jean Morrison <jvmorr@umich.edu>
 #' @import flashier
 #' @import dplyr readr reshape2 lpSolve
