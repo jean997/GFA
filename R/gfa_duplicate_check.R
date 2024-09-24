@@ -27,7 +27,7 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
       non_fixed_ix = seq(ncol(D))
     }
 
-    Dn <- GFA:::norm_cols(D)
+    Dn <- norm_cols(D)
 
     d <- t(Dn$A) %*% Dn$A
     diag(d) <- 0
