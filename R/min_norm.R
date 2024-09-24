@@ -115,9 +115,9 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   sgn[sgn == 0] <- 1
   Q <- t(b$solution*sgn)
 
-  frob_n <- sum((f_true - f_hat%*%Q)^2)
+  frob_n <- sqrt(sum((f_true - f_hat%*%Q)^2))
   if(l){
-    frob_n_l <- sum((l_true - l_hat%*%Q)^2)
+    frob_n_l <- sqrt(sum((l_true - l_hat%*%Q)^2))
   }
   # if(k >= 0){
   #   opt_frob_n <- frob_n
