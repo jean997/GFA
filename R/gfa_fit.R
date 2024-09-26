@@ -124,33 +124,11 @@ gfa_fit <- function(Z_hat = NULL,
   #fit$method <- method
   ## wrap up
   if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
-    ## check for incorrect zero flags
-    zero_ix <- which(fit$flash_fit$is.zero)
-    if(length(zero_ix)> 0){
-      fsum <- colSums(fit$flash_fit$EF[[2]][, zero_ix]^2)
-      lsum <- colSums(fit$flash_fit$EF[[1]][, zero_ix]^2)
-      not_zero <- which(fsum > 0 & lsum > 0)
-      if(length(not_zero) > 0){
-        fit$flash_fit$is.zero[zero_ix[not_zero]] <- FALSE
-      }
-    }
-    ##############
+
     fit <- fit %>% flash_nullcheck(remove = TRUE) #, tol = -Inf) # this will only remove 0 factors
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
-
-    ## check for incorrect zero flags
-    zero_ix <- which(fit$flash_fit$is.zero)
-    if(length(zero_ix)> 0){
-      fsum <- colSums(fit$flash_fit$EF[[2]][, zero_ix]^2)
-      lsum <- colSums(fit$flash_fit$EF[[1]][, zero_ix]^2)
-      not_zero <- which(fsum > 0 & lsum > 0)
-      if(length(not_zero) > 0){
-        fit$flash_fit$is.zero[zero_ix[not_zero]] <- FALSE
-      }
-    }
-    ##############
 
     ret <- gfa_wrapup(fit, method = method,
                       scale = dat$scale, nullcheck = TRUE)
