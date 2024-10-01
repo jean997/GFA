@@ -9,7 +9,10 @@ pve2 <- function(gfa_fit){
 
   if(gfa_fit$method == "fixed_factors"){
     fixed_ix <- which(gfa_fit$fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
-    est_ix <- (1:gfa_fit$fit$n_factors)[-fixed_ix]
+    est_ix <- 1:gfa_fit$fit$n_factors
+    if(length(fixed_ix) > 0){
+      est_ix <- est_ix[-fixed_ix]
+    }
     #cat("est_ix:", est_ix, "\n")
     # relative variance explained per trait/factor
     sj <- sapply(est_ix, function(kk){
