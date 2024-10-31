@@ -118,7 +118,7 @@ pve_from_sample <- function(gfa_fit, samp){
     est_ix <- 1:k
     # relative variance explained per trait/factor
     sj <- sapply(est_ix, function(kk){
-      Vk <- flashier:::lowrank.expand(list(samp[[1]][,kk,drop = F]^2, samp[[2]][,kk, drop = F])^2) ## total effects on z-score scale
+      Vk <- flashier:::lowrank.expand(list(samp[[1]][,kk,drop = F]^2, samp[[2]][,kk, drop = F]^2)) ## total effects on z-score scale
       ## standardized effect scale total variance
       colSums(Vk) #/(gfa_fit$scale^2)
     }) |> matrix(nrow = p, byrow = FALSE)
