@@ -106,7 +106,10 @@ R_ldsc <- function(Z_hat,
   colnames(Se) <- rownames(Se) <- NULL
 
   if(make_well_conditioned){
-    Se <- condition(Se, cond_num)
+    #Se <- condition(Se, cond_num)
+    Se <- Matrix::nearPD(Se, corr = FALSE, keepDiag = TRUE,
+                         posd.tol = 1/cond_num)$mat
+    Se <- as.matrix(Se)
   }
 
   if(!return_gencov & is.null(blocks)){
@@ -213,21 +216,24 @@ R_pt <- function(B_hat, S_hat, p_val_thresh = 0.05, return_cor = TRUE,
   R_lower <- reshape2::acast(R_df, T2~T1, value.var = "r")
   R[lower.tri(R)] <- R_lower[lower.tri(R)]
 
-  if(make_well_conditioned){
-    R <- condition(R, cond_num)
-  }
-
-  if(return_cor){
+  if(make_well_conditioned & !return_cor){
+    #R <- condition(R, cond_num)
+    R <- Matrix::nearPD(R, corr = FALSE, keepDiag = TRUE,
+                         posd.tol = 1/cond_num)$mat
+    R <- as.matrix(R)
+  }else if(make_well_conditioned){
+    R <- Matrix::nearPD(R, corr = TRUE,
+                         posd.tol = 1/cond_num)$mat
+    R <- as.matrix(R)
+  }else if(return_cor){
     R <- cov2cor(R)
   }
-
   return(R)
 }
 
 #'@title Project matrix to nearest well conditioned positive definite matrix.
 #'@param R Matrix
 #'@param cond_num Maximum allowable condition number (max(eigenvalue)/min(eigenvalue))
-#'@export
 condition <- function(R, cond_num = 1e5, corr = FALSE){
   eig_R <- eigen(R)
   vals <- eig_R$values

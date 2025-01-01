@@ -100,7 +100,7 @@ check_R <- function(R, p, params, tol = 1e-8){
 
     stop( paste0(deparse(substitute(R)), " is illconditioned with condition number", max(vals)/min(vals),
                  " and maximum allowable condition number ", params$cond_num,
-                 ". Either project to nearest well conditioned matrix using condition(R, params$cond_num) or choose a larger maximum condition
+                 ". Either project to nearest well conditioned matrix using Matrix::nearPD(.., posd.tol = 1/condnum) or choose a larger maximum condition
          number using params = list(cond_num = x)."))
   }
 
