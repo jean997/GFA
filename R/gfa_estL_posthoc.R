@@ -32,10 +32,18 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
   fit_new <- fit_new %>%
     flash_factors_fix(kset = seq(nfct), which_dim = "factors") %>%
     flash_backfit(tol = tol)
-  if(length(fit$fixed_ix) > 0){
-    L_hat <- fit_new$L_pm[,-fit$fixed_ix ]
-    L_psd <- fit_new$L_psd[, -fit$fixed_ix]
-    L_lfsr <- fit_new$L_lfsr[, -fit$fixed_ix]
+  if(fit$method == "fixed_factors"){
+    fixed_ix <- which(sapply(flash_fit$fix.dim,
+                             function(x){!is.null(x)}))
+    if(length(fixed_ix) > 0){
+      L_hat <- fit_new$L_pm[,-fixed_ix ]
+      L_psd <- fit_new$L_psd[, -fixed_ix]
+      L_lfsr <- fit_new$L_lfsr[, -fixed_ix]
+    }else{
+      L_hat <- fit_new$L_pm
+      L_psd <- fit_new$L_psd
+      L_lfsr <- fit_new$L_lfsr
+    }
   }else{
     L_hat <- fit_new$L_pm
     L_psd <- fit_new$L_psd
