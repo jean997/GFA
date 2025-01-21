@@ -6,7 +6,7 @@ loadings_gls <- function(X, S, R, F_hat){
   stopifnot(nrow(S) == nvar & ncol(S) == ntrait)
 
   if(missing(R)){
-    R <- diag(ntrait, nrow = ntrait)
+    R <- diag(1, nrow = ntrait)
   }
   stopifnot(nrow(R) == ntrait & ncol(R) == ntrait)
   stopifnot(isSymmetric(R))
