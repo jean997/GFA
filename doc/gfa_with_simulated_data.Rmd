@@ -1,0 +1,399 @@
+---
+title: "Running GFA with Simulated Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GFA with Simulated Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{imputenc}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(sumstatFactors)
+library(dplyr)
+library(ggplot2)
+library(viridis)
+```
+
+
+## Introduction
+
+In this vignette we will simulate two toy data sets and analyze them with GFA. The first toy data set is very simple and is the example shown in Figure 2 of the paper. The second toy data set is a more complex. It includes more traits, a more complicated factor structure, and data are simulated with LD. For the second data set, we will compare results with and without environmental correlation due to overlapping samples. 
+
+Please note that this package is under development. Please let Jean know if you find that this vignette is broken. 
+
+## Simple Example
+
+### Simulate simple data
+
+This example is shown in Figure 2 of the paper. We start by constructing the true factor structure. We then plot the structure using the `plot_factors` function in `sumstatFactors` which will turn a matrix into a heatmap. 
+
+```{r, warning=FALSE}
+set.seed(100)
+myF <- matrix(c(0, -1, 1, 1, 2, 1), nrow = 3, byrow = TRUE)
+
+myF <- apply(myF, 2, function(x){x/sum(x^2)})
+
+p <- plot_factors(myF, names = c("T3", "T2", "T1"), factor_names = c("F1", "F2")) +
+     scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+     xlab("Mediator") +
+     ggtitle("True Mediator Network") +
+     scale_x_discrete(position = "top")+
+     theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+p
+```
+Next we simulate some data using the `sim_sumstat_lf` function which simulated data from the model 
+
+$$
+\hat{B} = LF^\top + \Theta + E
+$$
+$F$ can either be supplied as we do below or it will be generated randomly. $L$ is always generated randomly with columns following a point-normal distribution with mean 0. Elements of $\Theta$ and $E$ are IID point-normal and normal respectively. The variance of columns of $L$, as well as the parameters of the distributions of $\Theta$ and $E$ are determined by the following parameters:
+
++ Heritability of each trait (`h2_trait`).
++ Proportion of each trait's hertiability mediated by factors. This parameter only matters if there is sample overlap because it effects the covariance of rows of $E$.  (`omega`).
++ Heritability of factors. Lower factor heritability means more environmental variance mediated by factors (`h2_factor`).
++ Proportion of non-zero elements of $L$ (`pi_L`).
++ Proportion of non-zero elements of $\Theta$ (`pi_theta`).
++ Total sample size (`N`).
++ Proportion of overlapping samples (`overlap_prop`).
++ Total number of SNPs to simulate (`J`). 
++ Covariance structure of environmental effects that are not mediated through factors. This can be ommitted if there is no overlap between GWAS (`R_E`).
+
+
+
+
+This toy example is designed to have a very strong signal that can be seen visually, but we don't consider these parameters realistic. The heritability of each trait is 0.5, $N = 50,000$, $\omega = 0.8$ for each trait (most heritability is mediated by factors), the sample size is 50k and we generate 10k independent SNPs. $L$ and $\Theta$ both have 10% non-zero elements. Becuase we set the proportion of overlap to 0, we omit `h_2_factor` and `R_E`. We could optionally have also supplie minor allele frequencies. With this argument missing, SNPs are assumed standardized to variance 1. 
+
+```{r}
+dat <- sim_sumstats_lf(F_mat = myF, N = 50000, J = 10000, h_2_trait = rep(0.5, 3),
+                       omega = rep(0.8, 3), pi_L = rep(0.1,2), pi_theta = 0.1, 
+                       overlap_prop =  0)
+names(dat)
+```
+The function returns simulated summary statistics, `beta_hat` and `se_beta_hat` (both matrices that are variants by traits) along with the matrices $F$ and $L$, and $\Theta$ (all non-normalized), $Z$ which is the expected value of $z$-scores, $R$ the true correlation of rows of $E$, and $\tau$ which is per-trait the proportion of environmental correlation mediated by factors.
+
+For illustrative purposes, we plot some of the generate $\beta_hat$ values. We intentionally select SNPS acting through a range of possible pathways with relatively large effect sizes.
+
+
+```{r, warning = FALSE}
+
+# Null SNPS which do not effect factors or have additional effects in theta
+ix0 <- sample(which((rowSums(dat$L_mat == 0) == 2) & (rowSums(dat$theta == 0) == 3)), size = 8)
+# SNPS which only effect trait 1 through theta and not through factors
+ix1 <- sample(which((rowSums(dat$L_mat == 0) == 2) & (rowSums(dat$theta == 0) == 2) & abs(dat$theta[,1])> 0.02), size = 4)
+# SNPS which only effect trait 2 through theta and not through factors
+ix2 <- sample(which((rowSums(dat$L_mat == 0) == 2) & (rowSums(dat$theta == 0) == 2) & abs(dat$theta[,2])> 0.02), size = 5)
+# SNPS which only effect trait 3 through theta and not through factors
+ix3 <- sample(which((rowSums(dat$L_mat == 0) == 2) & (rowSums(dat$theta == 0) == 2) & abs(dat$theta[,3])> 0.02), size = 3)
+# SNPS which only effect effect factor 1 only
+ix4 <- sample(which((rowSums(dat$L_mat == 0) == 1) & abs(dat$L_mat[,1]) > 0.07 & (rowSums(dat$theta == 0) == 3)), size = 6)
+# SNPS which effect factor 2 only 
+ix5 <- sample(which((rowSums(dat$L_mat == 0) == 1) & abs(dat$L_mat[,2]) > 0.07 & (rowSums(dat$theta == 0) == 3)), size = 4)
+
+X <- dat$beta_hat[c(ix0, ix1, ix2, ix3, ix4, ix5),][,c(3,2,1)]
+se <- dat$se_beta_hat[c(ix0, ix1, ix2, ix3, ix4, ix5),][, c(3,2,1)]
+plot_factors(X, factor_names = c("T1", "T2", "T3")) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Beta hat") +
+  xlab("Trait") +
+  ylab("Variant") +
+  ggtitle("Variant-Trait Associations") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+```
+### Fit GFA to simple data
+
+Step 1: Estimate the row correlation of $E$ which we refer to as $R$. There are two ways to do this. The first uses LD-score regression which only works when data are generated with LD (see below). The second is to use the `est_R_pairwise` function which estimates the pairwise correlation of trait $i$ and trait $j$ by retaining SNPs with p-values above a specified threshold and computing the correlation. We note that the second option will tend to shrink the correlation estimate. In the future we may add a winsorization or tetrachoric options. 
+
+In this data the estimation of $R$ doesn't matter too much because in truth, $R$ is the identity and our estimate captures that fairly well. 
+
+
+```{r}
+R <- with(dat, est_R_pairwise(beta_hat, se_beta_hat, N = rep(100000, 3), z_scores = TRUE, p_val_thresh = 0.05))
+```
+
+
+```{r}
+plot_factors(R) + theme(axis.title =  element_blank())
+
+```
+
+Using these methods, it is possible to generate an estiamte of $R$ which is not positive definite which will generate an error in the GFA step, so it is a good idea to check. 
+
+```{r}
+eigen(R)$values
+```
+
+All positive eigen-values = positive definite. If $R$ is not psd, we recommend adding a ridge penalty (scalar times the identity) to make it so (i.e. `R = R + lambda(diag(ncol(R))))` where `lambda= min(eigen(R)$values) + eps`. Here `eps` can be any positive number, we rcommend 1e-3 or greater).  
+
+Step 2: Fit GFA
+
+This is accomplished via the function `fit_ff_prefit` (function name may change in the future). This function has a lot of options but can be fit at minimum with either 
+
++ Only z-scores passed using the `Z` option or 
+
++ Standardized effects and sample size `B_std` and `N`. Standardized effect sizes are equal to z-scores divided by square root of sample size. 
+
+If the argument `R` is ommited, GFA will assume that there is no sample overlap and provide a warning. These options are enough to fit most data sets. We first fit without `R` and then with. The results should be very similar because our estimate is so close to the identity. 
+
+
+```{r}
+Z_hat = with(dat, beta_hat/se_beta_hat)
+fit_plain <- fit_ff_prefit(Z_hat = Z_hat)
+```
+
+```{r}
+fit_withR <- fit_ff_prefit(Z_hat = Z_hat, R = R)
+```
+Now plotting results:
+
+```{r}
+fit_withR$F_hat %>%
+  plot_factors(., names = c("T3", "T2", "T1")) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (GFA)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+
+```
+
+These factors capture the truth quite well. Note that our estimated factors are in a different order than the original but order is arbitrary. We also have a third factor that effects only a single trait. This occurs sometimes, especially when GWAS signal is very strong but does not represent incorrect information -- there are variants that effect only trait 2 and our model is capturing these through the third factor rather than through $\Theta$. 
+
+For comparison we can run a few other methods. First we try svd applied to z-scores which decomposes $\hat{Z}$ as $UDV^\top$ . Here the equivalent estimate to our factors estimate is $V$. 
+
+```{r}
+fit_svd <- svd(Z_hat)
+
+fit_svd$v %>%
+  plot_factors(., names = c("T3", "T2", "T1")) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (SVD)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+
+```
+Next we try svd applied to hard-thresholded z-scores. In this method, all z-scores with absolute value less than a particular threshold are set to zero. This is implemented in a function called `sparse_svd` in this package and is equivalent to the method previously proposed as DeGas. 
+
+```{r}
+fit_dg <- sparse_svd(dat, z_score_thresh = 4)
+fit_dg$v %>%
+  plot_factors(., names = c("T3", "T2", "T1")) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (DeGas)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+```
+In our case the factors found by DeGas and by SVD are very similar and neither captures the true network well. 
+
+
+### More Complex Example
+
+Next we will generate and analyze some more complicated data. These data are generated in the same way as in the simulations presented in the paper.
+
+
+This data is generated with LD so we need an LD reference. We use some data built into this package:
+
+```{r}
+data("snpdata")
+data("ld_evd_list")
+head(snpdata)
+length(ld_evd_list)
+```
+
+SNP-SNP correlation data is stored in `ld_evd_list`. To create this object, we first partitioned chromosome 19 into 39 approximately indpendent blocks (using?) and then estimated the correlation of SNPs within each block using LD-Shrink (ref). We then computed the eigen-decomposition of each block (this is a convenient way to store the data for the functions that use it). Each element of `ld_evd_list` is an eigen-dcomposition produced using `eigen`. These data are accompanied by a dataframe `snpdata` which includes name, position, LD-score, and allele frequency for each SNP. We have also stored LD-pruning information at a threshold of $r^2 < 0.1$ and $r^2 < 0.01$. 
+
+```{r}
+dim(snpdata)
+#calculate the total number of SNPs with LD information. Verify it is the same as the number of SNPs in snpdata
+sapply(ld_evd_list, function(x){length(x$values)}) %>% sum()
+```
+
+When we simulate data, the simulation function will repeat the chromosome 19 LD patterns as many times as necessary to produce the number of SNPs we request. 
+
+First we set up the simulation parameters. We will have 50 traits, 200k variants, and 12 unobserved factors. The GWAS sample size for all 50 GWAS will be 50k and there is 100% overlap (all GWAS performed in the same samples). The proportion of non-zero effects are set so that on average, there are 5k SNPs affecting each factor and 5k SNPs acting through pathways not mediated by factors for each trait. 
+
+```{r}
+set.seed(200)
+ntrait <- 50
+nvar <- 200000
+nfactor <- 12
+N <- 50000
+overlap_prop <- 1
+pi_L <- pi_theta <- 5000/nvar
+```
+
+We will let the simulation function randomly generate $F$ with 3 "dense" factors (many non-zero elements) and 9 "sparse" factors (few non-zero elements). The simulation function needs to know the number of non-zero elements per factor and needs a function (`gF`) for generating non-zero elements.
+            
+```{r}    
+g_F <- function(n){runif(n, -1, 1)}
+nz_factor <- c(pmin(rpois(3, 24)+1, ntrait), pmin(rpois(9, 4)+2, ntrait))
+```
+
+We also need to provide the trait heritability, proportion of trait heritability from factors, and factor heritability. 
+```{r}
+h_2_trait <- runif(n=ntrait, 0.05, 0.3)
+omega <- runif(n=ntrait, 0.5, 1)
+h_2_factor <- runif(n=nfactor, 0.5, 1)
+```
+
+
+Finally, since GWAS samples overlap, we need to provide the environmental corerlation of the traits. We will use a block correlation structure.
+```{r}
+Rblock <- matrix(0.3, 5, 5)
+diag(Rblock) <- 1
+R_E <- kronecker(diag(10), Rblock)
+```
+
+Now we are ready to generate data.
+
+```{r}
+dat <-  sim_sumstats_lf(N=N, J=nvar, h_2_trait = h_2_trait,
+            omega = omega, h_2_factor = h_2_factor,
+            pi_L = rep(pi_L, nfactor), pi_theta = pi_theta,
+            R_E = R_E, overlap_prop = overlap_prop,
+            g_F = g_F, nz_factor = nz_factor, 
+            R_LD = ld_evd_list, snp_info = snpdata) 
+```
+We can take a look at the generated true factor structure. Note the difference between the dense and sparse factors. 
+
+```{r}
+dat$F_mat %>%
+  plot_factors(.) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("True Mediator Network") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+```
+
+
+When you generate data with LD, there will be an additional element called `snp_info` which is a dataframe of SNP information for each generated SNP. 
+
+```{r}
+dim(dat$snp_info)
+head(dat$snp_info)
+```
+
+### Fit GFA to Simulated Data
+
+As before, we first estimate $R$. This time we can use LD-score regression. 
+
+```{r}
+Z_hat <- with(dat, beta_hat/se_beta_hat)
+ldscores <- dat$snp_info$ldscore_hm3
+R <- R_ldsc(Z_hat, ldscores = ldscores, weights = 1/ldscores)
+```
+
+We can take a look at the estimated $R$ and the true $R$
+
+```{r}
+plot_factors(dat$R) + theme(axis.title =  element_blank()) + ggtitle("True R")
+plot_factors(R) + theme(axis.title =  element_blank()) + ggtitle("Estimated R")
+plot(dat$R, R, xlab = "True Correlation", ylab = "Estimated Correlation")
+abline(0, 1)
+```
+
+If we had real data we would now need to obtain a set of independent SNPs via LD-pruning or clumping. Since we have already calculated this for these data, we can simply extract the set of independent SNPS.
+
+```{r}
+ix <- which(dat$snp_info$keep_ld_prune_0.01);
+Z_hat_indep <- Z_hat[ix,]
+dim(Z_hat_indep)
+```
+
+Next we can fit GFA. 
+
+```{r}
+fit <- fit_ff_prefit(Z_hat = Z_hat_indep, R = R)
+```
+
+```{r}
+dim(fit$F_hat)
+```
+
+Our fit has discovered `r nrow(fit$F_hat)` factors. We can plot them but with complex structure, it is difficult to compare the estimates and the truth.
+
+```{r}
+fit$F_hat %>%
+  plot_factors(.) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (GFA)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+```
+
+To compare fitted and true factors more easily, we can use the `disc` function which will match true and estimated factors. The `disc` function produces four pieces of information. First object `M` reports pairs of matching factors in estimated and true matrices and their correlation. Only pairs with correlation greater than `lambda` are reported. Next `u_est` and `u_true` report indices of estimated and true factors that have no match. Finally `single_trait_est` contains indices of estimated factors that have nearly all weight on a single trait. These are not contained in `u_est`. 
+
+```{r}
+disc(fit$F_hat, dat$F_mat, lambda = 0)
+```
+We've matched four factors well and a fifth factor moderately well. Seven of the true factors are undiscovered. 
+
+
+We can also fit using GFA but not including $R$. This will lead to a bad fit since there is sample overlap. 
+
+
+```{r}
+fit_noR <- fit_ff_prefit(Z_hat = Z_hat_indep)
+```
+
+Plotting the factors, we see that some of the estimated factors resemble the structure of $R_E$. This is because the method does not know that there is correlation in the rows of $E$. 
+
+```{r}
+fit_noR$F_hat %>%
+  plot_factors(.) +
+  scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
+  xlab("Mediator") +
+  ylab("Trait") +
+  ggtitle("Estimated Mediator Network (GFA with no R)") +
+  scale_x_discrete(position = "top")+
+  theme(axis.text.x = element_text(angle = 0),
+           panel.background = element_rect(fill = "white"),
+           axis.ticks = element_blank())
+```
+```{r}
+disc(fit_noR$F_hat, dat$F_mat, lambda = 0)
+```
+
+These results don't fit as well as the results that include R. 
+
+We can fit this data using alternate methods as well. Here we use the hard-thresholded svd method. 
+
+```{r}
+Z_hat_ht <- Z_hat_indep
+Z_hat_ht[abs(Z_hat_ht) < 4] <- 0
+fit_dg <- svd(Z_hat_ht)
+
+disc(fit_dg$v, dat$F_mat, lambda = 0)
+```
+
+This method doesn't match any of the factors with a correlation greater than 0.9 and only one factor with a correlation greater than 0.8. Additionally, there is easy way to select the correct number of factors. By default $V$ with be $M \times M$ where $M$ is the number of traits so there are many unmatched/un-necessary factors factors. 
+
