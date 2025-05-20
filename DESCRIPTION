@@ -7,7 +7,7 @@ Authors@R:
            family = "Morrison",
            role = c("aut", "cre"),
            email = "jvmorr@umich.edu")
-Description: Fits genetic factor analysis
+Description: This package implements Genetic Factor Analysis, a method for analysis of high dimensional or multivariate genetic data. GFA can be used to infer latent heritable factors contributing to high dimensional phenotypes. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

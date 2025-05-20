@@ -24,6 +24,3 @@ devtools::install_github("jean997/GFA", build_vignettes = TRUE)
 browseVignettes("GFA")
 ```
 
-## Reproduce Paper Analysis
-
-To reproduce the analysis in our manuscript, please visit [this github repository]. 
