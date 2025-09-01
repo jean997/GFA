@@ -59,14 +59,14 @@ binary_const <- function(N, N_case, pop_prev){
 
 
 ## The scale object will always contain the vector we
-## need to divide cols of F by to get to trait scale/liability scale.
+## need to divide cols of F by to get to standardized trait scale/liability scale.
 ## If S is provided, find the scale by looking at ratios of sds
-## sp/s1 \approx sqrt(N_1)sqrt(Var Y_p)/sqrt(N_p)*sqrt(Var Y_1) for cont or
+## sp/s1 \approx sqrt(N_1)sqrt(Var Y_p)/sqrt(N_p)*sqrt(Var Y_1) for continuous trait or
 ## sp/s1 \approx sqrt(N_1)/sqrt(N_p*P_p*(1-P_p)) for p binary 1 cont
 ## sp/s1 \qpprox sqrt(N_)
 ## We fit with z-scores and use scale
 ## (1, sqrt(N2)/sqrt(N1), ...) \approx (1, median(s1)/median(s2), ...)
-
+## Adjustment for binary traits is done in gfa_fit
 get_scale_from_S <- function(S){
   if(ncol(S) == 1) return(1)
   scale <- apply(S[,-1, drop = FALSE], 2, function(s){
