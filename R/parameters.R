@@ -2,7 +2,7 @@
 gfa_default_parameters <- function(){
   list(
   kmax = NULL,
-  cond_num = 1e5,
+  cond_num = 100,
   max_lr_percent = 0.99,
   lr_zero_thresh = 1e-3,
   max_iter = 1000,
