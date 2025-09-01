@@ -13,11 +13,10 @@ gfa_fit(
   S = NULL,
   R = NULL,
   params = gfa_default_parameters(),
-  method = c("fixed_factors", "random_effect"),
-  mode = c("z-score", "b-std"),
   no_wrapup = FALSE,
   F_init = NULL,
-  fix_F = FALSE
+  fix_F = FALSE,
+  freeze_F = FALSE
 )
 }
 \arguments{
@@ -26,6 +25,14 @@ gfa_fit(
 \item{N}{Vector of sample sizes length equal to number of traits. If not provided,
 N will default to the vector of 1's and the factor matrix will be returned on the "z-score scale".}
 
+\item{N_case}{If all traits are continuous, omit this option. If some traits are binary, N_case should
+be a vector with length equal to number of traits. Values should be NA for continuous traits or the number
+of cases for binary traits.}
+
+\item{pop_prev}{If all traits are continuous, omit this option. If some traits are binary, pop_prev should
+be a vector with length equal to number of traits. Values should be NA for continuous traits or the population
+prevalence for binary traits.}
+
 \item{B_hat}{A matrix of GWAS effect estimates. B_hat is an alternative to Z_hat (only provide one of these).
 If using B_hat, you must also provide S.}
 
@@ -33,11 +40,13 @@ If using B_hat, you must also provide S.}
 
 \item{R}{Estimated residual correlation matrix. This can be produced for example using R_ldsc or R_pt.}
 
-\item{params}{List of parameters. For most users this can be left at the default values. See details.}
+\item{params}{List of parameters. For most users this can be left at the default values. See Details.}
 
-\item{method}{Either "fixed_factors" or "random_effect". "random_effect" is experimental. See details.}
+\item{no_wrapup}{If TRUE, GFA will not perform wrap-up steps. Advanced option used for debugging.}
 
-\item{mode}{Either "z-score" or "b-std". See details.}
+\item{F_init}{Initial estimate of F (optional).}
+
+\item{fix_F, freeze_F}{Options for fixing F at initialization. See Details.}
 }
 \value{
 A list with elements L_hat and F_hat for estimated variant-factor and factor-trait effects, gfa_pve
@@ -47,24 +56,21 @@ which contains the proportion of heritability explained by each factor, and some
 Genetic Factor Analysis
 }
 \details{
-The method argument can be either fixed_factors or random_effect. These are different methods
-for fitting the GFA model. The random_effect method requires installing a fork of the flashier
-package using `install_github("jean997/flashier", ref = "random-effect")`. Most users can
-stick with the fixed_factors method.
-
-The mode option tells GFA to either fit using z-scores as the outcome and
-then convert the factor matrix to the standardized scale (mode = "z-score")
-or to fit directly using standardized
-effect estimates as the outcome (mode = "b-std"). These give
-very similar results and the z-score mode is faster and so recommended.
-
+You can fit GFA using two types of data. Either supply Z_hat and N or supply B_hat and S.
+In either case, GFA will be fit with z-scores as inputs and factors will be scaled to
+the standardized trait scale or the liability scale for binary traits. If you supply B_hat
+and S, GFA will guess the scaling factors by computing the median of the ratio of each
+trait's standard errors compared with the first trait's standard errors.
+If you used B_hat/S and there are some binary traits, you only need to supply pop_prev.
+If you use Z_hat/N and there are some binary traits, you must supply both N_case and pop_prev.
+We recommend using the Z_hat/N option if sample sizes are available.
 
 The params list includes the following elements which can be modified.
 Most users will not need to modify any of these, except possibly `max_iter`.
 
 kmax: Maximum number of factors. Defaults to twice the number of traits
 
-cond_num: Maximum allowable condition number for R. Defaults to 1e5.
+cond_num: Maximum allowable condition number for R. Defaults to 100.
 
 max_iter: Maximum number of iterations. Defaults to 1000.
 
@@ -73,4 +79,18 @@ extrapolate: Passed to flashier, defaults to TRUE
 ebnm_fn_F and ebnm_fn_L: Prior families for factors and loadings. Defaults to point-normal.
 
 init_fn: Flashier initialization function.
+
+fix_F and freeze_F provide different ways to fix initial estimates. If fix_F is TRUE, the factors
+supplied to F_init will not be updated. However, GFA will be allowed to add additional factors to the final fit.
+If freeze_F is TRUE, GFA will not add additional factors and the final value of F_hat will be equal to F_init
+up to column scaling constants.
+
+The returned object will be a list with the following elements: F_hat (factor estimate), L_hat (loadings estimate), F_hat_single (the columns of
+F_hat corresponding to single trait factors), F_hat_multi (the columns of F corresponding to multi-trait factors), fit (a flashier object),
+scale (the scaling factor used), method (internal method type). If there are more than zero factors, the object will also include gfa_pve which
+includes genet_var (the total variance explained by the set of variants used in estimation) and pve which is a traits by factors matrix.
+The (i,j) element of pve gives the proportion of trait i hertiability explained by factor j.
+
+To compute credible intervals for pve, see gfa_intervals().
+To compute GLS estimates of factor loadings see gfa_loadings_gls().
 }
