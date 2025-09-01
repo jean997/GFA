@@ -1,5 +1,24 @@
-gfa_credints <- function(gfa_fit, nsamp = 500, level = 0.05,
-                         type = c("F", "pve", "L"),
+#'@title GFA Credible Intervals
+#'@description Compute credible intervals for various estimated parameters.
+#'@param gfa_fit An object output by gfa_fit.
+#'@param nsamp Number of posterior samples.
+#'@param level Level for credible intervals (e.g. 0.05 results in 95% credible intervals).
+#'@param type A vector including some or all elements "pve", "F", or "L", see details.
+#'@param variant_ix Optional list of indices if type includes "L".
+#'@details
+#'This function will compute credible intervals for the PVE matrix, F, or L depending on the
+#'choice in "type". The returned object will include <type>_lower and <type>_upper for
+#'each element in type.
+#'
+#'Please note that computing credible intervals for all elements of L can be very
+#'time consuming, since L is typically very large. Your needs may be better served
+#'by computing frequentist estimates and p-values for L using gfa_loadings_gls().
+#'
+#'@export
+gfa_credints <- function(gfa_fit,
+                         nsamp = 500,
+                         level = 0.05,
+                         type = c( "pve","F", "L"),
                          variant_ix = NULL){
   samps <- gfa_fit$fit$sampler(n = nsamp)
   plower <- level/2

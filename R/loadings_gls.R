@@ -1,3 +1,36 @@
+#'@title GFA generalized least squares loadings
+#'@description Compute GLS estimates and p-values for loadings
+#'@param beta_hat Variants by traits matrix of association estimates. Traits
+#'should be in the same order as used to produce fitted gfa object. The variant set may be different than
+#'the variant set used to produce the fitted gfa object.
+#'@param S Variants by traits matrix of standard errors. Variants and traits should match variants and traits in beta_hat.
+#'@param fit Object produced by gfa_ft().
+#'@returns A list with elements L (estimated loadings), S (standard errors for loadings), and P (p-values). All variant by factor matrices.
+#'@export
+gfa_loadings_gls <- function(beta_hat, S, fit){
+
+  if(!fit$mode == "z-score"){
+    stop("mode must be z-score to use this function.\n")
+  }
+
+  X <- beta_hat/S
+  if(is.null(fit$R) | fit$method == "noR"){
+    myR <- diag(fit$fit$residuals_sd^2)
+  }else if(fit$method == "fixed_factors"){
+    myR <- fit$R + diag(fit$fit$residuals_sd^2)
+  }
+
+  myS <- matrix(1, nrow = nrow(X), ncol = ncol(X))
+  myF <- fit$F_hat*fit$scale ## put scale back in because we are using z-scores
+  ret <- loadings_gls(X = X, S = myS, R = myR, F_hat = myF)
+  ret$P <- 2*pnorm(-abs(ret$L/ret$S))
+  return(ret)
+}
+
+
+
+
+
 loadings_gls <- function(X, S, R, F_hat){
   ntrait <- ncol(X)
   nvar <- nrow(X)
@@ -31,24 +64,3 @@ loadings_gls <- function(X, S, R, F_hat){
   return(list("L" = L, "S" = S))
 }
 
-
-#'@export
-gfa_loadings_gls <- function(beta_hat, S, fit){
-
-  if(!fit$mode == "z-score"){
-    stop("mode must be z-score to use this function.\n")
-  }
-
-  X <- beta_hat/S
-  if(is.null(fit$R) | fit$method == "noR"){
-    myR <- diag(fit$fit$residuals_sd^2)
-  }else if(fit$method == "fixed_factors"){
-    myR <- fit$R + diag(fit$fit$residuals_sd^2)
-  }
-
-  myS <- matrix(1, nrow = nrow(X), ncol = ncol(X))
-  myF <- fit$F_hat*fit$scale ## put scale back in because we are using z-scores
-  ret <- loadings_gls(X = X, S = myS, R = myR, F_hat = myF)
-  ret$P <- 2*pnorm(-abs(ret$L/ret$S))
-  return(ret)
-}
