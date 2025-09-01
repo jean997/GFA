@@ -14,7 +14,7 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
       L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
     }
   }
-  F_hat_est <- F_hat
+  #F_hat_est <- F_hat
   #L_hat_est <- L_hat
 
   if(!is.null(scale)){
@@ -24,7 +24,7 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   F_hat <- t(t(F_hat)/row_scale)
   L_hat <- t(t(L_hat)*row_scale)
   #L_hat_est <- t(t(L_hat_est)*row_scale)
-  F_hat_est <- t(t(F_hat_est)/row_scale)
+  #F_hat_est <- t(t(F_hat_est)/row_scale)
 
   F_hat_multi <- F_hat
   F_hat_single <- NULL
@@ -35,11 +35,13 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
       F_hat_multi <- F_hat[, -hat_single, drop = F]
     }
   }
-  ret <- list(fit=fit, method = method,
-              L_hat = L_hat, F_hat = F_hat,
+  ret <- list(fit=fit,
+              method = method,
+              L_hat = L_hat,
+              F_hat = F_hat,
               F_hat_single = F_hat_single,
               F_hat_multi = F_hat_multi,
-              scale = scale, F_hat_est = F_hat_est)
+              scale = scale)
   if(ncol(F_hat) > 0){
     ret$gfa_pve <- pve2(ret)
   }
