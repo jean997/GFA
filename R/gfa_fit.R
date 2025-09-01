@@ -15,8 +15,8 @@
 #'@param R Estimated residual correlation matrix. This can be produced for example using R_ldsc or R_pt.
 #'@param params List of parameters. For most users this can be left at the default values. See Details.
 #'@param no_wrapup If TRUE, GFA will not perform wrap-up steps. Advanced option used for debugging.
-#'@param F_init,L_init Initial estimates of L or F matrices (optional).
-#'@param fix_F,freeze_F,fix_L,freeze_L Options for fixing F or L at initializations. See Details.
+#'@param F_init Initial estimate of F (optional).
+#'@param fix_F,freeze_F Options for fixing F at initialization. See Details.
 #'@return A list with elements L_hat and F_hat for estimated variant-factor and factor-trait effects, gfa_pve
 #'which contains the proportion of heritability explained by each factor, and some other objects useful internally.
 #'@details
@@ -44,10 +44,10 @@
 #'
 #'init_fn: Flashier initialization function.
 #'
-#'fix_F, freeze_F, fix_L, and freeze_L encode different ways to fix initial estimates. If fix_F/fix_L is TRUE, the factors
-#'supplied to F_init/L_init will not be updated. However, GFA will be allowed to add additional factors to the final fit.
-#'If freeze_F/freeze_L are TRUE, GFA will not add additional factors and the final vale of F_hat/L_hat will be equal to F_init/L_init
-#'up to scaling constants.
+#'fix_F and freeze_F provide different ways to fix initial estimates. If fix_F is TRUE, the factors
+#'supplied to F_init will not be updated. However, GFA will be allowed to add additional factors to the final fit.
+#'If freeze_F is TRUE, GFA will not add additional factors and the final value of F_hat will be equal to F_init
+#'up to column scaling constants.
 #'
 #'The returned object will be a list with the following elements: F_hat (factor estimate), L_hat (loadings estimate), F_hat_single (the columns of
 #'F_hat corresponding to single trait factors), F_hat_multi (the columns of F corresponding to multi-trait factors), fit (a flashier object),
@@ -69,11 +69,8 @@ gfa_fit <- function(Z_hat = NULL,
                     params = gfa_default_parameters(),
                     no_wrapup = FALSE,
                     F_init = NULL,
-                    L_init = NULL,
                     fix_F = FALSE,
-                    freeze_F = FALSE,
-                    fix_L = FALSE,
-                    freeze_L = FALSE){
+                    freeze_F = FALSE){
 
 
   ## process parameters
@@ -123,13 +120,19 @@ gfa_fit <- function(Z_hat = NULL,
       scale <- sqrt(N)
     }
   }
+  if((fix_F | freeze_F) & is.null(F_init)){
+    stop("Cannot fix/freeze F, F_init not supplied.")
+  }
+
   dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params, mode = mode)
+
+
   dat$F_init <- F_init
   dat$fix_F <- fix_F
   dat$freeze_F <- freeze_F
-  dat$L_init <- L_init
-  dat$fix_L <- fix_L
-  dat$freeze_L <- freeze_L
+  if(dat$freeze_F) dat$fix_F <- TRUE
+
+
 
   #method <- match.arg(method)
 
@@ -173,7 +176,6 @@ gfa_fit <- function(Z_hat = NULL,
   return(ret)
 }
 
-
 fit_gfa_ff <- function(dat){
   eS <- eigen(dat$R)
   lambda_min <- eS$values[dat$p]
@@ -185,32 +187,13 @@ fit_gfa_ff <- function(dat){
     nmax <- dat$p - 1
   }
   W <-eS$vectors[, seq(nmax), drop = FALSE] %*% diag(sqrt(vals[seq(nmax)]), ncol = nmax)
-  #nf <- nmax # Number of fixed factors
-  #Fitting
-  fit <-  flash_init(data = dat$Y, S = sqrt(lambda_min), var_type = 2)
-  ## First initialize non-fixed factors.
-  ## Add initial F if not null
-  if(!is.null(dat$F_init)){
-    ## Initialize L randomly
-    Rinv <- solve(dat$R)
-    ftf_inv <- solve(t(dat$F_init) %*% Rinv %*% dat$F_init)
-    ftx <- t(dat$F_init) %*% Rinv %*% t(dat$Y)
-    L_init <- t(ftf_inv %*% ftx)
 
-    fit <- fit %>%
-      flash_factors_init(., init = list(dat$L_init, dat$F_init), ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F))
-    if(dat$fix_F){
-      fit <- fit %>%
-        flash_factors_fix(., kset = 1:ncol(dat$F_init), which_dim = "factors")
-    }
-  }
-  if(!dat$fix_F & !dat$fix_L){
-    ## Otherwise add greedy factors
-    fit <-  fit %>%
-      flash_greedy(Kmax = dat$params$kmax,
-                   init_fn = dat$params$init_fn,
-                   ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
-  }
+  # Initialize data object
+  fit <-  flash_init(data = dat$Y, S = sqrt(lambda_min), var_type = dat$params$var_type)
+
+  ## Initialize non-fixed factors.
+  fit <- gfa_init_FL(fit, dat, noR = FALSE)
+  k <- fit$n_factors
 
   ## Add fixed factors for R
   # randomly initialize A
@@ -219,7 +202,6 @@ fit_gfa_ff <- function(dat){
                           fix_g = TRUE)
   A_rand <- matrix(rnorm(n = dat$n * nmax, mean = 0, sd = 1), nrow = dat$n, ncol = nmax)
 
-  k <- fit$n_factors
   fit <- fit %>%
     flash_factors_init(., init = list(A_rand, W), ebnm_fn = fixed_ebnm) %>%
     flash_factors_fix(., kset = k + (1:nmax), which_dim = "factors") %>%
@@ -235,32 +217,32 @@ fit_gfa_noR <- function(dat){
   fit <-  flash_init(data = dat$Y, S = dat$S, var_type = dat$params$var_type)
 
   ## First initialize non-fixed factors.
-  ## Add initial F if not null
-  if(!is.null(dat$F_init) | !is.null(dat$L_init)){
-    if(!is.null(dat$F_init) & is.null(dat$L_init)){
-      F_init <- dat$F_init
-      ## Initialize L
-      if(ncol(F_init) <= ncol(dat$Y)){
-        ftf_inv <- solve(t(F_init) %*% F_init)
-      }else{
-        ftf_inv <- corpcor::pseudoinverse(t(F_init) %*% F_init)
-      }
-      ftx <- t(F_init) %*% t(dat$Y)
-      L_init <- t(ftf_inv %*% ftx)
-    }else if(!is.null(dat$F_init) & !is.null(dat$L_init)){
-      F_init <- dat$F_init
-      L_init <- dat$L_init
+  fit <- gfa_init_FL(fit, dat, noR = TRUE)
+  k <- fit$n_factors
+
+  # Backfit
+  fit <- fit %>%
+    flash_backfit(maxiter = dat$params$max_iter, extrapolate = dat$params$extrapolate)
+  fit$method <- "noR"
+  return(fit)
+}
+
+
+gfa_init_FL <- function(fit, dat, noR = FALSE){
+  if(noR){
+    Rinv <- diag(dat$p)
+  }else{
+    Rinv <- solve(dat$R)
+  }
+  if(!is.null(dat$F_init)){
+    if(ncol(F_init) <= ncol(dat$Y)){
+      ftf_inv <- solve(t(F_init) %*%  R_inv %*% F_init)
     }else{
-      L_init <- dat$L_init
-      ## Initialize F
-      if(ncol(L_init) <= ncol(dat$Y)){
-        ltl_inv <- solve(t(L_init) %*% L_init)
-      }else{
-        ltl_inv <- corpcor::pseudoinverse(t(L_init) %*% L_init)
-      }
-      ltx <- t(L_init) %*% dat$Y
-      F_init <- t(ltl_inv %*% ltx)
+      ftf_inv <- corpcor::pseudoinverse(t(F_init) %*% R_inv %*% F_init)
     }
+
+    ftx <- t(dat$F_init) %*% Rinv %*% t(dat$Y)
+    L_init <- t(ftf_inv %*% ftx)
 
     fit <- fit %>%
       flash_factors_init(., init = list(L_init, F_init),
@@ -268,22 +250,15 @@ fit_gfa_noR <- function(dat){
     if(dat$fix_F){
       fit <- fit %>%
         flash_factors_fix(., kset = 1:ncol(F_init), which_dim = "factors")
-    }else if(dat$fix_L){
-      fit <- fit %>%
-        flash_factors_fix(., kset = 1:ncol(L_init), which_dim = "loadings")
     }
   }
-  if(!dat$freeze_F & !dat$freeze_L){
-    ## Otherwise add greedy factors
+  if(!dat$freeze_F){
+    ## Add greedy factors if not frozen
     fit <-  fit %>%
       flash_greedy(Kmax = dat$params$kmax,
                    init_fn = dat$params$init_fn,
                    ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F) )
   }
-
-  # Add factors
-  fit <- fit %>%
-    flash_backfit(maxiter = dat$params$max_iter, extrapolate = dat$params$extrapolate)
-  fit$method <- "noR"
   return(fit)
 }
+
