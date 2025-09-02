@@ -84,7 +84,7 @@ gfa_fit <- function(Z_hat = NULL,
   for(n in names(params)){
     if(! n %in% names(default_params)) stop("Unknown parameter ", n, " provided.")
   }
-  mode <- match.arg(mode)
+  
   ## process inputs
   check_args_znbs(is.null(Z_hat), is.null(N), is.null(B_hat), is.null(S))
   if(is.null(Z_hat)){
