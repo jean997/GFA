@@ -2,12 +2,12 @@
 #'@description Compute credible intervals for various estimated parameters.
 #'@param gfa_fit An object output by gfa_fit.
 #'@param nsamp Number of posterior samples.
-#'@param level Level for credible intervals (e.g. 0.05 results in 95% credible intervals).
+#'@param level Level for credible intervals (e.g. 0.05 results in 95\% credible intervals).
 #'@param type A vector including some or all elements "pve", "F", or "L", see details.
 #'@param variant_ix Optional list of indices if type includes "L".
 #'@details
 #'This function will compute credible intervals for the PVE matrix, F, or L depending on the
-#'choice in "type". The returned object will include <type>_lower and <type>_upper for
+#'choice in "type". The returned object will include <type>\_lower and <type>\_upper for
 #'each element in type.
 #'
 #'Please note that computing credible intervals for all elements of L can be very
