@@ -34,7 +34,7 @@
 #'
 #'kmax: Maximum number of factors. Defaults to twice the number of traits
 #'
-#'cond_num: Maximum allowable condition number for R. Defaults to 100.
+#'cond_num: Maximum allowable condition number for R. Defaults to 1000.
 #'
 #'max_iter: Maximum number of iterations. Defaults to 1000.
 #'
