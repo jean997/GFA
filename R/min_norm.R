@@ -1,109 +1,121 @@
+#' @title Minimum norm distance between true and estimated factors
+#' @description Given two matrices of factors (true and estimated), find the rotation
+#'  that minimizes the Frobenius norm of the difference between the true factors and
+#'  rotated estimate.
+#' @param f_true Matrix of true factors (M x K1)
+#' @param f_hat Matrix of estimated factors (M x K2)
+#' @param single_trait_thresh Threshold to identify single trait factors. A factor is
+#' considered a single trait factor if the maximum absolute value of its entries
+#' is greater than this threshold after normalizing the factor to have unit norm.
+#' Single trait factors are removed from both f_true and f_hat before matching.
+#' Default is 0.98.
+#' @param return_Q Logical. If TRUE, return the optimal rotation matrix.
+#' @return A list with the following elements:
+#' \item{solution}{A data frame with the following columns:
+#' \itemize{
+#' \item true_ix: Index of the true factor
+#' \item est_ix: Index of the matching estimated factor
+#' \item max_true_val: Maximum absolute value of the true factor
+#' \item max_hat_val: Maximum absolute value of the estimated factor
+#' \item penalty: The squared Frobenius norm penalty for the matched pair
+#' \item match_score: The matching score (absolute inner product) for the matched pair
+#' }}
+#' \item{frob_n}{The Frobenius norm of the difference between the best matching
+#' factors.}
+#' \item{Q}{(optional) The optimal matching matrix. Returned if return_Q = TRUE.}
+#' \item{best_est}{(optional) The best matching estimated factors. Returned if return_Q = TRUE.}
+#' \item{best_true}{(optional) The true factors corresponding to the best matching. Returned if return_Q = TRUE.}
 #'@export
-min_norm <- function(f_true, f_hat, l_true, l_hat,
-                     single_trait_thresh = 0.95, thresh = 0,
+min_norm <- function(f_true, f_hat,
+                     single_trait_thresh = 0.98,
                      return_Q = FALSE){
 
   M <- nrow(f_true)
 
-  if(!is.null(f_hat)){
-    stopifnot(nrow(f_hat) == M)
-    f_hat <- norm_cols(f_hat)$A
-    n_h <- ncol(f_hat)
-    hat_ix <- seq(n_h)
-  }else{
-    n_h <- 0
-  }
+  stopifnot(nrow(f_hat) == M)
+  f_hat <- norm_cols(f_hat)$A
+  f_hat_orig <- f_hat
+  hat_ix <- seq(ncol(f_hat))
 
-
-  #pre-processing
   f_true <- norm_cols(f_true)$A
-  n_t <- ncol(f_true)
+  f_true_orig <- f_true
+  true_ix <- seq(ncol(f_true))
 
-  true_ix <- seq(n_t)
-
+  # remove single trait factors from f_true
+  sol_single <- NULL
   true_single <- find_single_trait(f_true, single_trait_thresh)
   if(length(true_single) > 0){
-    cat("Removing ", length(true_single), " single trait factors from f_true\n")
-    f_true <- f_true[,-true_single, drop = FALSE]
+    cat("There are ", length(true_single), " single trait factors in f_true\n")
+    f_true <- f_true_orig[,-true_single, drop = FALSE]
     true_ix <- true_ix[-true_single]
+    sol_single <- data.frame(true_ix =  true_single,
+                             est_ix = NA,
+                             val = NA)
   }
 
-  ## no factors estimated
-  if(n_h == 0  & length(true_ix) > 0){
-    solution <- data.frame(true_ix = true_ix, est_ix = NA, val = 0 )
-    if( length(true_single) > 0){
-      single_df <- data.frame(true_ix =  true_single,
-                              est_ix = NA,
-                              val = NA)
-      solution <- bind_rows(solution, single_df)
-    }
-    frob_n <- opt_frob_n <- length(true_ix)
-    hat_ix <- c()
-    ret <- list(solution = solution,
-                frob_n = frob_n,
-                true_ix = true_ix,
-                hat_ix = hat_ix)
-                #opt_frob_n = opt_frob_n)
-    if(!missing(l_hat)){
-      ret$frob_n_l <- frob_n
-    }
-    return(ret)
-  }
-
+  # remove single trait factors from f_hat
   hat_single <- find_single_trait(f_hat, single_trait_thresh)
   if(length(hat_single) > 0){
-    cat("Removing ", length(hat_single), " single trait factors from f_hat\n")
-    f_hat <- f_hat[,-hat_single, drop = FALSE]
+    cat("There are ", length(hat_single), " single trait factors in f_hat\n")
+    f_hat <- f_hat_orig[,-hat_single, drop = FALSE]
     hat_ix <- hat_ix[-hat_single]
+    if(is.null(sol_single)){
+      sol_single <- data.frame(true_ix =  NA,
+                               est_ix = hat_single,
+                               val = NA)
+    }else{
+      sol_single <- bind_rows(sol_single,
+                              data.frame(true_ix =  NA,
+                                         est_ix = hat_single,
+                                         val = NA))
+    }
+  }
+
+
+  ## no factors estimated but there are true factors
+  if(length(hat_ix) == 0  & length(true_ix) > 0){
+    solution <- data.frame(true_ix = true_ix,
+                           est_ix = NA,
+                           penalty = 1,
+                           val = 0 )
+    if( !is.null(sol_single)){
+      solution <- bind_rows(solution, sol_single)
+    }
+    frob_n <- sqrt(length(true_ix))
+    hat_ix <- c()
+    ret <- list(solution = solution,
+                frob_n = frob_n)
+    return(ret)
   }
 
   ## No true factors
   if(length(true_ix) ==0){
     if(length(hat_ix) == 0){
-      ret <- list(solution = NULL, frob_n = 0, true_ix = NA, est_ix = NA)
+      ret <- list(solution = NULL, frob_n = 0)
     }else{
-      ret <- list(solution = data.frame(true_ix = NA, est_ix = hat_ix, val = 0),
-                  frob_n = length(hat_ix),
-                  true_ix = NA, hat_ix = hat_ix)
+      solution = data.frame(true_ix = NA,
+                            est_ix = hat_ix,
+                            val = 0,
+                            penalty = 1)
+      if( !is.null(sol_single)){
+        solution <- bind_rows(solution, sol_single)
+      }
+      ret <- list(solution = solution,
+                  frob_n = sqrt(length(hat_ix)))
     }
     return(ret)
   }
 
-
-
-
-
-  if(!missing(l_true) & !missing(l_hat)){
-    stopifnot(ncol(l_true) == n_t & ncol(l_hat) == n_h)
-    N <- nrow(l_true)
-    stopifnot(nrow(l_hat) == N)
-    l_true <- norm_cols(l_true)$A
-    l_hat <- norm_cols(l_hat)$A
-    l_true <- l_true[,true_ix]
-    l_hat <- l_hat[,hat_ix]
-    l <- TRUE
-  }else{
-    l <- FALSE
-  }
-
-
   k <- ncol(f_true) - ncol(f_hat)
-  if(k > 0){
+  if(k > 0){ # more true factors than estimated
     f_hat <- cbind(f_hat, matrix(0, nrow = M, ncol = k))
-    hat_ix <- c(hat_ix, seq(k) + n_h)
-    if(l){
-      l_hat <- cbind(l_hat, matrix(0, nrow = N, ncol = k))
-    }
-  }else if(k < 0){
+    hat_extra <- seq(k) + length(hat_ix)
+  }else if(k < 0){ # more estimated than true
     f_true <- cbind(f_true, matrix(0, nrow = M, ncol = -k))
-    true_ix <- c(true_ix, seq(-k) + n_t)
-    if(l){
-      l_true <- cbind(l_true, matrix(0, nrow = N, ncol = -k))
-    }
+    true_extra <- seq(-k) + length(true_ix)
   }
 
   d <- t(f_true) %*% f_hat
-  d[abs(d) < thresh ] <- 0
 
   b <- lp.assign(abs(d), direction = "max")
 
@@ -115,48 +127,50 @@ min_norm <- function(f_true, f_hat, l_true, l_hat,
   sgn[sgn == 0] <- 1
   Q <- t(b$solution*sgn)
 
-  frob_n <- sqrt(sum((f_true - f_hat%*%Q)^2))
-  if(l){
-    frob_n_l <- sqrt(sum((l_true - l_hat%*%Q)^2))
+  ## find factors where a single trait factor from f_hat is matched to a zero factor.
+  ## f_hat should not be penalized for these
+  fhq <- f_hat %*% Q
+  z <- (f_true-fhq)^2
+  solution$penalty <- colSums(z)
+
+
+  if(k > 0){
+    solution$est_ix[solution$est_ix %in% hat_extra] <- NA
+  }else if(k < 0){
+    solution$val[solution$tue_ix %in% true_extra] <- NA
+    solution$true_ix[solution$true_ix %in% true_extra] <- NA
   }
-  # if(k >= 0){
-  #   opt_frob_n <- frob_n
-  # }else{
-  #   # If more estimated factors than true, choose the optimal number
-  #   opt_k <- n_t - length(true_single)
-  #   opt_frob_n <- sum((f_true[, 1:opt_k] - (f_hat %*% Q)[, 1:opt_k])^2)
-  # }
-
-  n <- ncol(d)
-
-
-  solution <- solution %>% arrange(-val)
+  solution$true_ix <- true_ix[solution$true_ix]
   solution$est_ix <- hat_ix[solution$est_ix]
-  solution$true_ix <- true_ix[solution$true_ix ]
-  solution$est_ix[solution$est_ix > n_h] <- NA
-  solution$true_ix[solution$true_ix > n_t] <- NA
-
-  if(length(hat_single) + length(true_single) > 0){
-    single_df <- data.frame(true_ix = c(rep(NA, length(hat_single)), true_single),
-                            est_ix = c(hat_single, rep(NA, length(true_single))),
-                            val = NA)
-    solution <- bind_rows(solution, single_df)
+  if(!is.null(sol_single)){
+    solution <- bind_rows(solution, sol_single)
   }
+
+
+
+  solution$max_hat_val <- apply(abs(f_hat_orig[, solution$est_ix, drop = FALSE]), 2, max)
+  solution$max_true_val <- apply(abs(f_true_orig[, solution$true_ix, drop = FALSE]), 2, max)
+
+  frob_n <- sqrt(sum(z))
+
+  solution <- arrange(solution, -1*val) %>%
+              select(true_ix,
+                     est_ix,
+                     max_true_val,
+                     max_hat_val,
+                     penalty,
+                     val) %>%
+              rename(match_score = val)
 
 
   ret <- list(solution = solution,
-              frob_n = frob_n,
-              true_ix = true_ix,
-              #opt_frob_n = opt_frob_n,
-              hat_ix = hat_ix)
+              frob_n = frob_n)
   if(return_Q){
     ret$Q <- Q
     ret$best_est <-  f_hat %*% Q
     ret$best_true <- f_true
   }
-  if(l){
-    ret$frob_n_l <- frob_n_l
-  }
+
   return(ret)
 }
 
