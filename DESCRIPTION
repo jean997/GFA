@@ -1,6 +1,6 @@
 Package: GFA
 Title: Genetic Factor Analysis (GFA)
-Version: 1.0.0.0439
+Version: 1.0.0.0440
 Date: 2025-09-03
 Authors@R: 
     person(given = "Jean",
@@ -26,8 +26,8 @@ Suggests:
   rmarkdown,
   knitr
 Remotes:
-  willwerscheid/flashier
-  stephenslab/ebnm
+  github::willwerscheid/flashier
+  github::stephenslab/ebnm
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
