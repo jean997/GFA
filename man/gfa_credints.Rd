@@ -17,7 +17,7 @@ gfa_credints(
 
 \item{nsamp}{Number of posterior samples.}
 
-\item{level}{Level for credible intervals (e.g. 0.05 results in 95% credible intervals).}
+\item{level}{Level for credible intervals (e.g. 0.05 results in 95\% credible intervals).}
 
 \item{type}{A vector including some or all elements "pve", "F", or "L", see details.}
 
@@ -28,7 +28,7 @@ Compute credible intervals for various estimated parameters.
 }
 \details{
 This function will compute credible intervals for the PVE matrix, F, or L depending on the
-choice in "type". The returned object will include <type>_lower and <type>_upper for
+choice in "type". The returned object will include <type>\_lower and <type>\_upper for
 each element in type.
 
 Please note that computing credible intervals for all elements of L can be very
