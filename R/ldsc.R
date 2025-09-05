@@ -66,7 +66,7 @@ wlm_no_int <- function(x, y, w) {
 #'
 #'
 #' @export
-#'
+#' @keywords internal
 snp_ldsc <- function(ld_score, ld_size, chi2, sample_size,
                      blocks = 200,
                      intercept = NULL,

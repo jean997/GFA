@@ -33,7 +33,7 @@
 #'
 #'
 #' @export
-#'
+#' @keywords internal
 ldsc_rg <- function(ld_score, ld_size, z1, z2, sample_size_1, sample_size_2,
                         blocks = NULL,
                         h2_1 = NULL,

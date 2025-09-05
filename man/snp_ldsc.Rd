@@ -58,3 +58,4 @@ Vector of 4 values (or only the first 2 if `blocks = NULL`):
 \description{
 LD score regression
 }
+\keyword{internal}

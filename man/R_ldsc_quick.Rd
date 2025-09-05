@@ -16,3 +16,4 @@ R_ldsc_quick(
 \description{
 Cheater ld-score matrix. Fast but higher variance.
 }
+\keyword{internal}

@@ -1,6 +1,7 @@
 
 #'@title Cheater ld-score matrix. Fast but higher variance.
 #'@export
+#'@keywords internal
 R_ldsc_quick <- function(Z_hat, ldscores, weights = 1/ldscores,
                          make_well_conditioned = TRUE, cond_num = 1e5,
                          return_cor = TRUE){
@@ -193,6 +194,14 @@ R_ldsc <- function(Z_hat,
 
 
 #'@title Calculate matrix of error correlations using p-value threshold method.
+#'@param B_hat Matrix of effect size estimates
+#'@param S_hat Matrix of standard errors
+#'@param p_val_thresh P-value threshold
+#'@param return_cor Return matrix as correlation matrix (apply cov2cor), recommended
+#'@param max_well_conditioned Project matrix to nearest well conditioned positive definite
+#'matrix using Matrix::nearPD
+#'@param cond_num Condition number if using make_well_conditioned
+#'@return A traits by traits matrix of nuisance correlations.
 #'@export
 R_pt <- function(B_hat, S_hat, p_val_thresh = 0.05, return_cor = TRUE,
                  make_well_conditioned = TRUE, cond_num = 1e5){
@@ -226,25 +235,6 @@ R_pt <- function(B_hat, S_hat, p_val_thresh = 0.05, return_cor = TRUE,
                          posd.tol = 1/cond_num)$mat
     R <- as.matrix(R)
   }else if(return_cor){
-    R <- cov2cor(R)
-  }
-  return(R)
-}
-
-#'@title Project matrix to nearest well conditioned positive definite matrix.
-#'@param R Matrix
-#'@param cond_num Maximum allowable condition number (max(eigenvalue)/min(eigenvalue))
-condition <- function(R, cond_num = 1e5, corr = FALSE){
-  eig_R <- eigen(R)
-  vals <- eig_R$values
-  illcond <- any(vals < 0) | max(vals)/min(vals) > cond_num
-  if(illcond){
-    warning(paste0(deparse(substitute(R)), " is either not positive definite or is illconditioned. Projecting to nearest well conditioned matrix."))
-    x <- (cond_num*min(vals) - max(vals))/(1-cond_num)
-    eig_R$values <- eig_R$values + x
-    R <- with(eig_R, tcrossprod(vectors, tcrossprod(vectors, diag(values))))
-  }
-  if(corr){
     R <- cov2cor(R)
   }
   return(R)

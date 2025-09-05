@@ -5,7 +5,7 @@
 #'the variant set used to produce the fitted gfa object.
 #'@param S Variants by traits matrix of standard errors. Variants and traits should match variants and traits in beta_hat.
 #'@param fit Object produced by gfa_ft().
-#'@returns A list with elements L (estimated loadings), S (standard errors for loadings), and P (p-values). All variant by factor matrices.
+#'@return A list with elements L (estimated loadings), S (standard errors for loadings), and P (p-values). All variant by factor matrices.
 #'@export
 gfa_loadings_gls <- function(beta_hat, S, fit){
 

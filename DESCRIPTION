@@ -1,6 +1,6 @@
 Package: GFA
 Title: Genetic Factor Analysis (GFA)
-Version: 1.0.0.0443
+Version: 1.0.0.0445
 Date: 2025-09-05
 Authors@R: 
     person(given = "Jean",
@@ -11,7 +11,7 @@ Description: This package implements Genetic Factor Analysis, a method for analy
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
   flashier (>= 1.0.56),
   ebnm (>= 1.1-34),

@@ -3,7 +3,6 @@
 export(R_ldsc)
 export(R_ldsc_quick)
 export(R_pt)
-export(disc)
 export(gfa_credints)
 export(gfa_default_parameters)
 export(gfa_duplicate_check)

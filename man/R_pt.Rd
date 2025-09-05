@@ -13,6 +13,23 @@ R_pt(
   cond_num = 1e+05
 )
 }
+\arguments{
+\item{B_hat}{Matrix of effect size estimates}
+
+\item{S_hat}{Matrix of standard errors}
+
+\item{p_val_thresh}{P-value threshold}
+
+\item{return_cor}{Return matrix as correlation matrix (apply cov2cor), recommended}
+
+\item{cond_num}{Condition number if using make_well_conditioned}
+
+\item{max_well_conditioned}{Project matrix to nearest well conditioned positive definite
+matrix using Matrix::nearPD}
+}
+\value{
+A traits by traits matrix of nuisance correlations.
+}
 \description{
 Calculate matrix of error correlations using p-value threshold method.
 }

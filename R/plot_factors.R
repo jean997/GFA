@@ -5,6 +5,7 @@
 #'@param col_order Order of columns
 #'@param row_title Title for horizontal axis
 #'@param col_title Title for vertical axis
+#'@return A ggplot object
 #'@export
 plot_factors <- function(x, row_names, col_names, row_order, col_order,
                          row_title = "Trait", col_title = "Factor"){

@@ -27,6 +27,9 @@ plot_factors(
 
 \item{col_title}{Title for vertical axis}
 }
+\value{
+A ggplot object
+}
 \description{
 Plot Factors from a matrix
 }
