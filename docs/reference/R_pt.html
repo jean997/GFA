@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GFA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.0333</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.0445</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,8 +58,42 @@
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <dl><dt>B_hat</dt>
+<dd><p>Matrix of effect size estimates</p></dd>
 
-  </main></div>
+
+<dt>S_hat</dt>
+<dd><p>Matrix of standard errors</p></dd>
+
+
+<dt>p_val_thresh</dt>
+<dd><p>P-value threshold</p></dd>
+
+
+<dt>return_cor</dt>
+<dd><p>Return matrix as correlation matrix (apply cov2cor), recommended</p></dd>
+
+
+<dt>cond_num</dt>
+<dd><p>Condition number if using make_well_conditioned</p></dd>
+
+
+<dt>max_well_conditioned</dt>
+<dd><p>Project matrix to nearest well conditioned positive definite
+matrix using Matrix::nearPD</p></dd>
+
+</dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A traits by traits matrix of nuisance correlations.</p>
+    </div>
+
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

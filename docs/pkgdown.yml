@@ -3,7 +3,7 @@ pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   gfa_with_simulated_data: gfa_with_simulated_data.html
-last_built: 2025-05-13T14:20Z
+last_built: 2025-09-05T18:16Z
 urls:
   reference: https://jean997.github.io/GFA/reference
   article: https://jean997.github.io/GFA/articles

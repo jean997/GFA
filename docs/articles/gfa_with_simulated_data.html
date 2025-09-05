@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GFA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.0333</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.0445</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -229,8 +229,7 @@ detail later in this vignette.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit_toy</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "fit"          "method"       "L_hat"        "F_hat"        "F_hat_single"</span></span>
-<span><span class="co">#&gt;  [6] "F_hat_multi"  "scale"        "F_hat_est"    "gfa_pve"      "mode"        </span></span>
-<span><span class="co">#&gt; [11] "params"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [6] "F_hat_multi"  "scale"        "gfa_pve"      "mode"         "params"</span></span></code></pre></div>
 <p>The resulting fit object contains the following elements:</p>
 <ul>
 <li>
@@ -677,31 +676,25 @@ very high correlation. The value in the <code>val</code> column of the
 <code>solution</code> element is equal to the normalized inner product
 of the two factors, approximately equal to the correlation.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">min_norm</span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $solution</span></span>
-<span><span class="co">#&gt;   true_ix est_ix       val</span></span>
-<span><span class="co">#&gt; 1       5      4 0.9992816</span></span>
-<span><span class="co">#&gt; 2       1      2 0.9984176</span></span>
-<span><span class="co">#&gt; 3       4      1 0.9972389</span></span>
-<span><span class="co">#&gt; 4       3      3 0.9934821</span></span>
-<span><span class="co">#&gt; 5       2      5 0.9923023</span></span>
+<span><span class="co">#&gt;   true_ix est_ix max_true_val max_hat_val     penalty match_score</span></span>
+<span><span class="co">#&gt; 1       5      4    0.5387060   0.5291128 0.001436740   0.9992816</span></span>
+<span><span class="co">#&gt; 2       1      2    0.5082579   0.4920455 0.003164712   0.9984176</span></span>
+<span><span class="co">#&gt; 3       4      1    0.5321195   0.5697020 0.005522261   0.9972389</span></span>
+<span><span class="co">#&gt; 4       3      3    0.5828887   0.5819004 0.013035870   0.9934821</span></span>
+<span><span class="co">#&gt; 5       2      5    0.7047004   0.7606438 0.015395358   0.9923023</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $frob_n</span></span>
-<span><span class="co">#&gt; [1] 0.1963541</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $true_ix</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $hat_ix</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4 5</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.1963541</span></span></code></pre></div>
 <p>Looking at the frobenious norm values, we can see that all GFA
 estimates that included the nuisance correlation were very similar.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">min_norm</span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
 <span><span class="co">#&gt; [1] 0.1963541</span></span>
-<span><span class="fu">min_norm</span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit2</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
+<span><span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit2</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
 <span><span class="co">#&gt; [1] 0.2314396</span></span>
-<span><span class="fu">min_norm</span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fitoracle</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
+<span><span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fitoracle</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span><span class="op">$</span><span class="va">frob_n</span></span>
 <span><span class="co">#&gt; [1] 0.1906022</span></span></code></pre></div>
 <p>If we compare these results with the results where we omitted the
 <code>R</code> argument, we can see that not adjusting for the nuisance
@@ -715,29 +708,23 @@ selecting only a subset of the estimated factors. We can see that, even
 if we knew which factors to remove, we would still have a worse match
 than achieved by the method which accounts for sample overlap.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">min_norm</span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit0</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Removing  1  single trait factors from f_hat</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span>, f_hat <span class="op">=</span> <span class="va">fit0</span><span class="op">$</span><span class="va">F_hat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; There are  1  single trait factors in f_hat</span></span>
 <span><span class="co">#&gt; $solution</span></span>
-<span><span class="co">#&gt;    true_ix est_ix       val</span></span>
-<span><span class="co">#&gt; 1        4      1 0.9985930</span></span>
-<span><span class="co">#&gt; 2        5      4 0.9975537</span></span>
-<span><span class="co">#&gt; 3        3      3 0.9929367</span></span>
-<span><span class="co">#&gt; 4        1      2 0.9648756</span></span>
-<span><span class="co">#&gt; 5        2      7 0.9512383</span></span>
-<span><span class="co">#&gt; 6       NA      9 0.0000000</span></span>
-<span><span class="co">#&gt; 7       NA      8 0.0000000</span></span>
-<span><span class="co">#&gt; 8       NA      5 0.0000000</span></span>
-<span><span class="co">#&gt; 9       NA      6 0.0000000</span></span>
-<span><span class="co">#&gt; 10      NA     10        NA</span></span>
+<span><span class="co">#&gt;    true_ix est_ix max_true_val max_hat_val     penalty match_score</span></span>
+<span><span class="co">#&gt; 1        4      1    0.5321195   0.5486638 0.002814011   0.9985930</span></span>
+<span><span class="co">#&gt; 2        5      4    0.5387060   0.5310407 0.004892544   0.9975537</span></span>
+<span><span class="co">#&gt; 3        3      3    0.5828887   0.5858742 0.014126643   0.9929367</span></span>
+<span><span class="co">#&gt; 4        1      2    0.5082579   0.5023813 0.070248731   0.9648756</span></span>
+<span><span class="co">#&gt; 5        2      7    0.7047004   0.7111798 0.097523443   0.9512383</span></span>
+<span><span class="co">#&gt; 6       NA      9           NA   0.4175495 1.000000000   0.0000000</span></span>
+<span><span class="co">#&gt; 7       NA      8           NA   0.4232410 1.000000000   0.0000000</span></span>
+<span><span class="co">#&gt; 8       NA      5           NA   0.3864060 1.000000000   0.0000000</span></span>
+<span><span class="co">#&gt; 9       NA      6           NA   0.5245608 1.000000000   0.0000000</span></span>
+<span><span class="co">#&gt; 10      NA     10           NA   0.9999966          NA          NA</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $frob_n</span></span>
-<span><span class="co">#&gt; [1] 2.046853</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $true_ix</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $hat_ix</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4 5 6 7 8 9</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 2.046853</span></span></code></pre></div>
 <p>Plotting the factors estimated with and without the correction for
 overlapping samples, shows that the factor structure of the extra
 factors mimics the structure of the environmental correlation. We can
@@ -845,7 +832,7 @@ with the true heritability explained by each factor.</p>
 <span><span class="va">pve_true</span> <span class="op">&lt;-</span> <span class="fu">sim_calc_pve</span><span class="op">(</span><span class="va">dat2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## order true pve and estimated pve so they can be compared</span></span>
-<span><span class="va">sol</span> <span class="op">&lt;-</span> <span class="fu">min_norm</span><span class="op">(</span>f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span>, </span>
+<span><span class="va">sol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/min_norm.html">min_norm</a></span><span class="op">(</span>f_hat <span class="op">=</span> <span class="va">fit1</span><span class="op">$</span><span class="va">F_hat</span>, </span>
 <span>                f_true <span class="op">=</span> <span class="va">dat2</span><span class="op">$</span><span class="va">F_mat</span><span class="op">)</span><span class="op">$</span><span class="va">solution</span></span>
 <span><span class="va">order_true</span> <span class="op">&lt;-</span> <span class="va">sol</span><span class="op">$</span><span class="va">true_ix</span></span>
 <span><span class="va">order_est</span> <span class="op">&lt;-</span> <span class="va">sol</span><span class="op">$</span><span class="va">est_ix</span></span>

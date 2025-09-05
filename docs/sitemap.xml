@@ -34,7 +34,13 @@
     <loc>https://jean997.github.io/GFA/reference/condition.html</loc>
   </url>
   <url>
+    <loc>https://jean997.github.io/GFA/reference/gfa_credints.html</loc>
+  </url>
+  <url>
     <loc>https://jean997.github.io/GFA/reference/gfa_fit.html</loc>
+  </url>
+  <url>
+    <loc>https://jean997.github.io/GFA/reference/gfa_loadings_gls.html</loc>
   </url>
   <url>
     <loc>https://jean997.github.io/GFA/reference/gwas_format.html</loc>
@@ -44,6 +50,9 @@
   </url>
   <url>
     <loc>https://jean997.github.io/GFA/reference/ldsc_rg.html</loc>
+  </url>
+  <url>
+    <loc>https://jean997.github.io/GFA/reference/min_norm.html</loc>
   </url>
   <url>
     <loc>https://jean997.github.io/GFA/reference/plot_factors.html</loc>

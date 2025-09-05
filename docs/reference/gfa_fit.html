@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">GFA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.0333</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.0445</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,10 @@
 <span>  S <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  R <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  params <span class="op">=</span> <span class="fu">gfa_default_parameters</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed_factors"</span>, <span class="st">"random_effect"</span><span class="op">)</span>,</span>
-<span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"z-score"</span>, <span class="st">"b-std"</span><span class="op">)</span>,</span>
 <span>  no_wrapup <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  F_init <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fix_F <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  fix_F <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  freeze_F <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,6 +73,18 @@
 <dt>N</dt>
 <dd><p>Vector of sample sizes length equal to number of traits. If not provided,
 N will default to the vector of 1's and the factor matrix will be returned on the "z-score scale".</p></dd>
+
+
+<dt>N_case</dt>
+<dd><p>If all traits are continuous, omit this option. If some traits are binary, N_case should
+be a vector with length equal to number of traits. Values should be NA for continuous traits or the number
+of cases for binary traits.</p></dd>
+
+
+<dt>pop_prev</dt>
+<dd><p>If all traits are continuous, omit this option. If some traits are binary, pop_prev should
+be a vector with length equal to number of traits. Values should be NA for continuous traits or the population
+prevalence for binary traits.</p></dd>
 
 
 <dt>B_hat</dt>
@@ -90,15 +101,19 @@ If using B_hat, you must also provide S.</p></dd>
 
 
 <dt>params</dt>
-<dd><p>List of parameters. For most users this can be left at the default values. See details.</p></dd>
+<dd><p>List of parameters. For most users this can be left at the default values. See Details.</p></dd>
 
 
-<dt>method</dt>
-<dd><p>Either "fixed_factors" or "random_effect". "random_effect" is experimental. See details.</p></dd>
+<dt>no_wrapup</dt>
+<dd><p>If TRUE, GFA will not perform wrap-up steps. Advanced option used for debugging.</p></dd>
 
 
-<dt>mode</dt>
-<dd><p>Either "z-score" or "b-std". See details.</p></dd>
+<dt>F_init</dt>
+<dd><p>Initial estimate of F (optional).</p></dd>
+
+
+<dt>fix_F, freeze_F</dt>
+<dd><p>Options for fixing F at initialization. See Details.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -110,24 +125,33 @@ which contains the proportion of heritability explained by each factor, and some
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The method argument can be either fixed_factors or random_effect. These are different methods
-for fitting the GFA model. The random_effect method requires installing a fork of the flashier
-package using `install_github("jean997/flashier", ref = "random-effect")`. Most users can
-stick with the fixed_factors method.</p>
-<p>The mode option tells GFA to either fit using z-scores as the outcome and
-then convert the factor matrix to the standardized scale (mode = "z-score")
-or to fit directly using standardized
-effect estimates as the outcome (mode = "b-std"). These give
-very similar results and the z-score mode is faster and so recommended.</p>
-
+    <p>You can fit GFA using two types of data. Either supply Z_hat and N or supply B_hat and S.
+In either case, GFA will be fit with z-scores as inputs and factors will be scaled to
+the standardized trait scale or the liability scale for binary traits. If you supply B_hat
+and S, GFA will guess the scaling factors by computing the median of the ratio of each
+trait's standard errors compared with the first trait's standard errors.
+If you used B_hat/S and there are some binary traits, you only need to supply pop_prev.
+If you use Z_hat/N and there are some binary traits, you must supply both N_case and pop_prev.
+We recommend using the Z_hat/N option if sample sizes are available.</p>
 <p>The params list includes the following elements which can be modified.
 Most users will not need to modify any of these, except possibly `max_iter`.</p>
 <p>kmax: Maximum number of factors. Defaults to twice the number of traits</p>
-<p>cond_num: Maximum allowable condition number for R. Defaults to 1e5.</p>
+<p>cond_num: Maximum allowable condition number for R. Defaults to 1000.</p>
 <p>max_iter: Maximum number of iterations. Defaults to 1000.</p>
 <p>extrapolate: Passed to flashier, defaults to TRUE</p>
 <p>ebnm_fn_F and ebnm_fn_L: Prior families for factors and loadings. Defaults to point-normal.</p>
 <p>init_fn: Flashier initialization function.</p>
+<p>fix_F and freeze_F provide different ways to fix initial estimates. If fix_F is TRUE, the factors
+supplied to F_init will not be updated. However, GFA will be allowed to add additional factors to the final fit.
+If freeze_F is TRUE, GFA will not add additional factors and the final value of F_hat will be equal to F_init
+up to column scaling constants.</p>
+<p>The returned object will be a list with the following elements: F_hat (factor estimate), L_hat (loadings estimate), F_hat_single (the columns of
+F_hat corresponding to single trait factors), F_hat_multi (the columns of F corresponding to multi-trait factors), fit (a flashier object),
+scale (the scaling factor used), method (internal method type). If there are more than zero factors, the object will also include gfa_pve which
+includes genet_var (the total variance explained by the set of variants used in estimation) and pve which is a traits by factors matrix.
+The (i,j) element of pve gives the proportion of trait i hertiability explained by factor j.</p>
+<p>To compute credible intervals for pve, see gfa_intervals().
+To compute GLS estimates of factor loadings see gfa_loadings_gls().</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
