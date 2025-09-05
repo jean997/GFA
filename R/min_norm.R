@@ -77,12 +77,14 @@ min_norm <- function(f_true, f_hat,
     solution <- data.frame(true_ix = true_ix,
                            est_ix = NA,
                            penalty = 1,
-                           val = 0 )
+                           match_score = 0,
+                           max_hat_val = NA,
+                           max_true_val = NA)
+    solution$max_true_val <- apply(abs(f_true), 2, max)
     if( !is.null(sol_single)){
       solution <- bind_rows(solution, sol_single)
     }
     frob_n <- sqrt(length(true_ix))
-    hat_ix <- c()
     ret <- list(solution = solution,
                 frob_n = frob_n)
     return(ret)
@@ -95,8 +97,11 @@ min_norm <- function(f_true, f_hat,
     }else{
       solution = data.frame(true_ix = NA,
                             est_ix = hat_ix,
-                            val = 0,
-                            penalty = 1)
+                            max_true_val = NA,
+                            max_hat_val ,
+                            penalty = 1,
+                            match_score = 0)
+      solution$max_hat_val <- apply(abs(f_hat), 2, max)
       if( !is.null(sol_single)){
         solution <- bind_rows(solution, sol_single)
       }
