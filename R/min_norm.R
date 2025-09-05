@@ -98,7 +98,7 @@ min_norm <- function(f_true, f_hat,
       solution = data.frame(true_ix = NA,
                             est_ix = hat_ix,
                             max_true_val = NA,
-                            max_hat_val ,
+                            max_hat_val = NA,
                             penalty = 1,
                             match_score = 0)
       solution$max_hat_val <- apply(abs(f_hat), 2, max)
