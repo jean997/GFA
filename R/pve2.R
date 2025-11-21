@@ -66,7 +66,7 @@ pve2 <- function(gfa_fit){
 ## This is given in gvar_theta
 ## so total genetic variance for trait j is rowSums(sj) + gvar_theta
 
-
+## The input sample has already been scaled to match L_hat and F_hat
 pve_from_sample <- function(gfa_fit, samp){
 
   k <- ncol(samp[["L"]])
@@ -98,7 +98,7 @@ pve_from_sample <- function(gfa_fit, samp){
   sj <- sapply(est_ix, function(kk){
     Vk <- flashier:::lowrank.expand(list((samp[["L"]][,kk,drop = F])^2, (samp[["F"]][,kk, drop = F])^2)) ## total effects on z-score scale
     ## standardized effect scale total variance
-    colSums(Vk)/(gfa_fit$scale^2)
+    colSums(Vk) #/(gfa_fit$scale^2) not needed because sample is already scaled
   }) |> matrix(nrow = p, byrow = FALSE)
 
   genet_var = rowSums(sj) + gvar_theta

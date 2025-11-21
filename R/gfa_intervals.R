@@ -28,6 +28,7 @@ gfa_credints <- function(gfa_fit,
   p <- nrow(samps[[1]]$F)
   k <- ncol(samps[[1]]$L)
 
+  # Put samples on same scale as L_hat and F_hat
   F_orig <- gfa_fit$fit$F_pm
   col_scale <- gfa_fit$scale
   row_scale <- sqrt(colSums((F_orig/col_scale)^2))
