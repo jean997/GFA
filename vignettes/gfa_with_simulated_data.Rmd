@@ -43,8 +43,8 @@ myF <- apply(myF, 2, function(x){x/sqrt(sum(x^2))})
 
 p <- plot_factors(myF, row_names = c("T3", "T2", "T1"), col_names = c("F1", "F2")) +
      scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
-     xlab("Mediator") +
-     ggtitle("True Mediator Network") +
+     xlab("Factor") +
+     ggtitle("True Factor Network") +
      scale_x_discrete(position = "top")+
      theme(axis.text.x = element_text(angle = 0),
            panel.background = element_rect(fill = "white"),
@@ -135,9 +135,9 @@ We can plot the estimated factors using the `plot_factors` function:
 fit_toy$F_hat %>%
     plot_factors(., col_names = c("EF1", "EF2", "EF3")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
-  xlab("Mediator") +
+  xlab("Factor") +
   ylab("Trait") +
-  ggtitle("Estimated Mediator Network (GFA)") +
+  ggtitle("Estimated Factor Network (GFA)") +
   scale_x_discrete(position = "top")+
   theme(axis.text.x = element_text(angle = 0),
            panel.background = element_rect(fill = "white"),
@@ -159,7 +159,7 @@ fit_svd$v %>%
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Mediator") +
   ylab("Trait") +
-  ggtitle("Estimated Mediator Network (SVD)") +
+  ggtitle("Estimated Factor Network (SVD)") +
   scale_x_discrete(position = "top")+
   theme(axis.text.x = element_text(angle = 0),
            panel.background = element_rect(fill = "white"),
