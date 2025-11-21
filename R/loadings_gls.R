@@ -9,9 +9,9 @@
 #'@export
 gfa_loadings_gls <- function(beta_hat, S, fit){
 
-  if(!fit$mode == "z-score"){
-    stop("mode must be z-score to use this function.\n")
-  }
+  #if(!fit$mode == "z-score"){
+  #  stop("mode must be z-score to use this function.\n")
+  #}
 
   X <- beta_hat/S
   if(is.null(fit$R) | fit$method == "noR"){

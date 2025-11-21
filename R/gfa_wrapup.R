@@ -63,12 +63,13 @@ gfa_rebackfit <- function(gfa_fit, params){
     ret <- gfa_wrapup(fit, method = method,
                       scale = dat$scale, nullcheck = FALSE)
     ret$params <- params
-    ret$mode <- fit$mode
+    #ret$mode <- fit$mode
     ret$R <- fit$R
   }else{
     ret <- list(fit = fit,
                 params = fit$params, scale = fit$scale,
-                mode = fit$mode, R = fit$R)
+                #mode = fit$mode,
+                R = fit$R)
   }
   return(ret)
 }

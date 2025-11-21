@@ -1,9 +1,9 @@
 
-gfa_set_data <- function(Y, scale, R = NULL, params = NULL, mode = "z-score"){
+gfa_set_data <- function(Y, scale, R = NULL, params = NULL){
   if(!inherits(Y, "matrix")){
     stop("Data must have class matrix.\n")
   }
-  mode <- match.arg(mode, c("z-score", "b-std"))
+
   dat <- list(n = nrow(Y), p = ncol(Y))
   R <- check_R(R, dat$p, params)
 
@@ -12,21 +12,12 @@ gfa_set_data <- function(Y, scale, R = NULL, params = NULL, mode = "z-score"){
       stop(paste0("Length of ", deparse(substitute(scale)), " does not match number of columns of data."))
   }
 
-  if(mode == "z-score"){
-    dat$Y <- Y
-    dat$scale <- scale
-    dat$S <- 1
-  }else if(mode == "b-std"){
-    dat$Y <- t(t(Y)/scale)
-    dat$scale <- rep(1, dat$p)
-    dat$S <- matrix(1/scale, nrow = dat$n, ncol = dat$p, byrow=TRUE)
-  }
+  dat$Y <- Y
+  dat$scale <- scale
+  dat$S <- 1
+
   if(!is.null(R)){
-    if(mode == "z-score"){
-      dat$R <- R
-    }else if(mode == "b-std"){
-      dat$R <- diag(1/scale) %*% R %*% diag(1/scale)
-    }
+    dat$R <- R
   }
   dat$params <- params
   return(dat)

@@ -76,7 +76,7 @@ gfa_fit <- function(Z_hat = NULL,
   ## process parameters
   default_params <- gfa_default_parameters()
   method = "fixed_factors"
-  mode = "z-score"
+  #mode = "z-score"
 
   for(n in names(default_params)){
     if(is.null(params[[n]])) params[[n]] <- default_params[[n]]
@@ -84,7 +84,7 @@ gfa_fit <- function(Z_hat = NULL,
   for(n in names(params)){
     if(! n %in% names(default_params)) stop("Unknown parameter ", n, " provided.")
   }
-  
+
   ## process inputs
   check_args_znbs(is.null(Z_hat), is.null(N), is.null(B_hat), is.null(S))
   if(is.null(Z_hat)){
@@ -124,7 +124,8 @@ gfa_fit <- function(Z_hat = NULL,
     stop("Cannot fix/freeze F, F_init not supplied.")
   }
 
-  dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params, mode = mode)
+  #dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params, mode = mode)
+  dat <- gfa_set_data(Y = Z_hat, scale = scale, R = R, params = params)
 
 
   dat$F_init <- F_init
@@ -163,14 +164,14 @@ gfa_fit <- function(Z_hat = NULL,
                       method = method,
                       scale = dat$scale,
                       nullcheck = TRUE)
-    ret$mode <- mode
+    #ret$mode <- mode
     ret$R <- dat$R
     ret$params <- dat$params
   }else{
     ret <- list(fit = fit,
                 params = dat$params,
                 scale = dat$scale,
-                mode = mode,
+                #mode = mode,
                 R = dat$R)
   }
   return(ret)
@@ -235,21 +236,21 @@ gfa_init_FL <- function(fit, dat, noR = FALSE){
     Rinv <- solve(dat$R)
   }
   if(!is.null(dat$F_init)){
-    if(ncol(F_init) <= ncol(dat$Y)){
-      ftf_inv <- solve(t(F_init) %*%  R_inv %*% F_init)
+    if(ncol(dat$F_init) <= ncol(dat$Y)){
+      ftf_inv <- solve(t(dat$F_init) %*%  Rinv %*% dat$F_init)
     }else{
-      ftf_inv <- corpcor::pseudoinverse(t(F_init) %*% R_inv %*% F_init)
+      ftf_inv <- corpcor::pseudoinverse(t(dat$F_init) %*% Rinv %*% dat$F_init)
     }
 
     ftx <- t(dat$F_init) %*% Rinv %*% t(dat$Y)
     L_init <- t(ftf_inv %*% ftx)
 
     fit <- fit %>%
-      flash_factors_init(., init = list(L_init, F_init),
+      flash_factors_init(., init = list(L_init, dat$F_init),
                          ebnm_fn = list(dat$params$ebnm_fn_L, dat$params$ebnm_fn_F))
     if(dat$fix_F){
       fit <- fit %>%
-        flash_factors_fix(., kset = 1:ncol(F_init), which_dim = "factors")
+        flash_factors_fix(., kset = 1:ncol(dat$F_init), which_dim = "factors")
     }
   }
   if(!dat$freeze_F){
