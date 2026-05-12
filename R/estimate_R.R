@@ -64,25 +64,42 @@ R_ldsc <- function(Z_hat,
   stopifnot(class(ldscores) == "numeric")
   stopifnot(length(ldscores) == J)
   if("matrix" %in% class(N)){
-    stopifnot(nrow(N) == J & ncol(N) == M)
+    stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
   }else if(class(N) == "numeric"){
-    stopifnot(length(N) == M)
+    stopifnot(identical(names(N),colnames(Z_hat)))
     N <- matrix(rep(N, each = J), nrow = J)
   }
 
   if(is.null(comparisons)){
-    res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
-      filter(trait1 <= trait2)
+    #res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
+    #  filter(trait1 <= trait2)
+
+    # data.table better for ram, but not necessary to do all that here
+    # generate M (M+1) / 2 unique pairs instead of expand M^2 and filter to M (M+1)/2
+    
+    # trait1_idx: 1, 1, 2, 1, 2, 3, 1, 2, 3, 4
+    # trait2_idx: 1, 2, 2, 3, 3, 3, 4, 4, 4, 4	  
+    
+    res <- data.frame(
+      trait1_idx = sequence(seq_len(M)),
+      trait2_idx = rep.int(seq_len(M), times = seq_len(M))
+    )
+    # use trait names instead of indices
+    trait_names <- colnames(Z_hat)
+    res$trait1 <- trait_names[res$trait1_idx]
+    res$trait2 <- trait_names[res$trait2_idx]
+	
     return_matrix <- TRUE
+  
   }else{
     if(make_well_conditioned){
-      stop("Cannot use make_well_conditioned and comparisons arguement together.")
+      stop("Cannot use make_well_conditioned and comparisons argument together.")
     }
     if(!ncol(comparisons) == 2){
-      stop("comparisons should have two columns")
+      stop("Comparisons should have two columns")
     }
-    if(! (all(comparisons[,1] %in% 1:M) & all(comparisons[,2] %in% 1:M))){
-      stop(paste0("comparisons contains values out of range 1 to ", M))
+    if(! (all(comparisons[,1] %in% colnames(Z_hat)) & all(comparisons[,2] %in% colnames(Z_hat)))){
+      stop(paste0("Comparisons contains values out of provided trait names in Z_hat"))
     }
     res <- comparisons
     names(res) <- c("trait1", "trait2")
@@ -104,7 +121,7 @@ R_ldsc <- function(Z_hat,
   res$intercept <- map(vals, 1) %>% unlist()
 
   if(return_matrix){
-    Se <- make_symm_matrix(res, "trait1", "trait2", "intercept")
+    Se <- make_symm_matrix(res, "trait1", "trait2", "intercept", traits_ordered=colnames(Z_hat))
 
     if(make_well_conditioned){
       Se <- Matrix::nearPD(Se, corr = FALSE, keepDiag = TRUE,
@@ -136,15 +153,15 @@ R_ldsc <- function(Z_hat,
     res$gencov <- val_gencov
     res$gencor <- val_gencor
     if(return_matrix){
-      Sg <-make_symm_matrix(res, "trait1", "trait2", "gencov")
-      Rg <- make_symm_matrix(res, "trait1", "trait2", "gencor")
+      Sg <-make_symm_matrix(res, "trait1", "trait2", "gencov", traits_ordered=colnames(Z_hat))
+      Rg <- make_symm_matrix(res, "trait1", "trait2", "gencor", traits_ordered=colnames(Z_hat))
     }
   }
 
   if(!is.null(blocks)){
     res$intercept_var <- val_resid_ve^2
     if(return_matrix){
-      Ve <- make_symm_matrix(res, "trait1", "trait2", "intercept_var")
+      Ve <- make_symm_matrix(res, "trait1", "trait2", "intercept_var", traits_ordered=colnames(Z_hat))
     }
     if(return_gencov){
       ## genetic covariance matrix
@@ -153,8 +170,8 @@ R_ldsc <- function(Z_hat,
       res$gencor_var <- val_gencor_ve^2
 
       if(return_matrix){
-        Vg <- make_symm_matrix(res, "trait1", "trait2", "gencov_var")
-        VRg <- make_symm_matrix(res, "trait1", "trait2", "gencor_var")
+        Vg <- make_symm_matrix(res, "trait1", "trait2", "gencov_var", traits_ordered=colnames(Z_hat))
+        VRg <- make_symm_matrix(res, "trait1", "trait2", "gencor_var", traits_ordered=colnames(Z_hat))
       }
     }
   }
@@ -165,15 +182,48 @@ R_ldsc <- function(Z_hat,
 }
 
 
-make_symm_matrix <- function(x, row_name, col_name, value_name){
-  form <- as.formula(paste0(row_name, "~", col_name))
-  x <- dplyr::select(x, !!row_name, !!col_name, !!value_name)
-  x_copy <- dplyr::filter(x, .data[[row_name]] != .data[[col_name]])
-  names(x_copy) <- c(col_name, row_name, value_name)
-  x <- bind_rows(x, x_copy) %>% reshape2::dcast(form, value.var = value_name)
-  x <- as.matrix(x[, -1])
-  rownames(x) <- colnames(x) <- NULL
-  return(x)
+#make_symm_matrix <- function(x, row_name, col_name, value_name){
+#  form <- as.formula(paste0(row_name, "~", col_name))
+#  x <- dplyr::select(x, !!row_name, !!col_name, !!value_name)
+#  x_copy <- dplyr::filter(x, .data[[row_name]] != .data[[col_name]])
+#  names(x_copy) <- c(col_name, row_name, value_name)
+#  x <- bind_rows(x, x_copy) %>% reshape2::dcast(form, value.var = value_name)
+#  x <- as.matrix(x[, -1])
+#  rownames(x) <- colnames(x) <- NULL
+#  return(x)
+#}
+
+# simpler version of make_symm_matrix that reduces copies of data & preserves trait names
+# if you leave traits null, we will infer it and give back alphabetically.  or can give traits to get the exact order you wanted
+make_symm_matrix <- function(x, row_name, col_name, value_name,
+                             traits_ordered = NULL,
+                             keep_trait_names = TRUE) {
+  r <- as.character(x[[row_name]])
+  c <- as.character(x[[col_name]])
+  v <- x[[value_name]]
+
+  if (is.null(traits_ordered)) {
+    traits_ordered <- sort(unique(c(as.character(r), as.character(c))))
+  }
+
+  ri <- match(r, traits_ordered)
+  ci <- match(c, traits_ordered)
+
+  if (anyNA(ri) || anyNA(ci)) {
+    stop("Some row/column labels in `x` were not found in `traits`.")
+  }
+
+  out <- matrix(
+    NA_real_,
+    nrow = length(traits_ordered),
+    ncol = length(traits_ordered),
+    dimnames = if (keep_trait_names) list(traits_ordered, traits_ordered) else NULL
+  )
+
+  out[cbind(ri, ci)] <- v
+  out[cbind(ci, ri)] <- v
+
+  return(out)
 }
 
 #'@title Calculate matrix of error correlations using p-value threshold method.
