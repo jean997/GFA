@@ -82,7 +82,7 @@ R_ldsc <- function(Z_hat,
     
     res <- data.frame(
       trait1_idx = sequence(seq_len(M)),
-      trait2_idx = rep.int(seq_len(M), times = seq_len(M))
+      trait2_idx = rep(seq_len(M), times = seq_len(M))
     )
     # use trait names instead of indices
     trait_names <- colnames(Z_hat)
@@ -182,19 +182,8 @@ R_ldsc <- function(Z_hat,
 }
 
 
-#make_symm_matrix <- function(x, row_name, col_name, value_name){
-#  form <- as.formula(paste0(row_name, "~", col_name))
-#  x <- dplyr::select(x, !!row_name, !!col_name, !!value_name)
-#  x_copy <- dplyr::filter(x, .data[[row_name]] != .data[[col_name]])
-#  names(x_copy) <- c(col_name, row_name, value_name)
-#  x <- bind_rows(x, x_copy) %>% reshape2::dcast(form, value.var = value_name)
-#  x <- as.matrix(x[, -1])
-#  rownames(x) <- colnames(x) <- NULL
-#  return(x)
-#}
-
 # simpler version of make_symm_matrix that reduces copies of data & preserves trait names
-# if you leave traits null, we will infer it and give back alphabetically.  or can give traits to get the exact order you wanted
+# if you leave traits_ordered null, we will give order back alphabetically
 make_symm_matrix <- function(x, row_name, col_name, value_name,
                              traits_ordered = NULL,
                              keep_trait_names = TRUE) {
@@ -206,11 +195,15 @@ make_symm_matrix <- function(x, row_name, col_name, value_name,
     traits_ordered <- sort(unique(c(as.character(r), as.character(c))))
   }
 
+  # strip NA entries from traits_ordered
+  # x will have no NAs, but the colnames of Z_hat might because of the construction of Z_work in 3_R_ldsc_strip.R
+  traits_ordered <- traits_ordered[!is.na(traits_ordered)]
+
   ri <- match(r, traits_ordered)
   ci <- match(c, traits_ordered)
 
   if (anyNA(ri) || anyNA(ci)) {
-    stop("Some row/column labels in `x` were not found in `traits`.")
+    stop("Some row/column labels in `x` were not found in `traits_ordered`.")
   }
 
   out <- matrix(
