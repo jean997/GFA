@@ -21,7 +21,8 @@ Imports:
   intervals,
   purrr, 
   lpSolve,
-  ggplot2
+  ggplot2,
+  data.table
 Suggests: 
   rmarkdown,
   knitr
