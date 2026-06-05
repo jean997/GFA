@@ -25,108 +25,117 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
                         sample_size, allele_freq,
                         output_file, compute_pval = TRUE){
 
+  # --- make data.table ---
+  setDT(X)
+
+  # --- check for missing inputs ---
   if(missing(snp) | missing(beta_hat) | missing(se) | missing(A1) | missing(A2)){
     stop("snp, beta_hat, se, A1, and A2 are required.\n")
   }
-  if(missing(chrom)){
-    X <- mutate(X, chrom = NA)
-    chrom <- "chrom"
-  }else if(is.na(chrom)){
-    X <- mutate(X, chrom = NA)
+ 
+  if(missing(chrom) || is.na(chrom)){
+    X[, chrom := NA]
     chrom <- "chrom"
   }
-  if(missing(pos)){
-    X <- mutate(X, pos = NA_integer_)
-    pos <- "pos"
-  }else if(is.na(pos)){
-    X <- mutate(X, pos = NA_integer_)
+  if(missing(pos) || is.na(pos)){
+    X <- [, pos := NA_integer_]
     pos <- "pos"
   }
 
-  if(missing(p_value)){
-    X <- mutate(X, p_value = NA_real_)
-    p_value <- "p_value"
-    p_val_missing <- TRUE
-  }else if(is.na(p_value)){
-    X <- mutate(X, p_value = NA_real_)
+  if(missing(p_value) || is.na(p_value)){
+    X <- [, p_value := NA_real_]
     p_value <- "p_value"
     p_val_missing <- TRUE
   }else{
     p_val_missing <- FALSE
   }
 
-  if(missing(sample_size)){
-    X <- mutate(X, sample_size = NA_real_)
-    sample_size <- "sample_size"
-  }else if(is.na(sample_size)){
-    X <- mutate(X, sample_size = NA_real_)
+  if(missing(sample_size) || is.na(sample_size)){
+    X <- [, sample_size := NA_real_]
     sample_size <- "sample_size"
   }else if(is.numeric(sample_size)){
-    X <- mutate(X, sample_size = sample_size)
+    X <- [, sample_size := NA_real_]
     sample_size <- "sample_size"
   }
 
-  if(missing(allele_freq)){
-    X <- mutate(X, af = NA_real_)
-    allele_freq <- "af"
-  }else if(is.na(allele_freq)){
-    X <- mutate(X, af = NA_real_)
+  if(missing(allele_freq) || is.na(allele_freq)){
+    X <- [, af := NA_real_]
     allele_freq <- "af"
   }
+  
+  # --- keep columns we want and rename ---
+  old_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, allele_freq)
 
-  keep_cols <- c(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, allele_freq)
+  new_cols <- c(
+    "chrom", "pos", "snp", "A1", "A2",
+    "beta_hat", "se", "p_value", "sample_size", "allele_freq"
+  )
 
-  X <- X %>%
-      select(all_of(keep_cols))%>%
-      rename(snp = snp,
-            beta_hat =beta_hat,
-            se = se,
-            A1 = A1,
-            A2 = A2,
-            chrom = chrom,
-            pos = pos,
-            p_value = p_value,
-            sample_size = sample_size,
-            allele_freq = allele_freq) %>%
-      mutate(A1 = toupper(A1),
-             A2 = toupper(A2))
+  # checks
+  stopifnot(all(old_cols %chin% names(X)))
 
-  if(p_val_missing & compute_pval){
-    X <- X %>% mutate(p_value = 2*pnorm(-abs(beta_hat/se)))
+  # drop columns not needed, by reference
+  drop_cols <- setdiff(names(X), old_cols)
+  if (length(drop_cols)) {
+    X[, (drop_cols) := NULL]
   }
+
+  # reorder columns
+  setcolorder(X, old_cols)
+
+  # rename columns, by reference
+  setnames(X, old = old_cols, new = new_cols)
+
+  # uppercase alleles, by reference
+  X[, `:=`(
+    A1 = toupper(A1),
+    A2 = toupper(A2)
+  )]
 
   cat("There are ", nrow(X), " variants.\n")
 
+  # --- remove invalid snps ---
   #Duplicated variants
-  dup_vars <- X$snp[which(duplicated(X$snp))]
-  X <- X %>% filter(!snp %in% dup_vars)
+  dup_vars <- X[duplicated(snp), unique(snp)]
+  X <- X[!snp %in% dup_vars]
   cat("Removing ", length(dup_vars), " duplicated variants leaving ", nrow(X), "variants.\n")
 
   #Illegal alleles
-  illegal_vars <- X %>%
-                  filter((!A1 %in% c("A", "C", "T", "G") | !A2 %in% c("A", "C", "T", "G") )) %>%
-                  select(snp)
+  valid_alleles <- c("A", "C", "T", "G")
+  illegal_vars <- X[
+    !A1 %chin% valid_alleles | !A2 %chin% valid_alleles,
+    snp
+  ]
   if(length(illegal_vars) > 0){
-    X <- X %>% filter(!snp %in% illegal_vars$snp)
+    X <- X[!snp %in% illegal_vars]
     cat("Removing ", length(illegal_vars), " variants with illegal alleles leaving ", nrow(X), "variants.\n")
   }else{
     cat("No variants have illegal alleles.\n")
   }
 
   #Ambiguous alleles
-  n <- nrow(X)
-  X <- remove_ambiguous(X, upper = TRUE)
-  cat("Removed ", n-nrow(X), " variants with ambiguous strand.\n")
+  # when filtering rows, need to assign to var to keep result
+  X <- remove_ambiguous(X)
+  cat("Removed ", nrow(X), " variants with ambiguous strand.\n")
 
-  # make X into a data.table for I can do the new align_beta on it.  ideally this would be for everything
-  setDT(X)
-  
+  # --- compute pval ----
+  # ask jean do we always want to compute even if not missing
+  if(p_val_missing & compute_pval){
+    X[, beta_hat := as.numeric(beta_hat)]
+    X[, se       := as.numeric(se)]
+    
+    X[, p_value := fifelse(
+      !is.na(beta_hat) & !is.na(se) & se != 0,
+      2 * pnorm(-abs(beta_hat / se)),
+      NA_real_
+    )]
+   cat("Computed p-value\n")
+ 
+  # --- harmonize alleles ---
   cat("Flipping strand and effect allele so A1 is always A\n")
   align_beta(X)
 
-  # data table syntax
-  X <- X[, .(chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, allele_freq)]
-
+  # --- write out results ---
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
     # changed from path= to file=
@@ -145,76 +154,77 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
 #   return(dat)
 # }
 
-remove_ambiguous <- function(X, upper=TRUE){
-  if(upper){
-    X <- X %>% dplyr::filter(!(A1 == "G" & A2 == "C") &
-                               !(A1 == "C" & A2 == "G") &
-                               !(A1 == "A" & A2 == "T") &
-                               !(A1 == "T" & A2 == "A"))
-    return(X)
+remove_ambiguous <- function(X) {
+  stopifnot(data.table::is.data.table(X))
+  stopifnot(all(c("A1", "A2") %chin% names(X)))
+
+  ambig_pairs <- data.table(A1 = c("G", "C", "A", "T", "g", "c", "a", "t"),
+                            A2 = c("C", "G", "T", "A", "c", "g", "t", "a"))
+
+  idx_ambig <- X[ambig_pairs, on = .(A1, A2), which = TRUE, nomatch = NULL]
+
+  if (!length(idx_ambig)) {
+    return(invisible(X))
+  } else {
+    return(invisible(X[-idx_ambig]))
   }
-  X <- X %>% filter(!(A1 == "g" & A2 == "c") &
-                      !(A1 == "c" & A2 == "g") &
-                      !(A1 == "a" & A2 == "t") &
-                      !(A1 == "t" & A2 == "a"))
-  return(X)
 }
 
 # flip signs and strands so that allele 1 is always A
 # now modifies X in-place w/ data table for speed and memory savings
 # believe beta_hat and af are always the names assigned in gwas_format.  but kept for consistency w/ old func
-align_beta <- function(X, upper = TRUE,
-                          beta_col = "beta_hat",
-                          af_col   = "af") {
+align_beta <- function(X, beta_col = "beta_hat", af_col = "allele_freq") {
 
+  # --- checks ---
   stopifnot(is.data.table(X))
-  stopifnot(all(c("A1", "A2") %in% names(X)))
-  stopifnot(beta_col %in% names(X))
-
+  stopifnot(all(c("A1", "A2") %chin% names(X)))
+  if (!is.character(X[["A1"]])) X[, A1 := as.character(A1)]
+  if (!is.character(X[["A2"]])) X[, A2 := as.character(A2)]
+  stopifnot(beta_col %chin% names(X))
+  
+  # --- setup ---
   flp <- c("A"="T","G"="C","T"="A","C"="G",
            "a"="t","t"="a","c"="g","g"="c")
 
-  af_present <- af_col %in% names(X)
-  if (!af_present) {
-    X[, (af_col) := NA_real_]  # create af col temporarily so code can be uniform
+  af_present <- af_col %chin% names(X)
+
+  # make beta and af numeric if needed
+  if (!is.numeric(X[[beta_col]])) {
+    X[, (beta_col) := as.numeric(get(beta_col))]
   }
 
+  if (af_present && !is.numeric(X[[af_col]])) {
+    X[, (af_col) := as.numeric(get(af_col))]
+  }
+
+  # --- flipping ---
   # flip strands if we have Ts to get As
-  X[, flip_strands_flag :=
-       if (upper) (A1 == "T" | A2 == "T") else (A1 == "t" | A2 == "t")]
-  X[, `:=`(
-    flipped_A1 = fifelse(flip_strands_flag, flp[A1], A1),
-    flipped_A2 = fifelse(flip_strands_flag, flp[A2], A2)
-  )]
+  idx_flip_strands <- X[, which(A1 %chin% c("T", "t") | A2 %chin% c("T", "t"))]
 
-  # flag that is true if the A1 is A (we want)
-  X[, A1_A_flag := flipped_A1 %chin% c("A","a")]
+  if (length(idx_flip_strands)) {
+    X[idx_flip_strands, `:=`(
+      A1 = unname(flp[A1]),
+      A2 = unname(flp[A2])
+    )]
+  }
+  
+  # we want A1 as A 
+  idx_swap_alleles <- X[, which(!(A1 %chin% c("A", "a")))]
+  
+  if (length(idx_swap_alleles)) {
+    X[idx_swap_alleles, `:=`(
+      A1 = A2,
+      A2 = A1
+    )]
 
-  # swap A1 and A2 if A1 is not A
-  X[, `:=`(
-    A1 = fifelse(A1_A_flag, flipped_A1, flipped_A2),
-    A2 = fifelse(A1_A_flag, flipped_A2, flipped_A1)
-  )]
+    # flip beta and af if A1 was not A
+    X[idx_swap_alleles, (beta_col) := -get(beta_col)]
+    if (af_present){
+      X[idx_swap_alleles, (af_col)   := 1 - get(af_col)]
+    }
+  }
 
-  # flip beta hats if the A1 is not A
-  # sd means subset of data (select just beta column)
-  X[, (beta_col) := {
-    b <- .SD[[1L]]
-    if (!is.numeric(b)) b <- as.numeric(b)
-    fifelse(A1_A_flag, b, -b)
-  }, .SDcols = beta_col]
-
-  # flip af if the A1 is not A
-  X[, (af_col) := {
-    p <- .SD[[1L]]
-    if (!is.numeric(p)) p <- as.numeric(p)
-    fifelse(A1_A_flag, p, 1 - p)
-  }, .SDcols = af_col]
-
-  # delete columns we don't need anymore
-  X[, c("flip_strands_flag", "flipped_A1", "flipped_A2", "A1_A_flag") := NULL]
-  if (!af_present) X[, (af_col) := NULL]
-
+  # --- return ---
   # since these are in-place mods, we can call func w/o assignment to new var.  but nobody wants to see the whole table
   return(invisible(X))
 }
