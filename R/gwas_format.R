@@ -149,7 +149,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     X[, pass_filt := TRUE]
     # make matrix with all snps given to function
     X_full <- X[
-      original_index,
+      og_snp_index,
       on = .(row_id, snp)
     ]
     # make NAs in kept from dropped rows into false
