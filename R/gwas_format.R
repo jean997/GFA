@@ -104,7 +104,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   # drop ALL instances of a variants which ever appears > 1x
   dup_vars <- X[duplicated(snp), unique(snp)]
   X <- X[!(snp %in% dup_vars)]
-  cat("Removing ", length(dup_vars), " duplicated variants leaving ", nrow(X), "variants.\n")
+  cat("Removing", length(dup_vars), "duplicated variants leaving", nrow(X), "variants.\n")
 
   #Illegal alleles
   valid_alleles <- c("A", "C", "T", "G")
@@ -114,7 +114,8 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   ]
   if(length(illegal_vars)){
     X <- X[!(snp %in% illegal_vars)]
-    cat("Removing ", length(illegal_vars), " variants with illegal alleles leaving ", nrow(X), "variants.\n")
+    print(head(X[snp %in% illegal_vars]))
+    cat("Removing", length(illegal_vars), "variants with illegal alleles leaving", nrow(X), "variants.\n")
   }else{
     cat("No variants have illegal alleles.\n")
   }
@@ -123,7 +124,7 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   # when filtering rows, need to assign to var to keep result
   n <- nrow(X)
   X <- remove_ambiguous(X)
-  cat("Removed ", n-nrow(X), " variants with ambiguous strand.\n")
+  cat("Removing", n-nrow(X), " variants with ambiguous strand leaving", nrow(X), "variants.\n")
 
   # --- compute pval ----
   # ask jean do we always want to compute even if not missing
@@ -184,6 +185,8 @@ remove_ambiguous <- function(X) {
                             A2 = c("C", "G", "T", "A", "c", "g", "t", "a"))
 
   idx_ambig <- X[ambig_pairs, on = .(A1, A2), which = TRUE, nomatch = NULL]
+
+  print(head(X[idx_ambig]))
 
   if (!length(idx_ambig)) {
     return(invisible(X))
