@@ -38,12 +38,12 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     chrom <- "chrom"
   }
   if(missing(pos) || is.na(pos)){
-    X <- [, pos := NA_integer_]
+    X[, pos := NA_integer_]
     pos <- "pos"
   }
 
   if(missing(p_value) || is.na(p_value)){
-    X <- [, p_value := NA_real_]
+    X[, p_value := NA_real_]
     p_value <- "p_value"
     p_val_missing <- TRUE
   }else{
@@ -51,15 +51,15 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   }
 
   if(missing(sample_size) || is.na(sample_size)){
-    X <- [, sample_size := NA_real_]
+    X[, sample_size := NA_real_]
     sample_size <- "sample_size"
   }else if(is.numeric(sample_size)){
-    X <- [, sample_size := NA_real_]
+    X[, sample_size := NA_real_]
     sample_size <- "sample_size"
   }
 
   if(missing(allele_freq) || is.na(allele_freq)){
-    X <- [, af := NA_real_]
+    X[, af := NA_real_]
     allele_freq <- "af"
   }
   
@@ -137,7 +137,8 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
       NA_real_
     )]
    cat("Computed p-value\n")
- 
+  }
+
   # --- harmonize alleles ---
   cat("Flipping strand and effect allele so A1 is always A\n")
   align_beta(X)

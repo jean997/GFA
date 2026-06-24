@@ -17,7 +17,8 @@ gwas_format(
   sample_size,
   allele_freq,
   output_file,
-  compute_pval = TRUE
+  compute_pval = TRUE,
+  return_og_snps = FALSE
 )
 }
 \arguments{
