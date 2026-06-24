@@ -23,7 +23,7 @@
 gwas_format <- function(X, snp, beta_hat, se, A1, A2,
                         chrom, pos, p_value,
                         sample_size, allele_freq,
-                        output_file, compute_pval = TRUE){
+                        output_file, compute_pval = TRUE, return_og_snps = FALSE){
 
   # --- make data.table ---
   setDT(X)
@@ -95,7 +95,13 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   cat("There are ", nrow(X), " variants.\n")
 
   # --- remove invalid snps ---
+  # before filtering begins, label rows with indices, so we can join back to get all snps if they want
+  # use ids instead of snp names bc may not be unique
+  X[, row_id := .I]
+  og_snp_index <- X[, .(row_id, snp)]
+ 
   #Duplicated variants
+  # drop ALL instances of a variants which ever appears > 1x
   dup_vars <- X[duplicated(snp), unique(snp)]
   X <- X[!(snp %in% dup_vars)]
   cat("Removing ", length(dup_vars), " duplicated variants leaving ", nrow(X), "variants.\n")
@@ -137,6 +143,21 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   align_beta(X)
 
   # --- write out results ---
+  if (return_og_snps){
+    # label all snps that made it thru filtering as kept
+    X[, pass_filt := TRUE]
+    # make matrix with all snps given to function
+    X_full <- X[
+      original_index,
+      on = .(row_id, snp)
+    ]
+    # make NAs in kept from dropped rows into false
+    X_full[is.na(pass_filt), pass_filt := FALSE]
+
+    X <- X_full
+
+    print(head(X))
+  }
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
     # changed from path= to file=
@@ -145,7 +166,6 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   }
   cat("Returning ", nrow(X), " variants.\n")
   return(X)
-
 }
 
 
