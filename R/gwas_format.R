@@ -147,14 +147,14 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
   # --- write out results ---
   if (return_og_snps){
     # label all snps that made it thru filtering as kept
-    X[, pass_filt := TRUE]
+    #X[, pass_filt := TRUE]
     # make matrix with all snps given to function
     X_full <- X[
       og_snp_index,
       on = .(row_id, snp)
     ]
     # make NAs in kept from dropped rows into false
-    X_full[is.na(pass_filt), pass_filt := FALSE]
+    #X_full[is.na(pass_filt), pass_filt := FALSE]
 
     X <- X_full
 
