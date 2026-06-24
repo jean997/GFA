@@ -113,8 +113,8 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     snp
   ]
   if(length(illegal_vars)){
-    X <- X[!(snp %in% illegal_vars)]
     print(head(X[snp %in% illegal_vars]))
+    X <- X[!(snp %in% illegal_vars)]
     cat("Removing", length(illegal_vars), "variants with illegal alleles leaving", nrow(X), "variants.\n")
   }else{
     cat("No variants have illegal alleles.\n")
