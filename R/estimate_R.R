@@ -67,7 +67,7 @@ R_ldsc <- function(Z_hat,
     stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
   }else if(class(N) == "numeric"){
     stopifnot(identical(names(N),colnames(Z_hat)))
-    N <- matrix(rep(N, each = J), nrow = J)
+    N <- matrix(rep(N, each = J), nrow = J, ncol = M, dimnames = dimnames(Z_hat))
   }
 
   if(is.null(comparisons)){
