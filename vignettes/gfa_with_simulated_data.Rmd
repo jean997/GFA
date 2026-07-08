@@ -133,7 +133,7 @@ explained by the fitted model. `pve` is the proportion of heritability for each 
 We can plot the estimated factors using the `plot_factors` function:
 ```{r}
 fit_toy$F_hat %>%
-    plot_factors(., col_names = c("EF1", "EF2", "EF3")) +
+    plot_factors(., col_names = c("EF1", "EF2")) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2], name = "Normalized\nEffect") +
   xlab("Factor") +
   ylab("Trait") +
@@ -144,7 +144,7 @@ fit_toy$F_hat %>%
            axis.ticks = element_blank())
 ```
 
-The factors capture the truth quite well. Note that our estimated factors are in a different order than the original. It is important to keep in mind that the ordering of the factors is arbitrary. The sign of each column is also arbitrary.  We also have a third factor that effects (almost) only trait 2. This captures direct effects on trait 2 that are not mediated by the factors. For convenience, GFA will try to identify these single trait factors and separate them, dividing `F_hat` into `F_single` and `F_multi` as described above. GFA is not restricted to produce a number of factors equal to the number of traits. This occurs in this example by coincidence.
+The factors capture the truth quite well. Note that our estimated factors are in a different order than the original. It is important to keep in mind that the ordering of the factors is arbitrary. The sign of each column is also arbitrary. 
 
 For comparison we can try svd applied to z-scores for the most significant variants which decomposes $\hat{Z}$ as $UDV^\top$ . Here the equivalent estimate to our factors estimate is $V$. Note that it is always best to run GFA on all variants or an LD-pruned subset and not on the most significant.
 
@@ -323,7 +323,7 @@ For example, we can first compare the true factor structure to our first GFA est
 min_norm(f_true = dat2$F_mat, f_hat = fit1$F_hat)
 ```
 
-Looking at the frobenious norm values, we can see that all GFA estimates that included the nuisance correlation were very similar.
+Looking at the frobenious norm values, we can see that all GFA estimates that included the nuisance correlation were very similar, though using the p-thresholding nuisance matrix is a little worse than using the LDSC matrix.
 ```{r}
 min_norm(f_true = dat2$F_mat, f_hat = fit1$F_hat)$frob_n
 min_norm(f_true = dat2$F_mat, f_hat = fit2$F_hat)$frob_n

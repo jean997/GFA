@@ -159,6 +159,7 @@ gfa_fit <- function(Z_hat = NULL,
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
+    fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
 
     ret <- gfa_wrapup(fit,
                       method = method,

@@ -11,6 +11,7 @@ gfa_default_parameters <- function(){
   ebnm_fn_L = flash_ebnm(prior_family = "point_normal", optmethod = "nlm"),
   init_fn = flash_greedy_init_default,
   duplicate_check_thresh = 0.7,
+  singletrait_check_thresh = 0.9,
   var_type = 2
   )
 
