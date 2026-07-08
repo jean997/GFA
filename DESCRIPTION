@@ -1,7 +1,7 @@
 Package: GFA
 Title: Genetic Factor Analysis (GFA)
-Version: 1.0.0.0449
-Date: 2025-11-21
+Version: 1.0.0.0452
+Date: 2026-02-20
 Authors@R: 
     person(given = "Jean",
            family = "Morrison",
@@ -21,7 +21,8 @@ Imports:
   intervals,
   purrr, 
   lpSolve,
-  ggplot2
+  ggplot2,
+  data.table
 Suggests: 
   rmarkdown,
   knitr

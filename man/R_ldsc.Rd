@@ -13,7 +13,8 @@ R_ldsc(
   make_well_conditioned = TRUE,
   cond_num = 1e+05 - 1,
   blocks = NULL,
-  ncores = 1
+  ncores = 1,
+  comparisons = NULL
 )
 }
 \arguments{
