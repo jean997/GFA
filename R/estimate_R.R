@@ -57,32 +57,56 @@ R_ldsc <- function(Z_hat,
                    make_well_conditioned = TRUE,
                    cond_num = 1e5-1,
                    blocks = NULL,
-                   ncores = 1){
+                   ncores = 1,
+                   comparisons = NULL){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
   stopifnot(class(ldscores) == "numeric")
   stopifnot(length(ldscores) == J)
   if("matrix" %in% class(N)){
-    stopifnot(nrow(N) == J & ncol(N) == M)
+    stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
   }else if(class(N) == "numeric"){
-    stopifnot(length(N) == M)
+    stopifnot(identical(names(N),colnames(Z_hat)))
     N <- matrix(rep(N, each = J), nrow = J)
   }
 
-  # h2 <- lapply(1:M, function(m){
-  #   ix <- which(!is.na(Z_hat[,m]))
-  #   snp_ldsc(ld_score = ldscores[ix], ld_size = ld_size, chi2 = Z_hat[ix,m]^2, sample_size = N[ix,m], blocks = NULL)
-  # })
-  res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
-    filter(trait1 <= trait2)
+  if(is.null(comparisons)){
+    #res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
+    #  filter(trait1 <= trait2)
+
+    # data.table better for ram, but not necessary to do all that here
+    # generate M (M+1) / 2 unique pairs instead of expand M^2 and filter to M (M+1)/2
+    
+    # trait1_idx: 1, 1, 2, 1, 2, 3, 1, 2, 3, 4
+    # trait2_idx: 1, 2, 2, 3, 3, 3, 4, 4, 4, 4	  
+    
+    res <- data.frame(
+      trait1_idx = sequence(seq_len(M)),
+      trait2_idx = rep(seq_len(M), times = seq_len(M))
+    )
+    # use trait names instead of indices
+    trait_names <- colnames(Z_hat)
+    res$trait1 <- trait_names[res$trait1_idx]
+    res$trait2 <- trait_names[res$trait2_idx]
+	
+    return_matrix <- TRUE
+  
+  }else{
+    if(make_well_conditioned){
+      stop("Cannot use make_well_conditioned and comparisons argument together.")
+    }
+    if(!ncol(comparisons) == 2){
+      stop("Comparisons should have two columns")
+    }
+    if(! (all(comparisons[,1] %in% colnames(Z_hat)) & all(comparisons[,2] %in% colnames(Z_hat)))){
+      stop(paste0("Comparisons contains values out of provided trait names in Z_hat"))
+    }
+    res <- comparisons
+    names(res) <- c("trait1", "trait2")
+    return_matrix <- FALSE
+  }
 
   vals <- map2(res$trait1, res$trait2, function(i, j){
-    #cat(i, j, "\n")
-    # if(i == j){
-    #   ix <- which(!is.na(Z_hat[,i]))
-    #   h2 <- snp_ldsc(ld_score = ldscores[ix], ld_size = ld_size, chi2 = Z_hat[ix,i]^2, sample_size = N[ix,i], blocks = blocks)
-    #   return(c(h2, 1))
-    # }
     ix <- which(!is.na(Z_hat[,i]) & !is.na(Z_hat[,j]))
     rg <- ldsc_rg(ld_score = ldscores[ix], ld_size = ld_size,
             z1 = Z_hat[ix,i], z2 = Z_hat[ix,j],
@@ -94,27 +118,23 @@ R_ldsc <- function(Z_hat,
     rg
   })
 
-  val_int <- map(vals, 1) %>% unlist()
+  res$intercept <- map(vals, 1) %>% unlist()
 
-  res$value <- val_int
-  res_copy <- filter(res, trait1 != trait2) %>%
-    rename(n1c = trait2, n2c = trait1) %>%
-    rename(trait1 = n1c, trait2 = n2c)
+  if(return_matrix){
+    Se <- make_symm_matrix(res, "trait1", "trait2", "intercept", traits_ordered=colnames(Z_hat))
 
-  Se <- bind_rows(res, res_copy)  %>%
-    reshape2::dcast(trait1 ~ trait2, value.var = "value")
-  Se <- as.matrix(Se[,-1])
-  colnames(Se) <- rownames(Se) <- NULL
-
-  if(make_well_conditioned){
-    #Se <- condition(Se, cond_num)
-    Se <- Matrix::nearPD(Se, corr = FALSE, keepDiag = TRUE,
+    if(make_well_conditioned){
+      Se <- Matrix::nearPD(Se, corr = FALSE, keepDiag = TRUE,
                          posd.tol = 1/cond_num)$mat
-    Se <- as.matrix(Se)
+      Se <- as.matrix(Se)
+    }
+    ret <- list("Se" = Se)
+  }else{
+    ret <- res
   }
 
   if(!return_gencov & is.null(blocks)){
-    return(list("Se" = Se))
+    return(ret)
   }
 
   if(!is.null(blocks)){
@@ -128,70 +148,76 @@ R_ldsc <- function(Z_hat,
     val_gencor <- map(vals, 7) %>% unlist()
   }
 
-  ret <- list("Se" = Se)
-
   if(return_gencov){
     ## genetic covariance matrix
-    res$value <- val_gencov
-    res_copy <- filter(res, trait1 != trait2) %>%
-      rename(n1c = trait2, n2c = trait1) %>%
-      rename(trait1 = n1c, trait2 = n2c)
-
-    Sg <- bind_rows(res, res_copy)  %>%
-      reshape2::dcast(trait1 ~ trait2, value.var = "value")
-    ret$Sg <- as.matrix(Sg[,-1])
-    colnames(ret$Sg) <- rownames(ret$Sg) <- NULL
-
-
-    ## genetic correlation matrix
-    res$value <- val_gencor
-    res_copy <- filter(res, trait1 != trait2) %>%
-      rename(n1c = trait2, n2c = trait1) %>%
-      rename(trait1 = n1c, trait2 = n2c)
-
-    Rg <- bind_rows(res, res_copy)  %>%
-      reshape2::dcast(trait1 ~ trait2, value.var = "value")
-    ret$Rg <- as.matrix(Rg[,-1])
-    colnames(ret$Rg) <- rownames(ret$Rg) <- NULL
+    res$gencov <- val_gencov
+    res$gencor <- val_gencor
+    if(return_matrix){
+      Sg <-make_symm_matrix(res, "trait1", "trait2", "gencov", traits_ordered=colnames(Z_hat))
+      Rg <- make_symm_matrix(res, "trait1", "trait2", "gencor", traits_ordered=colnames(Z_hat))
+    }
   }
-  if(!is.null(blocks)){
-    res$value <- val_resid_ve^2
-    res_copy <- filter(res, trait1 != trait2) %>%
-      rename(n1c = trait2, n2c = trait1) %>%
-      rename(trait1 = n1c, trait2 = n2c)
 
-    Ve <- bind_rows(res, res_copy)  %>%
-      reshape2::dcast(trait1 ~ trait2, value.var = "value")
-    ret$Ve <- as.matrix(Ve[,-1])
-    colnames(ret$Ve) <- rownames(ret$Ve) <- NULL
+  if(!is.null(blocks)){
+    res$intercept_var <- val_resid_ve^2
+    if(return_matrix){
+      Ve <- make_symm_matrix(res, "trait1", "trait2", "intercept_var", traits_ordered=colnames(Z_hat))
+    }
     if(return_gencov){
       ## genetic covariance matrix
-      res$value <- val_gencov_ve^2
-      res_copy <- filter(res, trait1 != trait2) %>%
-        rename(n1c = trait2, n2c = trait1) %>%
-        rename(trait1 = n1c, trait2 = n2c)
-
-      Vg <- bind_rows(res, res_copy)  %>%
-        reshape2::dcast(trait1 ~ trait2, value.var = "value")
-      ret$Vg <- as.matrix(Vg[,-1])
-      colnames(ret$Vg) <- rownames(ret$Vg) <- NULL
-
-
+      res$gencov_var <- val_gencov_ve^2
       ## genetic correlation matrix
-      res$value <- val_gencor_ve^2
-      res_copy <- filter(res, trait1 != trait2) %>%
-        rename(n1c = trait2, n2c = trait1) %>%
-        rename(trait1 = n1c, trait2 = n2c)
+      res$gencor_var <- val_gencor_ve^2
 
-      VRg <- bind_rows(res, res_copy)  %>%
-        reshape2::dcast(trait1 ~ trait2, value.var = "value")
-      ret$VRg <- as.matrix(VRg[,-1])
-      colnames(ret$VRg) <- rownames(ret$VRg) <- NULL
+      if(return_matrix){
+        Vg <- make_symm_matrix(res, "trait1", "trait2", "gencov_var", traits_ordered=colnames(Z_hat))
+        VRg <- make_symm_matrix(res, "trait1", "trait2", "gencor_var", traits_ordered=colnames(Z_hat))
+      }
     }
+  }
+  if(!return_matrix){
+    ret <- res
   }
   return(ret)
 }
 
+
+# simpler version of make_symm_matrix that reduces copies of data & preserves trait names
+# if you leave traits_ordered null, we will give order back alphabetically
+make_symm_matrix <- function(x, row_name, col_name, value_name,
+                             traits_ordered = NULL,
+                             keep_trait_names = TRUE) {
+  r <- as.character(x[[row_name]])
+  c <- as.character(x[[col_name]])
+  v <- x[[value_name]]
+
+  if (is.null(traits_ordered)) {
+    traits_ordered <- sort(unique(c(as.character(r), as.character(c))))
+  }
+
+  # strip NA entries from traits_ordered
+  # x will have no NAs, but the colnames of Z_hat might because of the construction of Z_work in 3_R_ldsc_strip.R
+  traits_ordered <- traits_ordered[!is.na(traits_ordered)]
+
+  ri <- match(r, traits_ordered)
+  ci <- match(c, traits_ordered)
+
+  if (anyNA(ri) || anyNA(ci)) {
+    stop("Some row/column labels in `x` were not found in `traits_ordered`.")
+  }
+
+  out <- matrix(
+    NA_real_,
+    nrow = length(traits_ordered),
+    ncol = length(traits_ordered),
+    dimnames = if (keep_trait_names) list(traits_ordered, traits_ordered) else NULL
+  )
+
+  out[cbind(ri, ci)] <- v
+  out[cbind(ci, ri)] <- v
+
+  return(out)
+}
 
 #'@title Calculate matrix of error correlations using p-value threshold method.
 #'@param B_hat Matrix of effect size estimates
