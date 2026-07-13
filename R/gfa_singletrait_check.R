@@ -87,3 +87,5 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
   fit$num_error_fixed <- num_error_fixed
   return(fit)
 }
+
+
