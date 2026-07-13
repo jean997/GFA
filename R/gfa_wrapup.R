@@ -7,18 +7,7 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   F_hat <- fit$F_pm
   L_hat <- fit$L_pm
 
-
-  fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
-  if(length(fix.dim) == 0){
-    fixed_ix <- rep(FALSE, ncol(F_hat))
-  }else{
-    fixed_ix <- fix.dim %>% sapply(., function(x){
-      if(is.null(x)) return(FALSE)
-      if(x == 2) return(TRUE)
-      return(FALSE)})
-  }
-
-  if(any(fixed_ix)){
+  if(method == "fixed_factors"){
     fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
     if(length(fixed_ix) > 0){
       F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
