@@ -155,8 +155,15 @@ gfa_fit <- function(Z_hat = NULL,
   fit$method <- method
   ## wrap up
   if(is.null(fit$flash_fit$maxiter.reached) & wrapup){
-
-    fit <- fit %>% flash_nullcheck(remove = TRUE)
+    # if(method == "noR"){
+    #   est_ix <- seq(fit$n_factors)
+    # }else{
+    #   est_ix <- which(! sapply(fit$flash_fit$fix.dim, function(x){
+    #                       if(is.null(x)) return(FALSE)
+    #                       if(x == 2) return(TRUE)
+    #                       return(FALSE)}))
+    # }
+    fit <- flash_nullcheck(fit, tol = 0, remove = TRUE)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
