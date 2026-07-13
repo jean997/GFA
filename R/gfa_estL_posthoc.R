@@ -2,14 +2,15 @@
 gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
   flash_fit <- fit$fit$flash_fit
   n_new <- nrow(Y)
-  s_error <- 1/sqrt(flash_fit_get_fixed_tau(flash_fit))
+  s_error <- 1/sqrt(flash_fit_get_fixed_tau(flash_fit)) ## s for last e.v.
 
-  s <- 1/sqrt(flash_fit_get_tau(flash_fit))
+  s <- 1/sqrt(flash_fit_get_tau(flash_fit)) # total s for last e.v. plus theta
   s_theta <- sqrt(s^2 - s_error^2)
 
   nfactor <- fit$fit$n_factors
   ntrait <- nrow(fit$fit$F_pm)
 
+  ## first fit without theta separated
   fit_new <- flash_init(data = Y, S = s, var_type = NULL)
 
   EF <- flash_fit_get_pm(flash_fit, 2)
@@ -25,8 +26,9 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
                                  g_init = gL[[i]],
                                  fix_g = TRUE)
       }
-      Lrandi <- GWASBrewer::rnormalmix(n = n_new, pi = gL[[i]]$pi, sd = gL[[i]]$sd, mu = gL[[i]]$mean)
-      Lrandi <- matrix(Lrandi, ncol = 1)
+      #Lrandi <- GWASBrewer::rnormalmix(n = n_new, pi = gL[[i]]$pi, sd = gL[[i]]$sd, mu = gL[[i]]$mean)
+      #Lrandi <- matrix(Lrandi, ncol = 1)
+      Lrandi <- matrix(0, ncol = 1, nrow = n_new)
     }else if(class(gL) == "unimix"){
       stop("This function is only implemented for normal and normal mixture priors.")
       #g_pfam = prior.unimodal.symmetric(scale = 1, g_init=gL, fix_g = TRUE)
@@ -39,7 +41,7 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
     flash_factors_fix(kset = seq(nfactor), which_dim = "factors") %>%
     flash_backfit(tol = tol)
 
-
+  # Now fit again with theta separate
   fit_new2 <- flash_init(data = Y, S = s_error, var_type = NULL)
   EF1 <- flash_fit_get_pm(fit_new$flash_fit, 1)
   EF2 <- flash_fit_get_pm(fit_new$flash_fit, 2)
@@ -67,9 +69,9 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
                               fix_g = TRUE)
      EFi <- matrix(0, nrow = ntrait, ncol = 1)
      EFi[i] <- s_theta[i]
-     Lrandi <- matrix(rnorm(n= n_new), ncol = 1)
+     #Lrandi <- matrix(rnorm(n= n_new), ncol = 1)
      fit_new2 <- fit_new2 %>%
-       flash_factors_init(init = list(Lrandi, EFi),  ebnm_fn = g_ebnm)
+       flash_factors_init(init = list(matrix(0,nrow = n_new, ncol = 1), EFi),  ebnm_fn = g_ebnm)
   }
   fit_new2 <- fit_new2 %>%
      flash_factors_fix(kset = seq(nfactor + ntrait), which_dim = "factors") %>%
@@ -117,7 +119,7 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
 
   Y_pm <- H + theta
   cat("Please note that posterior means are returned on the z-score scale. Use scale object to rescale to standardized effects.")
-  return(theta_pm = theta, H_pm = H_multi, H_single_pm = H_single, Y_pm = Y_pm, scale = fit$scale)
+  return(list(theta_pm = theta, H_pm = H_multi, H_single_pm = H_single, Y_pm = Y_pm, scale = fit$scale))
 }
 
 
