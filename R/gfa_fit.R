@@ -14,7 +14,7 @@
 #'@param S If using B_hat, provide the corresponding matrix of standard errors.
 #'@param R Estimated residual correlation matrix. This can be produced for example using R_ldsc or R_pt.
 #'@param params List of parameters. For most users this can be left at the default values. See Details.
-#'@param no_wrapup If TRUE, GFA will not perform wrap-up steps. Advanced option used for debugging.
+#'@param wrapup If FALSE, GFA will not perform wrap-up steps. Advanced option used for debugging.
 #'@param F_init Initial estimate of F (optional).
 #'@param fix_F,freeze_F Options for fixing F at initialization. See Details.
 #'@return A list with elements L_hat and F_hat for estimated variant-factor and factor-trait effects, gfa_pve
@@ -67,8 +67,8 @@ gfa_fit <- function(Z_hat = NULL,
                     S = NULL,
                     R = NULL,
                     params = gfa_default_parameters(),
-                    no_wrapup = FALSE,
-                    no_single_check = FALSE,
+                    wrapup = TRUE,
+                    single_check = TRUE,
                     F_init = NULL,
                     fix_F = FALSE,
                     freeze_F = FALSE){
@@ -154,28 +154,34 @@ gfa_fit <- function(Z_hat = NULL,
 
   fit$method <- method
   ## wrap up
-  if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
+  if(is.null(fit$flash_fit$maxiter.reached) & wrapup){
 
     fit <- fit %>% flash_nullcheck(remove = TRUE)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
 
-    fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
+    if(single_check){
+      fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
 
-    ret <- gfa_wrapup(fit,
-                      method = method,
-                      scale = dat$scale,
-                      num_single_fixed = fit$num_single_fixed,
-                      nullcheck = TRUE)
-    #ret$mode <- mode
+      ret <- gfa_wrapup(fit,
+                        method = method,
+                        scale = dat$scale,
+                        num_single_fixed = fit$num_single_fixed,
+                        nullcheck = TRUE)
+    }else{
+      ret <- gfa_wrapup(fit,
+                        method = method,
+                        scale = dat$scale,
+                        num_single_fixed = 0,
+                        nullcheck = TRUE)
+    }
     ret$R <- dat$R
     ret$params <- dat$params
   }else{
     ret <- list(fit = fit,
                 params = dat$params,
                 scale = dat$scale,
-                #mode = mode,
                 R = dat$R)
   }
   return(ret)

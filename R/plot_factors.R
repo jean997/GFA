@@ -16,7 +16,7 @@ plot_factors <- function(x, row_names, col_names, row_order, col_order,
   if(missing(col_order)) col_order <- seq(ncol(x))
   rownames(x) <- row_names
   colnames(x) <- col_names
-  x <- x[row_order, col_order]
+  x <- x[row_order, col_order, drop = FALSE]
   meltx <- melt(x)
   names(meltx)[1:2] <- c("R", "C")
   meltx <- meltx %>%
