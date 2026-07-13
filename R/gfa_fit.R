@@ -68,6 +68,7 @@ gfa_fit <- function(Z_hat = NULL,
                     R = NULL,
                     params = gfa_default_parameters(),
                     no_wrapup = FALSE,
+                    no_single_check = FALSE,
                     F_init = NULL,
                     fix_F = FALSE,
                     freeze_F = FALSE){
@@ -159,11 +160,13 @@ gfa_fit <- function(Z_hat = NULL,
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
+
     fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
 
     ret <- gfa_wrapup(fit,
                       method = method,
                       scale = dat$scale,
+                      num_single_fixed = fit$num_single_fixed,
                       nullcheck = TRUE)
     #ret$mode <- mode
     ret$R <- dat$R

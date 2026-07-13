@@ -1,16 +1,25 @@
 #'@export
-gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
+gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullcheck = FALSE){
+
   if(nullcheck){
-    fit <- fit %>% flash_nullcheck(remove = TRUE)
+    fit <- fit %>% flash_nullcheck(remove = FALSE) # remove = FALSE to save indices
   }
 
-  F_hat <- fit$F_pm
-  L_hat <- fit$L_pm
+  F_hat_est <- fit$F_pm
+  L_hat_est <- fit$L_pm
 
+  if(!is.null(scale)){
+    F_hat_est <- F_hat_est/scale
+  }
+
+  row_scale <- sqrt(colSums(F_hat_est^2))
+  F_hat_est <- t(t(F_hat_est)/row_scale)
+  L_hat_est <- t(t(L_hat_est)*row_scale)
+  nfactor <- ncol(F_hat_est)
 
   fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
   if(length(fix.dim) == 0){
-    fixed_ix <- rep(FALSE, ncol(F_hat))
+    fixed_ix <- rep(FALSE, nfactor)
   }else{
     fixed_ix <- fix.dim %>% sapply(., function(x){
       if(is.null(x)) return(FALSE)
@@ -19,42 +28,58 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   }
 
   if(any(fixed_ix)){
-    fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
-    if(length(fixed_ix) > 0){
-      F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
-      L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
+    est_ix <- which(!fixed_ix)
+    if(num_single_fixed > 0){
+      single_ix <- (max(est_ix) + 1):(max(est_ix) + num_single_fixed)
+      if(max(single_ix) < nfactor){
+        error_ix <- (max(single_ix) + 1):length(fixed_ix)
+      }else{
+        error_ix <- NULL
+      }
+    }else{
+      error_ix <- (max(est_ix) + 1):length(fixed_ix)
+      single_ix <- NULL
     }
+  }else{
+    est_ix <- 1:nfactor
+    single_ix <- NULL
+    error_ix <- NULL
   }
-  #F_hat_est <- F_hat
-  #L_hat_est <- L_hat
 
-  if(!is.null(scale)){
-    F_hat <- F_hat/scale
+  if(any(fit$flash_fit$is.zero)){
+    est_ix <- est_ix[!fit$flash_fit$is.zero[est_ix]]
+    n <- length(est_ix)
+    if(!is.null(single_ix)){
+      single_ix <- single_ix[!fit$flash_fit$is.zero[single_ix]]
+      n <- n + length(single_ix)
+    }
+    if(!is.null(error_ix)){
+      error_ix <- error_ix[!fit$flash_fit$is.zero[error_ix]]
+    }
+    fit <- flash_factors_remove(fit, kset = which(fit$flash_fit$is.zero))
+    error_ix <- (n+1):ncol(fit$F_pm) # update error_ix after removing null factors
   }
-  row_scale <- sqrt(colSums(F_hat^2))
-  F_hat <- t(t(F_hat)/row_scale)
-  L_hat <- t(t(L_hat)*row_scale)
-  #L_hat_est <- t(t(L_hat_est)*row_scale)
-  #F_hat_est <- t(t(F_hat_est)/row_scale)
 
-  F_hat_multi <- F_hat
+  F_hat <- F_hat_est[, est_ix, drop = FALSE]
+  L_hat <- L_hat_est[, est_ix, drop = FALSE]
+
   F_hat_single <- NULL
-  if(ncol(F_hat) > 0){
-    hat_single <- find_single_trait(F_hat)
-    if(length(hat_single) > 0){
-      F_hat_single <- F_hat[,hat_single,drop = F]
-      F_hat_multi <- F_hat[, -hat_single, drop = F]
-    }
+  if(!is.null(single_ix)){
+    F_hat_single <- F_hat_est[, single_ix, drop = FALSE]
   }
+
+
+
   ret <- list(fit=fit,
               method = method,
               L_hat = L_hat,
               F_hat = F_hat,
               F_hat_single = F_hat_single,
-              F_hat_multi = F_hat_multi,
+              num_single = length(single_ix),
+              error_ix = error_ix,
               scale = scale)
   if(ncol(F_hat) > 0){
-    ret$gfa_pve <- pve2(ret)
+    ret$gfa_pve <- pve2(ret, error_ix)
   }
   return(ret)
 }

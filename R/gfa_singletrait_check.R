@@ -1,23 +1,34 @@
 gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
 
-  dim <- 2
+  nfactor <- ncol(fit$F_pm)
 
-  done <- FALSE
+  fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
+  if(length(fix.dim) == 0){
+    fixed_ix <- rep(FALSE, nfactor)
+  }else{
+    fixed_ix <- fix.dim %>% sapply(., function(x){
+      if(is.null(x)) return(FALSE)
+      if(x == 2) return(TRUE)
+      return(FALSE)})
+  }
+  num_error_fixed <- sum(fixed_ix)
+  num_single_fixed <- 0
 
   checked_trait <- c()
   upd_this_round <- FALSE
+  done <- FALSE
   while(!done){
     D <- fit$F_pm
-    nfactors <- ncol(D)
+    nfactor <- ncol(D)
     L <- fit$L_pm
 
     fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
     if(length(fix.dim) == 0){
-      fixed_ix <- rep(FALSE, nfactors)
+      fixed_ix <- rep(FALSE, nfactor)
     }else{
       fixed_ix <- fix.dim %>% sapply(., function(x){
          if(is.null(x)) return(FALSE)
-         if(x == dim) return(TRUE)
+         if(x == 2) return(TRUE)
          return(FALSE)})
     }
 
@@ -44,16 +55,16 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
         altfactor <- myfactor
         k <- which.max(abs(myfactor))
         altfactor[-k] <- 0
-        new_order <- seq(nfactors)
-        if(i < nfactors){
-          new_order[i:(nfactors-1)] <- (i:(nfactors-1)) + 1
-          new_order[nfactors] <- i
+        new_order <- seq(nfactor)
+        if(num_error_fixed > 0){
+          new_order[(i+ 1):nfactor] <- i:(nfactor-1)
+          new_order[i] <- nfactor
         }
         fitn <- flash_factors_remove(fit, i) %>%
             flash_factors_init(init = list(myloadings, altfactor),
                                ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F)) %>%
             #flash_factors_reorder(new_order) %>%
-            flash_factors_fix(., kset = nfactors, which_dim = "factors") %>%
+            flash_factors_fix(., kset = nfactor, which_dim = "factors") %>%
             flash_backfit()
 
 
@@ -64,6 +75,7 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
         if(fitn$elbo > fit$elbo){
           message(paste0("Replacing factor ", i , " with single trait factor"))
           fit <- fitn
+          num_single_fixed <- num_single_fixed + 1
           upd_this_round <- TRUE
         }
         checked_trait <- c(checked_trait, k)
@@ -71,5 +83,7 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
       }
     }
   }
+  fit$num_single_fixed <- num_single_fixed
+  fit$num_error_fixed <- num_error_fixed
   return(fit)
 }

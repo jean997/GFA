@@ -1,6 +1,6 @@
 
 # Should return a matrix that is traits by factors
-pve2 <- function(gfa_fit){
+pve2 <- function(gfa_fit, error_ix = NULL){
 
   ef2 <- flashier:::get.EF2(gfa_fit$fit$flash_fit)
   k <- ncol(ef2[[1]])
@@ -22,11 +22,8 @@ pve2 <- function(gfa_fit){
   }
 
   est_ix <- 1:k
-  if(gfa_fit$method == "fixed_factors"){
-    fixed_ix <- which(gfa_fit$fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
-    if(length(fixed_ix) > 0){
-      est_ix <- est_ix[-fixed_ix]
-    }
+  if(!is.null(error_ix)){
+    est_ix <- est_ix[-error_ix]
   }
 
   sj <- sapply(est_ix, function(kk){
