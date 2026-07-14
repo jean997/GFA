@@ -23,20 +23,22 @@ gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullchec
   }
 
   est_ix <- which(!fixed_ix)
+  n_est <- length(est_ix)
   if(nullcheck){
     fit <- fit %>% flash_nullcheck(tol = 0, remove = FALSE) # remove = FALSE to save indices
   }
 
+
   if(any(fixed_ix)){
     if(num_single_fixed > 0){
-      single_ix <- (max(est_ix) + 1):(max(est_ix) + num_single_fixed)
-      if(max(single_ix) < nfactor){
-        error_ix <- (max(single_ix) + 1):length(fixed_ix)
+      single_ix <- (n_est + 1):(n_est + num_single_fixed)
+      if((n_est + num_single_fixed) < nfactor){
+        error_ix <- (n_est + num_single_fixed + 1):nfactor
       }else{
         error_ix <- NULL
       }
     }else{
-      error_ix <- (max(est_ix) + 1):length(fixed_ix)
+      error_ix <- (n_est + 1):nfactor
       single_ix <- NULL
     }
   }else{
