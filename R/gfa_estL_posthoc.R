@@ -43,8 +43,8 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
 
   # Now fit again with theta separate
   fit_new2 <- flash_init(data = Y, S = s_error, var_type = NULL)
-  EF1 <- flash_fit_get_pm(fit_new$flash_fit, 1)
-  EF2 <- flash_fit_get_pm(fit_new$flash_fit, 2)
+  EF_l <- flash_fit_get_pm(fit_new$flash_fit, 1)
+  EF_f <- flash_fit_get_pm(fit_new$flash_fit, 2)
   gL <- flash_fit_get_g(fit_new$flash_fit, 1)
   for(i in 1:nfactor){
     if(class(gL[[i]]) == "normalmix"){
@@ -59,25 +59,28 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
       }
     }
     fit_new2 <- fit_new2 %>%
-      flash_factors_init(init = list(EF1[,i,drop = FALSE], EF2[,i,drop = FALSE]),  ebnm_fn = g_ebnm)
+      flash_factors_init(init = list(EF_l[,i,drop = FALSE], EF_f[,i,drop = FALSE]),  ebnm_fn = g_ebnm)
   }
   # Add factors for theta
   gL1 <- ashr::normalmix(pi = 1, mean = 0, sd = 1)
   for(i in seq(ntrait)){
-     g_ebnm = flash_ebnm(prior_family = "normal",
-                              g_init = gL1,
-                              fix_g = TRUE)
-     EFi <- matrix(0, nrow = ntrait, ncol = 1)
-     EFi[i] <- s_theta[i]
-     #Lrandi <- matrix(rnorm(n= n_new), ncol = 1)
-     fit_new2 <- fit_new2 %>%
-       flash_factors_init(init = list(matrix(0,nrow = n_new, ncol = 1), EFi),  ebnm_fn = g_ebnm)
+     if(s_theta[i] > 0){
+       g_ebnm = flash_ebnm(prior_family = "normal",
+                                g_init = gL1,
+                                fix_g = TRUE)
+       EFi <- matrix(0, nrow = ntrait, ncol = 1)
+       EFi[i] <- s_theta[i]
+       #Lrandi <- matrix(rnorm(n= n_new), ncol = 1)
+       fit_new2 <- fit_new2 %>%
+         flash_factors_init(init = list(matrix(0,nrow = n_new, ncol = 1), EFi),  ebnm_fn = g_ebnm)
+     }
   }
+  nfactors2 <- fit_new2$n_factors
   fit_new2 <- fit_new2 %>%
-     flash_factors_fix(kset = seq(nfactor + ntrait), which_dim = "factors") %>%
+     flash_factors_fix(kset = seq(nfactors2), which_dim = "factors") %>%
      flash_backfit(tol = tol) #, kset = seq(ntrait) + nfactor) perhaps a bug in kset argument
 
-  ## Scale
+  ## dont scale
   F_hat_est <- fit_new2$F_pm
   L_hat_est <- fit_new2$L_pm
 
@@ -93,7 +96,7 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
   n_est <- nfactor - fit$num_single - length(fit$error_ix)
   n_single <- fit$num_single
   n_error <- length(fit$error_ix)
-  n_theta <- ntrait
+  n_theta <- nfactors2 - n_est -n_single - n_error
 
   est_ix <- seq(n_est)
   L_multi <- L_hat_est[, est_ix, drop = FALSE]
@@ -112,10 +115,14 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
   if(n_error > 0){
     error_ix <- seq(n_error) + n_est + n_single
   }
-  theta_ix <- seq(n_theta) + n_est + n_single + n_error
-  L_theta <- L_hat_est[, theta_ix, drop = FALSE]
-  F_theta <- F_hat_est[, theta_ix, drop = FALSE]
-  theta <- L_theta %*% t(F_theta)
+  if(n_theta > 0){
+    theta_ix <- seq(n_theta) + n_est + n_single + n_error
+    L_theta <- L_hat_est[, theta_ix, drop = FALSE]
+    F_theta <- F_hat_est[, theta_ix, drop = FALSE]
+    theta <- L_theta %*% t(F_theta)
+  }else{
+    theta <- matrix(0, nrow = nrow(Y), ncol = ntrait)
+  }
 
   Y_pm <- H + theta
   cat("Please note that posterior means are returned on the z-score scale. Use scale object to rescale to standardized effects.")
