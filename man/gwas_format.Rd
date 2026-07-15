@@ -17,7 +17,8 @@ gwas_format(
   sample_size,
   allele_freq,
   output_file,
-  compute_pval = TRUE
+  compute_pval = TRUE,
+  return_og_snps = FALSE
 )
 }
 \arguments{
@@ -41,12 +42,16 @@ gwas_format(
 
 \item{sample_size}{Sample size column (optional) or an integer}
 
+\item{allele_freq}{Effect allele frequency column (optional)}
+
 \item{output_file}{File to write out formatted data. If missing formatted data will be returned.}
 
 \item{compute_pval}{Logical, compute the p-value using a normal approximation if missing? Defaults to TRUE.}
+
+\item{return_og_snps}{Option to return all input SNPs in original order. SNPs filtered out will have info set to NA}
 }
 \value{
-A data frame with columns chrom, pos, snp, A1, A2, beta_hat, se, p_value, and sample_size with all SNPs
+A data frame with columns chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, and allele_freq with all SNPs
 aligned so that A is the effect allele. This is ready to be used with gwas_merge with formatted = TRUE.
 }
 \description{
