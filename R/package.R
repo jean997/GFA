@@ -7,6 +7,6 @@
 #' @import flashier
 #' @import dplyr readr reshape2 lpSolve
 #' @import purrr ggplot2
-#' @import data.table
+#' @importFrom data.table setDT setcolorder setnames data.table is.data.table fifelse fwrite %chin% .I :=
 #' @name GFA
 NULL

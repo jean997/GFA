@@ -10,14 +10,16 @@
 #'@param pos Position column (optional)
 #'@param p_value p-value column (optional)
 #'@param sample_size  Sample size column (optional) or an integer
+#'@param allele_freq Effect allele frequency column (optional)
 #'@param compute_pval Logical, compute the p-value using a normal approximation if missing? Defaults to TRUE.
 #'@param output_file File to write out formatted data. If missing formatted data will be returned.
+#'@param return_og_snps Option to return all input SNPs in original order. SNPs filtered out will have info set to NA
 #'@details This function will try to merge data sets X1 and X2 on the specified columns. Where
 #'necessary, it will flip the sign of effects so that the effect allele is the same in both
 #'data sets. It will remove variants with ambiguous alleles or where the alleles (G/C or A/T) or
 #'with alleles that do not match between data sets (e.g A/G in one data set and A/C in the other).
 #'It will not remove variants that are simply strand flipped between the two data sets (e. g. A/C in one data set, T/G in the other).
-#'@return A data frame with columns chrom, pos, snp, A1, A2, beta_hat, se, p_value, and sample_size with all SNPs
+#'@return A data frame with columns chrom, pos, snp, A1, A2, beta_hat, se, p_value, sample_size, and allele_freq with all SNPs
 #'aligned so that A is the effect allele. This is ready to be used with gwas_merge with formatted = TRUE.
 #'@export
 gwas_format <- function(X, snp, beta_hat, se, A1, A2,
@@ -113,7 +115,6 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     snp
   ]
   if(length(illegal_vars)){
-    print(head(X[snp %in% illegal_vars]))
     X <- X[!(snp %in% illegal_vars)]
     cat("Removing", length(illegal_vars), "variants with illegal alleles leaving", nrow(X), "variants.\n")
   }else{
@@ -157,13 +158,10 @@ gwas_format <- function(X, snp, beta_hat, se, A1, A2,
     #X_full[is.na(pass_filt), pass_filt := FALSE]
 
     X <- X_full
-
-    print(head(X))
   }
   if(!missing(output_file)){
     cat("Writing out ", nrow(X), " variants to file.\n")
-    # changed from path= to file=
-    write_tsv(X, file = output_file)
+    fwrite(X, file = output_file, sep="\t", na = "NA")  
     return(NULL)
   }
   cat("Returning ", nrow(X), " variants.\n")
@@ -185,8 +183,6 @@ remove_ambiguous <- function(X) {
                             A2 = c("C", "G", "T", "A", "c", "g", "t", "a"))
 
   idx_ambig <- X[ambig_pairs, on = .(A1, A2), which = TRUE, nomatch = NULL]
-
-  print(head(X[idx_ambig]))
 
   if (!length(idx_ambig)) {
     return(invisible(X))
