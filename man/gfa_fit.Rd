@@ -13,7 +13,8 @@ gfa_fit(
   S = NULL,
   R = NULL,
   params = gfa_default_parameters(),
-  no_wrapup = FALSE,
+  wrapup = TRUE,
+  single_check = TRUE,
   F_init = NULL,
   fix_F = FALSE,
   freeze_F = FALSE
@@ -42,7 +43,7 @@ If using B_hat, you must also provide S.}
 
 \item{params}{List of parameters. For most users this can be left at the default values. See Details.}
 
-\item{no_wrapup}{If TRUE, GFA will not perform wrap-up steps. Advanced option used for debugging.}
+\item{wrapup}{If FALSE, GFA will not perform wrap-up steps. Advanced option used for debugging.}
 
 \item{F_init}{Initial estimate of F (optional).}
 
