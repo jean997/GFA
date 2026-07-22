@@ -76,21 +76,25 @@ R_ldsc <- function(Z_hat,
 
     # data.table better for ram, but not necessary to do all that here
     # generate M (M+1) / 2 unique pairs instead of expand M^2 and filter to M (M+1)/2
-    
+
     # trait1_idx: 1, 1, 2, 1, 2, 3, 1, 2, 3, 4
-    # trait2_idx: 1, 2, 2, 3, 3, 3, 4, 4, 4, 4	  
-    
+    # trait2_idx: 1, 2, 2, 3, 3, 3, 4, 4, 4, 4
+
     res <- data.frame(
       trait1_idx = sequence(seq_len(M)),
       trait2_idx = rep(seq_len(M), times = seq_len(M))
     )
     # use trait names instead of indices
-    trait_names <- colnames(Z_hat)
+    if(!is.null(colnames(Z_hat))){
+      trait_names <- colnames(Z_hat)
+    }else{
+      trait_names <- 1:ncol(Z_hat)
+    }
     res$trait1 <- trait_names[res$trait1_idx]
     res$trait2 <- trait_names[res$trait2_idx]
-	
+
     return_matrix <- TRUE
-  
+
   }else{
     if(make_well_conditioned){
       stop("Cannot use make_well_conditioned and comparisons argument together.")
