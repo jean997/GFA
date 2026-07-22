@@ -4,13 +4,16 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
   n_new <- nrow(Y)
   s_error <- 1/sqrt(flash_fit_get_fixed_tau(flash_fit)) ## s for last e.v.
 
+
   s <- 1/sqrt(flash_fit_get_tau(flash_fit)) # total s for last e.v. plus theta
   s_theta <- sqrt(s^2 - s_error^2)
+
+  V_F_hat <- fit$fit$F_psd^2
 
   nfactor <- fit$fit$n_factors
   ntrait <- nrow(fit$fit$F_pm)
 
-  ## first fit without theta separated
+  ## refit with priors and F fixed to get loadings for Y.
   fit_new <- flash_init(data = Y, S = s, var_type = NULL)
 
   EF <- flash_fit_get_pm(flash_fit, 2)
@@ -41,92 +44,71 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
     flash_factors_fix(kset = seq(nfactor), which_dim = "factors") %>%
     flash_backfit(tol = tol)
 
-  # Now fit again with theta separate
-  fit_new2 <- flash_init(data = Y, S = s_error, var_type = NULL)
-  EF_l <- flash_fit_get_pm(fit_new$flash_fit, 1)
-  EF_f <- flash_fit_get_pm(fit_new$flash_fit, 2)
-  gL <- flash_fit_get_g(fit_new$flash_fit, 1)
-  for(i in 1:nfactor){
-    if(class(gL[[i]]) == "normalmix"){
-      if(length(gL[[i]]$mean) == 1){
-        g_ebnm = flash_ebnm(prior_family = "normal",
-                            g_init = gL[[i]],
-                            fix_g = TRUE)
-      }else{
-        g_ebnm = flash_ebnm(prior_family = "normal_scale_mixture",
-                            g_init = gL[[i]],
-                            fix_g = TRUE)
-      }
-    }
-    fit_new2 <- fit_new2 %>%
-      flash_factors_init(init = list(EF_l[,i,drop = FALSE], EF_f[,i,drop = FALSE]),  ebnm_fn = g_ebnm)
-  }
-  # Add factors for theta
-  gL1 <- ashr::normalmix(pi = 1, mean = 0, sd = 1)
-  for(i in seq(ntrait)){
-     if(s_theta[i] > 0){
-       g_ebnm = flash_ebnm(prior_family = "normal",
-                                g_init = gL1,
-                                fix_g = TRUE)
-       EFi <- matrix(0, nrow = ntrait, ncol = 1)
-       EFi[i] <- s_theta[i]
-       #Lrandi <- matrix(rnorm(n= n_new), ncol = 1)
-       fit_new2 <- fit_new2 %>%
-         flash_factors_init(init = list(matrix(0,nrow = n_new, ncol = 1), EFi),  ebnm_fn = g_ebnm)
-     }
-  }
-  nfactors2 <- fit_new2$n_factors
-  fit_new2 <- fit_new2 %>%
-     flash_factors_fix(kset = seq(nfactors2), which_dim = "factors") %>%
-     flash_backfit(tol = tol) #, kset = seq(ntrait) + nfactor) perhaps a bug in kset argument
+  ## Get posterior of theta using ebnm
 
-  ## dont scale
-  F_hat_est <- fit_new2$F_pm
-  L_hat_est <- fit_new2$L_pm
+  R <- Y - with(fit_new, L_pm %*% t(F_pm))
+  #R <- b_hat - myL %*% t(myF)
 
-  #if(!is.null(fit$scale)){
-  #  F_hat_est <- F_hat_est/fit$scale
-  #}
+  V_lft <- with(fit_new, (L_psd^2) %*% t(V_F_hat) + (L_psd^2) %*% t(F_pm^2) + (L_pm^2) %*% t(V_F_hat))
+  tau_R <- sqrt(s_error^2 + V_lft)
 
-  #row_scale <- sqrt(colSums(F_hat_est^2))
-  #F_hat_est <- t(t(F_hat_est)/row_scale)
-  #L_hat_est <- t(t(L_hat_est)*row_scale)
-  ####
+  ebnm_fit <- lapply(seq(ntrait), function(j){
+    g <- ashr::normalmix(pi = 1, mean = 0, sd = s_theta[j])
+    ebnm(x = R[,j], s = tau_R[,j], prior_family = "normal",
+         g_init = g, fix_g = TRUE,
+         optmethod = "nlm")
+  })
+  theta_pm <- lapply(ebnm_fit, function(f){f$posterior$mean}) %>% reduce(., cbind)
+  V_theta <- lapply(ebnm_fit, function(f){f$posterior$sd^2}) %>% reduce(., cbind)
+
 
   n_est <- nfactor - fit$num_single - length(fit$error_ix)
   n_single <- fit$num_single
   n_error <- length(fit$error_ix)
-  n_theta <- nfactors2 - n_est -n_single - n_error
+
+  ## dont scale
+  F_hat_est <- fit_new$F_pm
+  L_hat_est <- fit_new$L_pm
+
+  V_L_hat <- fit_new$L_psd^2
 
   est_ix <- seq(n_est)
   L_multi <- L_hat_est[, est_ix, drop = FALSE]
   F_multi <- F_hat_est[,est_ix, drop = FALSE]
   H_multi <- L_multi %*% t(F_multi)
+
+  V_L_multi <- V_L_hat[, est_ix, drop = FALSE]
+  V_F_multi <- V_F_hat[, est_ix, drop = FALSE]
+  V_H_multi <- V_L_multi %*% t(V_F_multi) + V_L_multi %*% t(F_multi^2) + (L_multi^2) %*% t(V_F_multi)
+
   if(n_single > 0){
     single_ix <- seq(n_single) + n_est
     L_single <- L_hat_est[, single_ix, drop = FALSE]
     F_single <- F_hat_est[, single_ix, drop = FALSE]
     H_single <- L_single %*% t(F_single)
+
+    V_L_single <- V_L_hat[, single_ix, drop = FALSE]
+    V_H_single <- V_L_single %*% t(F_single^2)
+
     H <- H_multi + H_single
+    V_H <- V_H_multi + V_H_single
   }else{
-    H_single <- matrix(0, nrow = nrow(Y), ncol = ntrait)
+    H_single <- V_H_single <- matrix(0, nrow = nrow(Y), ncol = ntrait)
     H <- H_multi
-  }
-  if(n_error > 0){
-    error_ix <- seq(n_error) + n_est + n_single
-  }
-  if(n_theta > 0){
-    theta_ix <- seq(n_theta) + n_est + n_single + n_error
-    L_theta <- L_hat_est[, theta_ix, drop = FALSE]
-    F_theta <- F_hat_est[, theta_ix, drop = FALSE]
-    theta <- L_theta %*% t(F_theta)
-  }else{
-    theta <- matrix(0, nrow = nrow(Y), ncol = ntrait)
+    V_H <- V_H_multi
   }
 
-  Y_pm <- H + theta
-  cat("Please note that posterior means are returned on the z-score scale. Use scale object to rescale to standardized effects.")
-  return(list(theta_pm = theta, H_pm = H_multi, H_single_pm = H_single, Y_pm = Y_pm, scale = fit$scale))
+  Y_pm <- H + theta_pm
+  V_Y <- V_H + V_theta
+  cat("Please note that posterior means are returned on the z-score scale. Rescale by multiplying by standard errors.\n")
+  return(list(H_pm = H_multi,
+              H_single_pm = H_single,
+              theta_pm = theta_pm,
+              Y_pm = Y_pm,
+              V_H_multi = V_H_multi,
+              V_H_single = V_H_single,
+              V_theta = V_theta,
+              V_Y = V_Y))
 }
 
 
