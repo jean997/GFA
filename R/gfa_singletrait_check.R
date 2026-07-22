@@ -13,6 +13,7 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
   }
   num_error_fixed <- sum(fixed_ix)
   num_single_fixed <- 0
+  num_est <- nfactor - num_error_fixed
 
   checked_trait <- c()
   upd_this_round <- FALSE
@@ -55,11 +56,6 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
         altfactor <- myfactor
         k <- which.max(abs(myfactor))
         altfactor[-k] <- 0
-        new_order <- seq(nfactor)
-        if(num_error_fixed > 0){
-          new_order[(i+ 1):nfactor] <- i:(nfactor-1)
-          new_order[i] <- nfactor
-        }
         fitn <- flash_factors_remove(fit, i) %>%
             flash_factors_init(init = list(myloadings, altfactor),
                                ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F)) %>%
@@ -68,18 +64,38 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
             flash_backfit()
 
 
-        fitn <- flash_factors_reorder(fitn, new_order)
-        class(fitn$flash_fit$EF) <-  c("lowrank", "list")
-        class(fitn$flash_fit$EF2) <-  c("lowrank", "list")
+
+        #class(fitn$flash_fit$EF) <-  c("lowrank", "list")
+        #class(fitn$flash_fit$EF2) <-  c("lowrank", "list")
 
         if(fitn$elbo > fit$elbo){
           message(paste0("Replacing factor ", i , " with single trait factor"))
-          fit <- fitn
+          num_est <- num_est -1
           num_single_fixed <- num_single_fixed + 1
+
+          new_order <- seq(nfactor)
+          if(num_error_fixed > 0){
+            new_order[(num_est+ 2):nfactor] <- (num_est + 1):(nfactor-1)
+            new_order[num_est + 1] <- nfactor
+          }
+          fitn <- flash_factors_reorder(fitn, new_order)
+
+          fit <- fitn
           upd_this_round <- TRUE
         }
         checked_trait <- c(checked_trait, k)
-        cat(checked_trait, "\n")
+
+        fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
+        if(length(fix.dim) == 0){
+          fixed_ix <- rep(FALSE, nfactor)
+        }else{
+          fixed_ix <- fix.dim %>% sapply(., function(x){
+            if(is.null(x)) return(FALSE)
+            if(x == 2) return(TRUE)
+            return(FALSE)})
+        }
+
+
       }
     }
   }
