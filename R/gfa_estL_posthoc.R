@@ -33,7 +33,9 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
     flash_factors_fix(kset = seq(nfct), which_dim = "factors") %>%
     flash_backfit(tol = tol)
 
-  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale)
+  fixed_ix <- which(fit$fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
+  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale,
+                        fixed_ix = fixed_ix, get_pve = FALSE)
   # if(fit$method == "fixed_factors"){
   #   fixed_ix <- which(sapply(flash_fit$fix.dim,
   #                            function(x){!is.null(x)}))

@@ -1,5 +1,6 @@
 #'@export
-gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
+gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE,
+                       fixed_ix = NULL, get_pve = TRUE){
   if(nullcheck){
     fit <- fit %>% flash_nullcheck(remove = TRUE)
   }
@@ -8,7 +9,9 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
   L_hat <- fit$L_pm
 
   if(method == "fixed_factors"){
-    fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
+    if(is.null(fixed_ix)){
+      fixed_ix <- which(fit$flash_fit$fix.dim %>% sapply(., function(x){!is.null(x)}))
+    }
     if(length(fixed_ix) > 0){
       F_hat <- fit$F_pm[,-fixed_ix, drop=FALSE]
       L_hat <- fit$L_pm[, -fixed_ix, drop=FALSE]
@@ -42,7 +45,7 @@ gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE){
               F_hat_single = F_hat_single,
               F_hat_multi = F_hat_multi,
               scale = scale)
-  if(ncol(F_hat) > 0){
+  if(ncol(F_hat) > 0 & get_pve){
     ret$gfa_pve <- pve2(ret)
   }
   return(ret)
