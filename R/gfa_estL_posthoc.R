@@ -108,7 +108,7 @@ gfa_estL_theta_posthoc <- function(Y, fit, tol = 1e-5){
               V_H_multi = V_H_multi,
               V_H_single = V_H_single,
               V_theta = V_theta,
-              V_Y = V_Y))
+              V_Y = V_Y, R = R, tau_R = tau_R))
 }
 
 
