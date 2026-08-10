@@ -61,11 +61,14 @@ R_ldsc <- function(Z_hat,
                    comparisons = NULL){
   M <- ncol(Z_hat)
   J <- nrow(Z_hat)
-  stopifnot(class(ldscores) == "numeric")
-  stopifnot(length(ldscores) == J)
-  if("matrix" %in% class(N)){
+	
+  stopifnot(inherits(ldscores, "numeric"))
+  if(!length(ldscores) == J){
+	  stop(paste0("ldscores should have length ", J, ". Found ", length(ldscores), "\n"))
+  }
+  if(inherits(N, "matrix")){
     stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
-  }else if(class(N) == "numeric"){
+  }else if(inherits(N, "numeric") | inherits(N, "integer")){
     stopifnot(identical(names(N),colnames(Z_hat)))
     N <- matrix(rep(N, each = J), nrow = J)
   }
