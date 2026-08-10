@@ -67,12 +67,20 @@ R_ldsc <- function(Z_hat,
 	  stop(paste0("ldscores should have length ", J, ". Found ", length(ldscores), "\n"))
   }
   if(inherits(N, "matrix")){
-    stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
+	if(!nrow(N) == J & ncol(N) == M){
+		stop("N should either be a vector with length equal to ncol(Z_hat) or a matrix of the same dimension as Z_hat.\n")
+	}
   }else if(inherits(N, "numeric") | inherits(N, "integer")){
+	if(!length(N) == ncol(Z_hat)){
+		stop("N should either be a vector with length equal to ncol(Z_hat) or a matrix of the same dimension as Z_hat.\n")
+	}
     stopifnot(identical(names(N),colnames(Z_hat)))
     N <- matrix(rep(N, each = J), nrow = J)
+	colnames(N) <- colnames(Z_hat)
   }
 
+  stopifnot(identical(colnames(N),colnames(Z_hat)))
+	
   if(is.null(comparisons)){
     #res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     #  filter(trait1 <= trait2)
