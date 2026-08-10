@@ -85,7 +85,11 @@ R_ldsc <- function(Z_hat,
       trait2_idx = rep(seq_len(M), times = seq_len(M))
     )
     # use trait names instead of indices
-    trait_names <- colnames(Z_hat)
+    if(!is.null(colnames(Z_hat))){
+      trait_names <- colnames(Z_hat)
+    }else{
+      trait_names <- 1:ncol(Z_hat)
+    }
     res$trait1 <- trait_names[res$trait1_idx]
     res$trait2 <- trait_names[res$trait2_idx]
 	
