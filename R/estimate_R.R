@@ -66,10 +66,15 @@ R_ldsc <- function(Z_hat,
   if("matrix" %in% class(N)){
     stopifnot(nrow(N) == J & identical(colnames(N),colnames(Z_hat)))
   }else if(class(N) == "numeric"){
-    stopifnot(identical(names(N),colnames(Z_hat)))
+    stopifnot(length(N)== M)
     N <- matrix(rep(N, each = J), nrow = J)
   }
 
+  if(!is.null(colnames(Z_hat))){
+    trait_names <- colnames(Z_hat)
+  }else{
+    trait_names <- 1:ncol(Z_hat)
+  }
   if(is.null(comparisons)){
     #res <- expand.grid(trait1 = 1:M, trait2 = 1:M) %>%
     #  filter(trait1 <= trait2)
@@ -85,11 +90,6 @@ R_ldsc <- function(Z_hat,
       trait2_idx = rep(seq_len(M), times = seq_len(M))
     )
     # use trait names instead of indices
-    if(!is.null(colnames(Z_hat))){
-      trait_names <- colnames(Z_hat)
-    }else{
-      trait_names <- 1:ncol(Z_hat)
-    }
     res$trait1 <- trait_names[res$trait1_idx]
     res$trait2 <- trait_names[res$trait2_idx]
 
@@ -102,7 +102,7 @@ R_ldsc <- function(Z_hat,
     if(!ncol(comparisons) == 2){
       stop("Comparisons should have two columns")
     }
-    if(! (all(comparisons[,1] %in% colnames(Z_hat)) & all(comparisons[,2] %in% colnames(Z_hat)))){
+    if(! (all(comparisons[,1] %in% trait_names) & all(comparisons[,2] %in% trait_names))){
       stop(paste0("Comparisons contains values out of provided trait names in Z_hat"))
     }
     res <- comparisons
@@ -124,8 +124,9 @@ R_ldsc <- function(Z_hat,
 
   res$intercept <- map(vals, 1) %>% unlist()
 
+
   if(return_matrix){
-    Se <- make_symm_matrix(res, "trait1", "trait2", "intercept", traits_ordered=colnames(Z_hat))
+    Se <- make_symm_matrix(res, "trait1", "trait2", "intercept", traits_ordered=trait_names)
 
     if(make_well_conditioned){
       Se <- Matrix::nearPD(Se, corr = FALSE, keepDiag = TRUE,
@@ -157,15 +158,15 @@ R_ldsc <- function(Z_hat,
     res$gencov <- val_gencov
     res$gencor <- val_gencor
     if(return_matrix){
-      Sg <-make_symm_matrix(res, "trait1", "trait2", "gencov", traits_ordered=colnames(Z_hat))
-      Rg <- make_symm_matrix(res, "trait1", "trait2", "gencor", traits_ordered=colnames(Z_hat))
+      ret$Sg <-make_symm_matrix(res, "trait1", "trait2", "gencov", traits_ordered=trait_names)
+      ret$Rg <- make_symm_matrix(res, "trait1", "trait2", "gencor", traits_ordered=trait_names)
     }
   }
 
   if(!is.null(blocks)){
     res$intercept_var <- val_resid_ve^2
     if(return_matrix){
-      Ve <- make_symm_matrix(res, "trait1", "trait2", "intercept_var", traits_ordered=colnames(Z_hat))
+      ret$Ve <- make_symm_matrix(res, "trait1", "trait2", "intercept_var", traits_ordered=trait_names)
     }
     if(return_gencov){
       ## genetic covariance matrix
@@ -174,13 +175,13 @@ R_ldsc <- function(Z_hat,
       res$gencor_var <- val_gencor_ve^2
 
       if(return_matrix){
-        Vg <- make_symm_matrix(res, "trait1", "trait2", "gencov_var", traits_ordered=colnames(Z_hat))
-        VRg <- make_symm_matrix(res, "trait1", "trait2", "gencor_var", traits_ordered=colnames(Z_hat))
+        ret$Vg <- make_symm_matrix(res, "trait1", "trait2", "gencov_var", traits_ordered=trait_names)
+        ret$VRg <- make_symm_matrix(res, "trait1", "trait2", "gencor_var", traits_ordered=trait_names)
       }
     }
   }
   if(!return_matrix){
-    ret <- res
+    return(res)
   }
   return(ret)
 }
