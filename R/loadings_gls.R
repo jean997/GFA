@@ -7,11 +7,12 @@
 #'@param fit Object produced by gfa_ft().
 #'@return A list with elements L (estimated loadings), S (standard errors for loadings), and P (p-values). All variant by factor matrices.
 #'@export
-gfa_loadings_gls <- function(beta_hat, S, fit){
+gfa_loadings_gls <- function(beta_hat, S, fit, use_single = TRUE){
 
   #if(!fit$mode == "z-score"){
   #  stop("mode must be z-score to use this function.\n")
   #}
+
 
   X <- beta_hat/S
   if(is.null(fit$R) | fit$method == "noR"){
@@ -21,7 +22,11 @@ gfa_loadings_gls <- function(beta_hat, S, fit){
   }
 
   myS <- matrix(1, nrow = nrow(X), ncol = ncol(X))
-  myF <- fit$F_hat*fit$scale ## put scale back in because we are using z-scores
+  if(use_single){
+    myF <- cbind(fit$F_hat, fit$F_hat_single)*fit$scale ## put scale back in because we are using z-scores
+  }else{
+    myF <- fit$F_hat*fit$scale
+  }
   ret <- loadings_gls(X = X, S = myS, R = myR, F_hat = myF)
   ret$P <- 2*pnorm(-abs(ret$L/ret$S))
   return(ret)
