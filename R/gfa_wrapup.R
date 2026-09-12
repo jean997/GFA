@@ -12,24 +12,19 @@ gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullchec
   L_hat_est <- t(t(L_hat_est)*row_scale)
   nfactor <- ncol(F_hat_est)
 
-  fix.dim <- flashier:::get.fix.dim(fit$flash_fit)
-  if(length(fix.dim) == 0){
-    fixed_ix <- rep(FALSE, nfactor)
-  }else{
-    fixed_ix <- sapply(fix.dim, function(x){
-      if(is.null(x)) return(FALSE)
-      if(x == 2) return(TRUE)
-      return(FALSE)})
+  fix_ix <- my_flash_get_fixed_idx(fit)
+  if(!is.null(fix_ix$loadings)){
+    stop("Something is wrong. Loadings are fixed.")
   }
 
-  est_ix <- which(!fixed_ix)
+  est_ix <- seq(nfactor)[!seq(nfactor) %in% fix_ix$factors]
   n_est <- length(est_ix)
   if(nullcheck){
     fit <- fit %>% flash_nullcheck(tol = 0, remove = FALSE) # remove = FALSE to save indices
   }
 
 
-  if(any(fixed_ix)){
+  if(length(fix_ix$factors) > 0){
     if(num_single_fixed > 0){
       single_ix <- (n_est + 1):(n_est + num_single_fixed)
       if((n_est + num_single_fixed) < nfactor){
