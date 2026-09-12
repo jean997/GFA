@@ -4,7 +4,7 @@
 \alias{gfa_loadings_gls}
 \title{GFA generalized least squares loadings}
 \usage{
-gfa_loadings_gls(beta_hat, S, fit)
+gfa_loadings_gls(beta_hat, S, fit, use_single = TRUE)
 }
 \arguments{
 \item{beta_hat}{Variants by traits matrix of association estimates. Traits
