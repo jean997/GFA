@@ -117,6 +117,7 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
   flash_fit <- fit$fit$flash_fit
   n_new <- nrow(Y)
   s <- 1/sqrt(flash_fit_get_tau(flash_fit))
+  n_est <- ncol(fit$F_hat)
 
   nfactor <- fit$fit$n_factors
   Lrand <- matrix(rnorm(n = n_new*nfactor), nrow = n_new)
@@ -145,8 +146,9 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
   }
   fit_new <- fit_new %>%
     flash_factors_fix(kset = seq(nfactor), which_dim = "factors") %>%
-    flash_backfit(tol = tol)
+    flash_backfit(tol = tol) %>%
+    flash_factors_unfix(kset = 1:n_est)
 
-  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale)
+  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale, num_single_fixed = fit$num_single)
   return(fit_new)
 }
