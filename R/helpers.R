@@ -121,3 +121,43 @@ check_args_znbs <- function(is_null_Z, is_null_N, is_null_B, is_null_S){
     warning("Assuming equal sample sizes (factors will be returned on z-score scale.")
   }
 }
+
+my_flash_get_fixed_idx <- function(fl){
+  if(!inherits(fl, "flash")){
+    stop("fl should have class flash.\n")
+  }
+
+  fix_dim <- fl[["flash_fit"]][["fix.dim"]]
+  fix_idx <- fl[["flash_fit"]][["fix.idx"]]
+
+  if(length(fix_dim) == 0){
+    return(list("factors" = NULL,
+                "loadings" = NULL))
+  }
+
+  idx_length <- sapply(fix_idx, length)
+  if(all(idx_length == 0)){
+    return(list("factors" = NULL,
+         "loadings" = NULL))
+  }
+  fixed1 <- sapply(fix_dim, function(x){
+    if(is.null(x)) return(FALSE)
+    if(x == 1) return(TRUE)
+    return(FALSE)})
+  fixed_ix1 <- which(fixed1 == TRUE & idx_length > 0)
+  if(length(fixed_ix1) == 0){
+    fixed_ix1 <- NULL
+  }
+  fixed2 <- sapply(fix_dim, function(x){
+    if(is.null(x)) return(FALSE)
+    if(x == 2) return(TRUE)
+    return(FALSE)})
+  fixed_ix2 <- which(fixed2 == TRUE & idx_length > 0)
+  if(length(fixed_ix2) == 0){
+    fixed_ix2 <- NULL
+  }
+
+
+  return(list("factors" = fixed_ix2,
+              "loadings" = fixed_ix1))
+}
