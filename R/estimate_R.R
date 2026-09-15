@@ -68,6 +68,7 @@ R_ldsc <- function(Z_hat,
   }else if(class(N) == "numeric"){
     stopifnot(length(N)== M)
     N <- matrix(rep(N, each = J), nrow = J)
+    colnames(N) <- colnames(Z_hat)
   }
 
   if(!is.null(colnames(Z_hat))){

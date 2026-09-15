@@ -1,7 +1,7 @@
 Package: GFA
 Title: Genetic Factor Analysis (GFA)
-Version: 1.0.0.0489
-Date: 2026-09-11
+Version: 1.0.0.0490
+Date: 2026-09-15
 Authors@R: 
     person(given = "Jean",
            family = "Morrison",
