@@ -59,15 +59,8 @@ gfa_singletrait_check <- function(fit, check_thresh = 0.9, params){
         fitn <- flash_factors_remove(fit, i) %>%
             flash_factors_init(init = list(myloadings, altfactor),
                                ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F)) %>%
-            #flash_factors_reorder(new_order) %>%
             flash_factors_fix(., kset = nfactor, which_dim = "factors") %>%
             flash_backfit()
-
-
-
-        #class(fitn$flash_fit$EF) <-  c("lowrank", "list")
-        #class(fitn$flash_fit$EF2) <-  c("lowrank", "list")
-
         if(fitn$elbo > fit$elbo){
           message(paste0("Replacing factor ", i , " with single trait factor"))
           num_est <- num_est -1
