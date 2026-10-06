@@ -78,27 +78,41 @@ gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullchec
 }
 
 #'@export
-gfa_rebackfit <- function(gfa_fit, params){
-  method <- gfa_fit$method
+gfa_rebackfit <- function(gfa_fit, params, single_check = TRUE, wrapup = TRUE){
+  method <- gfa_fit$fit$method
   scale <- gfa_fit$scale
   fit <- gfa_fit$fit %>% flash_backfit(maxiter = params$max_iter,
                                extrapolate = params$extrapolate)
   fit$method <- method
-  if(is.null(fit$flash_fit$maxiter.reached)){
-    fit <- fit %>% flash_nullcheck(remove = TRUE) #, tol = -Inf) # this will only remove 0 factors
+
+  if(is.null(fit$flash_fit$maxiter.reached) & wrapup){
+    fit <- flash_nullcheck(fit, tol = 0, remove = TRUE)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
-    ret <- gfa_wrapup(fit, method = method,
-                      scale = dat$scale, nullcheck = FALSE)
+
+    if(single_check){
+      fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
+
+      ret <- gfa_wrapup(fit,
+                        method = method,
+                        scale = scale,
+                        num_single_fixed = fit$num_single_fixed,
+                        nullcheck = TRUE)
+    }else{
+      ret <- gfa_wrapup(fit,
+                        method = method,
+                        scale = scale,
+                        num_single_fixed = 0,
+                        nullcheck = TRUE)
+    }
+    ret$R <- gfa_fit$R
     ret$params <- params
-    #ret$mode <- fit$mode
-    ret$R <- fit$R
   }else{
     ret <- list(fit = fit,
-                params = fit$params, scale = fit$scale,
-                #mode = fit$mode,
-                R = fit$R)
+                params = dat$params,
+                scale = dat$scale,
+                R = dat$R)
   }
   return(ret)
 }
