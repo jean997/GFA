@@ -63,3 +63,73 @@ add_single_trait_factor <- function(gfa_fit, ix){
   gfa_fit_new <- gfa_wrapup(fitn, method = gfa_fit[["method"]], scale = gfa_fit[["scale"]],
                             num_single_fixed = num_single_fixed, nullcheck = FALSE)
 }
+
+
+#'@export
+add_single_trait_factor_prewrapup <- function(fit, params, num_single_fixed, num_error_fixed,  ix){
+  flash_fit <- fit[["flash_fit"]]
+
+  N <- fit$n_factors
+  p <- nrow(fit$F_pm)
+  if(!all(ix %in% 1:p)){
+    stop("ix should be between 1 and ", ncol(flash_fit[["Y"]]), "\n")
+  }
+
+  n_est <- fit$n_factors - num_single_fixed - num_error_fixed
+  if(length(n_est) > 0){
+    est_ix <- 1:n_est
+    n <- n_est
+  }else{
+    est_ix <- c()
+    n <- 0
+  }
+  if(length(num_single_fixed) > 0){
+    single_ix <- n + (1:num_single_fixed)
+    n <- n + num_single_fixed
+  }else{
+    single_ix <- c()
+  }
+  if(length(num_error_fixed) > 0){
+    error_ix <- n + (1:num_error_fixed)
+  }else{
+    error_ix <- c()
+  }
+
+  if(num_single_fixed > 0){
+    single_traits <- which(rowSums(fit$F_pm[,single_ix]) != 0)
+    stopifnot(length(single_traits) == num_single_fixed)
+    if(all(ix %in% single_traits)){
+      warning("Requested single-trait factors are already present")
+      return(fit)
+    }
+    ix <- ix[!ix %in% single_traits]
+    if(any(single_ix %in% error_ix)){
+      stop("Something is wrong with factor indexing.\n")
+    }
+  }
+
+  lft <- flashier:::lowrank.expand(flash_fit[["EF"]])
+  resid <- flash_fit[["Y"]] - lft
+  stF <- matrix(0, nrow = ncol(resid), ncol = length(ix))
+  for(i in seq_along(ix)){
+    stF[ix[i], i] <- 1
+  }
+
+
+  fitn <- flash_fit %>%
+    flash_factors_init(init = list(resid[,ix, drop = FALSE], stF),
+                       ebnm_fn = list(params$ebnm_fn_L, params$ebnm_fn_F)) %>%
+    flash_factors_fix(., kset = (N + 1):(N + length(ix)), which_dim = "factors") %>%
+    flash_backfit()
+
+  new_single_ix <- (N + 1):(N + length(ix))
+  new_order <- c(est_ix, single_ix, new_single_ix, error_ix )
+  num_single_fixed <- num_single_fixed + length(ix)
+
+  fitn <- flash_factors_reorder(fitn, new_order)
+
+  fitn <- gfa_nullcheck(fitn, num_single_fixed = num_single_fixed, num_error_fixed = num_error_fixed)
+
+  return(fitn)
+
+}
