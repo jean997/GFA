@@ -78,35 +78,27 @@ add_single_trait_factor_prewrapup <- function(fit, params, num_single_fixed, num
   n_est <- fit$n_factors - num_single_fixed - num_error_fixed
   if(length(n_est) > 0){
     est_ix <- 1:n_est
-    n <- n_est
   }else{
     est_ix <- c()
-    n <- 0
   }
-  if(length(num_single_fixed) > 0){
-    single_ix <- n + (1:num_single_fixed)
-    n <- n + num_single_fixed
-  }else{
-    single_ix <- c()
-  }
-  if(length(num_error_fixed) > 0){
-    error_ix <- n + (1:num_error_fixed)
-  }else{
-    error_ix <- c()
-  }
-
   if(num_single_fixed > 0){
-    single_traits <- which(rowSums(fit$F_pm[,single_ix]) != 0)
+    single_ix <- n_est + (1:num_single_fixed)
+    cat(single_ix, "\n")
+    single_traits <- which(rowSums(fit$F_pm[,single_ix, drop = FALSE]) != 0)
     stopifnot(length(single_traits) == num_single_fixed)
     if(all(ix %in% single_traits)){
       warning("Requested single-trait factors are already present")
       return(fit)
     }
     ix <- ix[!ix %in% single_traits]
-    if(any(single_ix %in% error_ix)){
-      stop("Something is wrong with factor indexing.\n")
-    }
   }
+
+  if(num_error_fixed > 0){
+    error_ix <- n_est + num_single_fixed + (1:num_error_fixed)
+  }else{
+    error_ix <- c()
+  }
+
 
   lft <- flashier:::lowrank.expand(flash_fit[["EF"]])
   resid <- flash_fit[["Y"]] - lft
