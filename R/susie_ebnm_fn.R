@@ -12,7 +12,9 @@
 # so that flashier's "L" is  Ltilde = X ell  (NOT ell itself; see
 # susie_state_summary() for the per-variant loadings).
 #
-# ell_b = sum_{m=1}^L gamma_m beta_m  (L single effects),
+# ell_b = sum_{m=1}^{L_b} gamma_m beta_m  (L_b = min(L, n_b) single effects, so a
+# block never has more effects than variants; blocks with one variant and one
+# whitened row use a vectorized closed-form path, see .singleton_update),
 # beta_m ~ g = sum_k pi_k N(0, sd_k^2), with sd_1 = 0 (point mass at zero),
 # gamma_m ~ Uniform over the variants of the block.  g is shared across blocks.
 #
@@ -45,9 +47,10 @@ susie_ebnm_fn <- function(design,
                           n_pi_updates = 2,
                           max_sweeps = 20,
                           alpha_tol = 1e-4,
-                          grid_mult = sqrt(2)) {
+                          grid_mult = sqrt(2),
+                          fast_singletons = TRUE) {
   if (is.matrix(design)) design <- list(design)
-  info <- .susie_design_info(design)
+  info <- .susie_design_info(design, fast_singletons)
 
   function(x, s, g_init = NULL, fix_g = FALSE,
            output = c("posterior_mean", "posterior_second_moment",
@@ -65,14 +68,25 @@ susie_ebnm_fn <- function(design,
 
 # ---------------------------------------------------------------------------
 
-.susie_design_info <- function(design) {
+# Blocks with a single variant and a single (whitened) row are "singletons".
+# They are handled together by a vectorized closed-form update (one effect on
+# one variant, alpha = 1) instead of an IBSS loop; set fast_singletons = FALSE
+# to send them through the general block path (used for testing).
+.susie_design_info <- function(design, fast_singletons = TRUE) {
   design <- lapply(design, as.matrix)
+  B  <- length(design)
   nr <- vapply(design, nrow, 1L)
   nc <- vapply(design, ncol, 1L)
-  G  <- lapply(design, crossprod)
-  list(X = design, G = G, d = lapply(G, diag), nr = nr, nc = nc,
-       row_end = cumsum(nr), row_start = cumsum(nr) - nr + 1L, N = sum(nr),
-       B = length(design))
+  single <- if (fast_singletons) which(nr == 1L & nc == 1L) else integer(0)
+  multi  <- setdiff(seq_len(B), single)
+  G <- d <- vector("list", B)
+  for (b in multi) { G[[b]] <- crossprod(design[[b]]); d[[b]] <- diag(G[[b]]) }
+  sx <- vapply(design[single], function(M) M[1, 1], 0)       # numeric(0) if none
+  row_end <- cumsum(nr)
+  list(X = design, G = G, d = d, nr = nr, nc = nc,
+       row_end = row_end, row_start = row_end - nr + 1L, N = sum(nr), B = B,
+       single = single, multi = multi,
+       sx = sx, sd2 = sx^2, srow = (row_end - nr + 1L)[single])
 }
 
 .lse_rows <- function(M) {
@@ -125,6 +139,25 @@ susie_ebnm_fn <- function(design,
        kl = kl_alpha + sum(a * klmi), counts = colSums(a * r))
 }
 
+# Same calculation for MANY singleton blocks at once.  Each has one effect on
+# one variant (alpha = 1, so the alpha-KL term is 0), so this is just the
+# per-variant posterior / marginal likelihood / KL under g, vectorized over blocks.
+# xh, sh2: marginal estimate and its variance for each (active) singleton.
+.singleton_update <- function(xh, sh2, pi_k, sd_k) {
+  sd2 <- sd_k^2
+  V   <- outer(sh2, sd2, "+")
+  ll  <- -0.5 * (log(2 * pi * V) + xh^2 / V)
+  lw  <- sweep(ll, 2, log(pi_k), "+")
+  lse <- .lse_rows(lw)
+  r   <- exp(lw - lse)
+  pm  <- xh * sweep(1 / V, 2, sd2, "*")
+  pv  <- sweep(sh2 / V, 2, sd2, "*")
+  mu  <- rowSums(r * pm)
+  nu  <- rowSums(r * (pv + pm^2))
+  kl  <- -0.5 * log(2 * pi * sh2) - 0.5 * (xh^2 - 2 * xh * mu + nu) / sh2 - lse
+  list(mu = mu, nu = nu, pnz = 1 - r[, 1], kl = kl, counts = colSums(r))
+}
+
 # IBSS for one block until alpha stops changing.  Updates `st` in place (list).
 .block_fit <- function(inf, b, st, xtx, s2, pi_k, sd_k, L, max_sweeps, alpha_tol) {
   G <- inf$G[[b]]; d <- inf$d[[b]]
@@ -156,7 +189,7 @@ susie_ebnm_fn <- function(design,
 
 .susie_ebnm_call <- function(x, s, g_init, fix_g, output, inf, L, skip_z,
                              n_pi_updates, max_sweeps, alpha_tol, grid_mult) {
-  N <- inf$N
+  N <- inf$N; B <- inf$B; single <- inf$single; multi <- inf$multi
   if (any(!is.finite(s)) || any(s <= 0))
     stop("susie_ebnm_fn: s must be finite and positive (no exclusions).")
   s0 <- s[1]
@@ -165,18 +198,31 @@ susie_ebnm_fn <- function(design,
          "variance type, no missing data).")
   s2 <- s0^2
 
-  xtx <- lapply(seq_len(inf$B), function(b)
-    as.vector(crossprod(inf$X[[b]], x[inf$row_start[b]:inf$row_end[b]])))
+  # Effects per block: never more than the number of variants in the block.
+  # (Extra effects on a tiny block would all pile onto the same variants and
+  # distort the implied prior sparsity.)
+  Lb <- pmin(as.integer(L), inf$nc)
+
+  # --- collapsed data ----------------------------------------------------------
+  xtx <- vector("list", B)
+  for (b in multi)
+    xtx[[b]] <- as.vector(crossprod(inf$X[[b]], x[inf$row_start[b]:inf$row_end[b]]))
+  ns     <- length(single)
+  ok_s   <- inf$sd2 > 0                                   # singleton with a usable design
+  s_xtx  <- inf$sx * x[inf$srow]                          # X'x for 1x1 designs
+  xh_s   <- ifelse(ok_s, s_xtx / inf$sd2, 0)
+  sh2_s  <- ifelse(ok_s, s2 / inf$sd2, Inf)
+  z_s    <- ifelse(ok_s, s_xtx / (sqrt(inf$sd2) * s0), 0)
+  skip_s <- if (is.null(skip_z) || ns == 0) rep(FALSE, ns) else abs(z_s) < skip_z
 
   # --- warm start / prior ----------------------------------------------------
   has_state <- inherits(g_init, "susie_ebnm_state")
-  blocks_ok <- has_state && !is.null(g_init$blocks) &&
-    length(g_init$blocks) == inf$B &&
-    all(vapply(seq_len(inf$B), function(b)
-      identical(dim(g_init$blocks[[b]]$alpha), c(as.integer(L), inf$nc[b])), TRUE))
+  blocks_ok <- has_state && !is.null(g_init$blocks) && length(g_init$blocks) == B &&
+    all(vapply(multi, function(b)
+      identical(dim(g_init$blocks[[b]]$alpha), c(Lb[b], inf$nc[b])), TRUE))
 
-  xh0 <- unlist(lapply(seq_len(inf$B), function(b) xtx[[b]] / pmax(inf$d[[b]], 1e-12)))
-  sh0 <- unlist(lapply(seq_len(inf$B), function(b) s0 / sqrt(pmax(inf$d[[b]], 1e-12))))
+  xh0 <- c(unlist(lapply(multi, function(b) xtx[[b]] / pmax(inf$d[[b]], 1e-12))), xh_s[ok_s])
+  sh0 <- c(unlist(lapply(multi, function(b) s0 / sqrt(pmax(inf$d[[b]], 1e-12)))), sqrt(sh2_s[ok_s]))
   cand <- .make_sd_grid(xh0, sh0, grid_mult)
 
   if (has_state && !is.null(g_init$sd)) {
@@ -191,15 +237,16 @@ susie_ebnm_fn <- function(design,
   }
   stopifnot(sd_k[1] == 0)
 
-  blocks <- vector("list", inf$B)
-  for (b in seq_len(inf$B)) {
+  blocks <- vector("list", B)                          # NULL entries = singletons
+  for (b in multi) {
     if (blocks_ok) {
       blocks[[b]] <- g_init$blocks[[b]]
     } else {
-      n <- inf$nc[b]
-      blocks[[b]] <- list(alpha = matrix(1 / n, L, n), mu = matrix(0, L, n),
-                          nu = matrix(0, L, n), pnz = matrix(0, L, n), KL = 0, counts = numeric(length(pi_k)),
-                          ell = numeric(n), V = 0, skipped = FALSE)
+      n <- inf$nc[b]; Lbb <- Lb[b]
+      blocks[[b]] <- list(alpha = matrix(1 / n, Lbb, n), mu = matrix(0, Lbb, n),
+                          nu = matrix(0, Lbb, n), pnz = matrix(0, Lbb, n), KL = 0,
+                          counts = numeric(length(pi_k)), ell = numeric(n), V = 0,
+                          skipped = FALSE)
     }
     blocks[[b]]$skipped <- FALSE
     if (!is.null(skip_z)) {
@@ -207,21 +254,37 @@ susie_ebnm_fn <- function(design,
       if (max(abs(z)) < skip_z) blocks[[b]]$skipped <- TRUE
     }
   }
+  sing <- list(mu = numeric(ns), nu = numeric(ns), pnz = numeric(ns), kl = numeric(ns))
 
   fit_pass <- function(pi_k) {
     cnt <- numeric(length(pi_k))
-    for (b in seq_len(inf$B)) {
+    for (b in multi) {
       if (blocks[[b]]$skipped) {
-        n <- inf$nc[b]
+        n <- inf$nc[b]; Lbb <- Lb[b]
         blocks[[b]] <<- modifyList(blocks[[b]], list(
-          alpha = matrix(1 / n, L, n), mu = matrix(0, L, n), nu = matrix(0, L, n),
-          pnz = matrix(0, L, n), KL = -L * log(pi_k[1]), ell = numeric(n), V = 0))
-        blocks[[b]]$counts <<- c(L, rep(0, length(pi_k) - 1))
+          alpha = matrix(1 / n, Lbb, n), mu = matrix(0, Lbb, n), nu = matrix(0, Lbb, n),
+          pnz = matrix(0, Lbb, n), KL = -Lbb * log(pi_k[1]), ell = numeric(n), V = 0))
+        blocks[[b]]$counts <<- c(Lbb, rep(0, length(pi_k) - 1))
       } else {
         blocks[[b]] <<- .block_fit(inf, b, blocks[[b]], xtx[[b]], s2, pi_k, sd_k,
-                                   L, max_sweeps, alpha_tol)
+                                   Lb[b], max_sweeps, alpha_tol)
       }
       cnt <- cnt + blocks[[b]]$counts
+    }
+    if (ns > 0) {
+      sing$mu[] <<- 0; sing$nu[] <<- 0; sing$pnz[] <<- 0; sing$kl[] <<- 0
+      act <- ok_s & !skip_s
+      if (any(act)) {
+        u <- .singleton_update(xh_s[act], sh2_s[act], pi_k, sd_k)
+        sing$mu[act] <<- u$mu; sing$nu[act] <<- u$nu
+        sing$pnz[act] <<- u$pnz; sing$kl[act] <<- u$kl
+        cnt <- cnt + u$counts
+      }
+      sk <- ok_s & skip_s                              # skipped: effect fixed at 0
+      if (any(sk)) {
+        sing$kl[sk] <<- -log(pi_k[1])
+        cnt[1] <- cnt[1] + sum(sk)
+      }
     }
     cnt
   }
@@ -235,16 +298,23 @@ susie_ebnm_fn <- function(design,
 
   # --- assemble outputs --------------------------------------------------------
   Et <- numeric(N); KLtot <- 0; Vtot <- 0
-  for (b in seq_len(inf$B)) {
+  for (b in multi) {
     rows <- inf$row_start[b]:inf$row_end[b]
     Et[rows] <- as.vector(inf$X[[b]] %*% blocks[[b]]$ell)
     KLtot <- KLtot + blocks[[b]]$KL
     Vtot  <- Vtot + blocks[[b]]$V
   }
+  if (ns > 0) {
+    Et[inf$srow] <- inf$sx * sing$mu
+    KLtot <- KLtot + sum(sing$kl)
+    Vtot  <- Vtot + sum(inf$sd2 * pmax(sing$nu - sing$mu^2, 0))
+  }
   Et2  <- Et^2 + Vtot / N
   elbo <- -0.5 * (N * log(2 * pi * s2) + (sum((x - Et)^2) + Vtot) / s2) - KLtot
 
-  state <- structure(list(sd = sd_k, pi = pi_k, blocks = blocks, L = L),
+  state <- structure(list(sd = sd_k, pi = pi_k, blocks = blocks, L = L, Lb = Lb,
+                          single = list(idx = single, mu = sing$mu, nu = sing$nu,
+                                        pnz = sing$pnz)),
                      class = "susie_ebnm_state")
 
   if (identical(output, "lfsr"))
@@ -253,16 +323,22 @@ susie_ebnm_fn <- function(design,
   if (identical(output, "posterior_sampler")) {
     sampler <- function(nsamp) {
       out <- matrix(0, nsamp, N)
-      for (b in seq_len(inf$B)) {
+      for (b in multi) {
         bk <- blocks[[b]]; if (bk$skipped) next
         ell <- matrix(0, nsamp, inf$nc[b])
-        for (m in seq_len(L)) {
+        for (m in seq_len(nrow(bk$alpha))) {
           idx <- sample.int(inf$nc[b], nsamp, replace = TRUE, prob = bk$alpha[m, ])
           sdv <- sqrt(pmax(bk$nu[m, idx] - bk$mu[m, idx]^2, 0))  # moment-matched normal
           ell[cbind(seq_len(nsamp), idx)] <- ell[cbind(seq_len(nsamp), idx)] +
             rnorm(nsamp, bk$mu[m, idx], sdv)
         }
         out[, inf$row_start[b]:inf$row_end[b]] <- ell %*% t(inf$X[[b]])
+      }
+      if (ns > 0) {
+        sdv <- sqrt(pmax(sing$nu - sing$mu^2, 0))
+        draws <- matrix(rnorm(nsamp * ns, rep(sing$mu, each = nsamp), rep(sdv, each = nsamp)),
+                        nsamp, ns)
+        out[, inf$srow] <- sweep(draws, 2, inf$sx, "*")
       }
       out
     }
@@ -278,11 +354,18 @@ susie_ebnm_fn <- function(design,
 # Returns a list over blocks of data.frames with pip and posterior mean ell.
 susie_state_summary <- function(state) {
   stopifnot(inherits(state, "susie_ebnm_state"))
-  lapply(state$blocks, function(bk) {
+  out <- vector("list", length(state$blocks))
+  for (b in seq_along(state$blocks)) {
+    bk <- state$blocks[[b]]
+    if (is.null(bk)) next
     # PIP_i = 1 - prod_m (1 - alpha_mi * P(beta_m != 0 | gamma_m = i)): unused
     # effects (mass on the point-mass-at-zero component) then add ~nothing.
-    data.frame(pip = 1 - apply(1 - bk$alpha * bk$pnz, 2, prod), ell_pm = bk$ell)
-  })
+    out[[b]] <- data.frame(pip = 1 - apply(1 - bk$alpha * bk$pnz, 2, prod), ell_pm = bk$ell)
+  }
+  sg <- state$single
+  for (i in seq_along(sg$idx))                       # singleton: one effect, alpha = 1
+    out[[sg$idx[i]]] <- data.frame(pip = sg$pnz[i], ell_pm = sg$mu[i])
+  out
 }
 
 # ---------------------------------------------------------------------------
