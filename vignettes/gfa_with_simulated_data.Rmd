@@ -338,14 +338,14 @@ min_norm(f_true = dat2$F_mat, f_hat = fit0$F_hat)
 
 Plotting the factors estimated with and without the correction for overlapping samples, shows that the factor structure of the extra factors mimics the structure of the environmental correlation. We can also see that some of the matching factors estimated in `fit0` are contaminated with some of the structure of the environmental correlation. Here we plot only the multi-trait factors.
 ```{r}
-p0 <- fit0$F_hat_multi %>% 
+p0 <- fit0$F_hat %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
   xlab("Factor") +
   ylab("Trait") +
   ggtitle("Without Sample Overlap Correction") 
 
-p1 <- fit1$F_hat_multi %>% 
+p1 <- fit1$F_hat %>% 
   plot_factors(.) +
   scale_fill_gradient2(low = viridis(3)[1], high = viridis(3)[2]) +
   xlab("Factor") +
