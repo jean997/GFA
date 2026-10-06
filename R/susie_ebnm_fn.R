@@ -58,7 +58,17 @@ susie_ebnm_fn <- function(design,
     # flashier's startup check (test.ebnm.fn) calls us with a length-3 vector.
     # Fall back to an identity design in that case.
     inf <- info
-    if (length(x) != info$N) inf <- .susie_design_info(list(diag(length(x))))
+    if (length(x) != info$N) {
+      # flashier's startup check (test.ebnm.fn) calls with exactly x = c(-10, 0, 10);
+      # anything else of the wrong length means this function was attached to the
+      # wrong mode (e.g. the factor/trait mode) rather than the loadings mode.
+      if (!(length(x) == 3 && all(x == c(-10, 0, 10))))
+        stop("susie_ebnm_fn: x has length ", length(x), " but the design has ", info$N,
+             " rows. This function is for the LOADINGS mode only. Pass one ebnm function ",
+             "per mode, e.g. ebnm_fn = list(susie_fn, ebnm::ebnm_point_normal), not a ",
+             "single function.", call. = FALSE)
+      inf <- .susie_design_info(list(diag(length(x))))
+    }
 
     .susie_ebnm_call(x, s, g_init, fix_g, output, inf, L = L, skip_z = skip_z,
                      n_pi_updates = n_pi_updates, max_sweeps = max_sweeps,
@@ -194,8 +204,11 @@ susie_ebnm_fn <- function(design,
     stop("susie_ebnm_fn: s must be finite and positive (no exclusions).")
   s0 <- s[1]
   if (max(abs(s - s0)) > 1e-6 * s0)
-    stop("susie_ebnm_fn: s must be constant across entries (use a column-wise ",
-         "variance type, no missing data).")
+    stop("susie_ebnm_fn: s must be constant across entries, but s ranges from ",
+         signif(min(s), 4), " to ", signif(max(s), 4), " (length ", length(s), "). ",
+         "Likely causes: (1) row-varying standard errors passed to flash_init (use ",
+         "z-scores and a column-wise variance type, var_type = 2), (2) missing data / ",
+         "exclusions, (3) this function is attached to the wrong mode.", call. = FALSE)
   s2 <- s0^2
 
   # Effects per block: never more than the number of variants in the block.
