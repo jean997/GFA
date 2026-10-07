@@ -1,5 +1,26 @@
 #'@export
-gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullcheck = FALSE){
+gfa_wrapup <- function(fit, method, scale = NULL,
+                       n_single = 0,
+                       nullcheck = FALSE){
+
+  fix_ix <- my_flash_get_fixed_idx(fit)
+  if(!is.null(fix_ix$loadings)){
+    stop("Something is wrong. Loadings are fixed.")
+  }
+  ntotal <- fit$n_factors
+  n_est <- ntotal - length(fix_ix$factors)
+  n_error <- ntotal - n_est - n_single
+
+  if(nullcheck){
+    fit <- gfa_nullcheck(fit, num_single_fixed = n_single, num_error_fixed =n_error)
+    n_single <- fit$n_single
+    n_est <- fit$n_est
+    n_error <- fit$n_error
+    ntotal <- n_est + n_single + n_error
+    fit <- fit$fit
+  }
+
+
   F_hat_est <- fit$F_pm
   L_hat_est <- fit$L_pm
 
@@ -10,57 +31,27 @@ gfa_wrapup <- function(fit, method, scale = NULL, num_single_fixed = 0, nullchec
   row_scale <- sqrt(colSums(F_hat_est^2))
   F_hat_est <- t(t(F_hat_est)/row_scale)
   L_hat_est <- t(t(L_hat_est)*row_scale)
-  nfactor <- ncol(F_hat_est)
-
-  fix_ix <- my_flash_get_fixed_idx(fit)
-  if(!is.null(fix_ix$loadings)){
-    stop("Something is wrong. Loadings are fixed.")
-  }
-
-  est_ix <- seq(nfactor)[!seq(nfactor) %in% fix_ix$factors]
-  n_est <- length(est_ix)
-  if(nullcheck){
-    fit <- fit %>% flash_nullcheck(tol = 0, remove = FALSE) # remove = FALSE to save indices
-  }
 
 
-  if(length(fix_ix$factors) > 0){
-    if(num_single_fixed > 0){
-      single_ix <- (n_est + 1):(n_est + num_single_fixed)
-      if((n_est + num_single_fixed) < nfactor){
-        error_ix <- (n_est + num_single_fixed + 1):nfactor
-      }else{
-        error_ix <- NULL
-      }
-    }else{
-      error_ix <- (n_est + 1):nfactor
-      single_ix <- NULL
-    }
+  if(n_est > 0){
+    est_ix <- 1:n_est
+    F_hat <- F_hat_est[, est_ix, drop = FALSE]
+    L_hat <- L_hat_est[, est_ix, drop = FALSE]
   }else{
-    single_ix <- NULL
-    error_ix <- NULL
+    F_hat <- NULL
+    L_hat <- NULL
   }
-
-  if(any(fit$flash_fit$is.zero)){
-    est_ix <- est_ix[!fit$flash_fit$is.zero[est_ix]]
-    n <- length(est_ix)
-    if(!is.null(single_ix)){
-      single_ix <- single_ix[!fit$flash_fit$is.zero[single_ix]]
-      n <- n + length(single_ix)
-    }
-    if(!is.null(error_ix)){
-      error_ix <- error_ix[!fit$flash_fit$is.zero[error_ix]]
-    }
-    fit <- flash_factors_remove(fit, kset = which(fit$flash_fit$is.zero))
-    error_ix <- (n+1):ncol(fit$F_pm) # update error_ix after removing null factors
-  }
-
-  F_hat <- F_hat_est[, est_ix, drop = FALSE]
-  L_hat <- L_hat_est[, est_ix, drop = FALSE]
-
-  F_hat_single <- NULL
-  if(!is.null(single_ix)){
+  if(n_single > 0){
+    single_ix <- n_est + (1:n_single)
     F_hat_single <- F_hat_est[, single_ix, drop = FALSE]
+  }else{
+    single_ix <- c()
+    F_hat_single <- NULL
+  }
+  if(n_error > 0){
+    error_ix <- n_est + n_single + (1:n_error)
+  }else{
+    error_ix <- c()
   }
 
   ret <- list(fit=fit,
@@ -90,7 +81,6 @@ gfa_rebackfit <- function(gfa_fit, params, single_check = TRUE, wrapup = TRUE){
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
-
     if(single_check){
       fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
 

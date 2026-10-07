@@ -155,14 +155,6 @@ gfa_fit <- function(Z_hat = NULL,
   fit$method <- method
   ## wrap up
   if(is.null(fit$flash_fit$maxiter.reached) & wrapup){
-    # if(method == "noR"){
-    #   est_ix <- seq(fit$n_factors)
-    # }else{
-    #   est_ix <- which(! sapply(fit$flash_fit$fix.dim, function(x){
-    #                       if(is.null(x)) return(FALSE)
-    #                       if(x == 2) return(TRUE)
-    #                       return(FALSE)}))
-    # }
     fit <- flash_nullcheck(fit, tol = 0, remove = TRUE)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
@@ -170,17 +162,17 @@ gfa_fit <- function(Z_hat = NULL,
 
     if(single_check){
       fit <- gfa_singletrait_check(fit, check_thresh = params$singletrait_check_thresh, params = params)
-
-      ret <- gfa_wrapup(fit,
+      fit <- add_single_trait_factor_prewrapup(fit = fit$fit, params, fit$n_single, fit$n_error,  1:nrow(fit$fit$F_pm))
+      ret <- gfa_wrapup(fit$fit,
                         method = method,
                         scale = dat$scale,
-                        num_single_fixed = fit$num_single_fixed,
+                        n_single = fit$n_single,
                         nullcheck = TRUE)
     }else{
       ret <- gfa_wrapup(fit,
                         method = method,
                         scale = dat$scale,
-                        num_single_fixed = 0,
+                        n_single = 0,
                         nullcheck = TRUE)
     }
     ret$R <- dat$R
@@ -279,4 +271,3 @@ gfa_init_FL <- function(fit, dat, noR = FALSE){
   }
   return(fit)
 }
-
