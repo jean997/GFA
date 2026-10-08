@@ -91,6 +91,8 @@ add_single_trait_factor_prewrapup <- function(fit, params, num_single_fixed, num
       return(fit)
     }
     ix <- ix[!ix %in% single_traits]
+  }else{
+    single_ix <- c()
   }
 
   if(num_error_fixed > 0){
