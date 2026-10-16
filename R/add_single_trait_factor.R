@@ -22,6 +22,8 @@ add_single_trait_factor <- function(gfa_fit, ix){
     if(any(single_ix %in% error_ix)){
       stop("Something is wrong with factor indexing.\n")
     }
+  }else{
+    single_ix <- c()
   }
   N <- gfa_fit[["fit"]][["n_factors"]]
   if(!all(ix %in% 1:ncol(flash_fit[["Y"]]))){
@@ -91,6 +93,8 @@ add_single_trait_factor_prewrapup <- function(fit, params, num_single_fixed, num
       return(fit)
     }
     ix <- ix[!ix %in% single_traits]
+  }else{
+    single_ix <- c()
   }
 
   if(num_error_fixed > 0){
