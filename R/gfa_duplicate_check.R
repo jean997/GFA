@@ -49,7 +49,7 @@ gfa_duplicate_check <- function(fit, dim = 2, check_thresh = 0.5){
           cat("Removing factor ", non_fixed_ix[i], "\n")
           fit <- fit_rem
           if(any(fit$flash_fit$is.zero)){
-            fit <- flash_nullcheck(fit, tol = -Inf)
+            fit <- gfa_nullcheck(fit, tol = -Inf)
           }
           reset <- TRUE
         }else{

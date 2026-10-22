@@ -2,7 +2,7 @@
 gfa_wrapup <- function(fit, method, scale = NULL, nullcheck = FALSE,
                        fixed_ix = NULL, get_pve = TRUE){
   if(nullcheck){
-    fit <- fit %>% flash_nullcheck(remove = TRUE)
+    fit <- gfa_nullcheck(fit)
   }
 
   F_hat <- fit$F_pm
@@ -59,7 +59,7 @@ gfa_rebackfit <- function(gfa_fit, params){
                                extrapolate = params$extrapolate)
   fit$method <- method
   if(is.null(fit$flash_fit$maxiter.reached)){
-    fit <- fit %>% flash_nullcheck(remove = TRUE) #, tol = -Inf) # this will only remove 0 factors
+    fit <- gfa_nullcheck(fit)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
@@ -75,6 +75,20 @@ gfa_rebackfit <- function(gfa_fit, params){
                 R = fit$R)
   }
   return(ret)
+}
+
+# Retain the fixed factors that encode the supplied error covariance.
+gfa_nullcheck <- function(fit, tol = NULL){
+  if(fit$n_factors == 0) return(fit)
+  fixed_ix <- which(lengths(fit$flash_fit$fix.idx) > 0L)
+  est_ix <- setdiff(seq_len(fit$n_factors), fixed_ix)
+  # flash_nullcheck(remove = TRUE) also removes zero factors outside kset.
+  fit <- flash_nullcheck(fit, kset = est_ix, remove = FALSE, tol = tol)
+  zero_ix <- intersect(est_ix, which(fit$flash_fit$is.zero))
+  if(length(zero_ix) > 0){
+    fit <- flash_factors_remove(fit, kset = zero_ix)
+  }
+  return(fit)
 }
 
 ### Scale notes:
