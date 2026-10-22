@@ -155,7 +155,7 @@ gfa_fit <- function(Z_hat = NULL,
   ## wrap up
   if(is.null(fit$flash_fit$maxiter.reached) & !no_wrapup){
 
-    fit <- fit %>% flash_nullcheck(remove = TRUE)
+    fit <- gfa_nullcheck(fit)
     fit <- gfa_duplicate_check(fit,
                                dim = 2,
                                check_thresh = params$duplicate_check_thresh)
