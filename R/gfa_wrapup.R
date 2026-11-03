@@ -87,13 +87,13 @@ gfa_rebackfit <- function(gfa_fit, params, single_check = TRUE, wrapup = TRUE){
       ret <- gfa_wrapup(fit,
                         method = method,
                         scale = scale,
-                        num_single_fixed = fit$num_single_fixed,
+                        n_single = fit$num_single_fixed,
                         nullcheck = TRUE)
     }else{
       ret <- gfa_wrapup(fit,
                         method = method,
                         scale = scale,
-                        num_single_fixed = 0,
+                        n_single = 0,
                         nullcheck = TRUE)
     }
     ret$R <- gfa_fit$R

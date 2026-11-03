@@ -149,6 +149,6 @@ gfa_estL_posthoc <- function(Y, fit, tol = 1e-5){
     flash_backfit(tol = tol) %>%
     flash_factors_unfix(kset = 1:n_est)
 
-  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale, num_single_fixed = fit$num_single)
+  fit_new <- gfa_wrapup(fit_new, method = fit$method, scale = fit$scale, n_single = fit$num_single)
   return(fit_new)
 }

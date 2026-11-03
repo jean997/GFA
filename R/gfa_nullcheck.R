@@ -9,13 +9,13 @@ gfa_nullcheck <- function(fit, num_single_fixed, num_error_fixed){
     est_ix <- c()
     n <- 0
   }
-  if(length(num_single_fixed) > 0){
+  if(num_single_fixed > 0){
     single_ix <- n + (1:num_single_fixed)
     n <- n + num_single_fixed
   }else{
     single_ix <- c()
   }
-  if(length(num_error_fixed) > 0){
+  if(num_error_fixed > 0){
     error_ix <- n + (1:num_error_fixed)
   }else{
     error_ix <- c()

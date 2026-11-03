@@ -1,5 +1,6 @@
 
 #'@export
+# MOST LIKELY WILL BE DELETED, DIDN'T TEST
 add_single_trait_factor <- function(gfa_fit, ix){
   flash_fit <- gfa_fit[["fit"]][["flash_fit"]]
 
@@ -61,7 +62,7 @@ add_single_trait_factor <- function(gfa_fit, ix){
     num_single_fixed <- sum(nf == 1)
   }
   gfa_fit_new <- gfa_wrapup(fitn, method = gfa_fit[["method"]], scale = gfa_fit[["scale"]],
-                            num_single_fixed = num_single_fixed, nullcheck = FALSE)
+                            n_single = num_single_fixed, nullcheck = FALSE)
 }
 
 

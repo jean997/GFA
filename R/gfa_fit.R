@@ -169,7 +169,7 @@ gfa_fit <- function(Z_hat = NULL,
                         n_single = fit$n_single,
                         nullcheck = TRUE)
     }else{
-      ret <- gfa_wrapup(fit,
+      ret <- gfa_wrapup(fit$fit,
                         method = method,
                         scale = dat$scale,
                         n_single = 0,
